@@ -40,6 +40,7 @@
         initializing = true;
         var prototype = new this();
         initializing = false;
+        
 
         // Copy the properties over onto the new prototype
         for (var name in prop) {
@@ -86,11 +87,11 @@
         var clase_padre = null;
         var fn_extendedora = null;
 
-        if (typeof arg2 !== undefined && TieneCampo(arg1, "extend")) {
+        if (typeof arg2 !== undefined && mzcore.tieneCampo(arg1, "extend")) {
             clase_padre = arg1;
             fn_extendedora = arg2;
         } else {
-            clase_padre = mzcore.Class;
+            clase_padre = mzcore.class;
             fn_extendedora = arg1;
         }
 
@@ -103,6 +104,8 @@
         } else {
             mzcore[clase] = clase_padre.extend(fn_extendedora);
         }
+
+        return mzcore[clase];
     }
 
     mzcore.fmt = (function () {
@@ -133,15 +136,15 @@
     mzcore.tieneCampo = function (obj, campo) {
         //return Object.prototype.hasOwnProperty.apply(obj || {}, campo);
 
-        
+
         if (obj === undefined || obj == null || campo === undefined || campo == null)
-        return false;
+            return false;
 
         if (obj.hasOwnProperty(campo) && obj[campo] !== undefined && obj[campo] != null)
-        return true;
+            return true;
 
         return false;
-        
+
     };
 
     mzcore.copy = function (b, c) {
@@ -283,6 +286,35 @@
         }
     })();
 
+    mzcore.browser_caps = {
+        localstorage: (function () {
+            try {
+                localStorage.setItem(mod, mod);
+                localStorage.removeItem(mod);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        })(),
+
+        sessionstorage: (function () {
+            try {
+                sessionStorage.setItem(mod, mod);
+                sessionStorage.removeItem(mod);
+                return true;
+            } catch (e) {
+                return false;
+            }
+        })(),
+
+        webworkers: (function () {
+            return !!window.Worker;
+        })(),
+
+        hashchange: (function () {
+            return /*isEventSupported('hashchange', window) &&*/(document.documentMode === undefined || document.documentMode > 7);
+        })()
+    }
 
     window.mz = window.mzcore = mzcore;
 
@@ -484,7 +516,12 @@ mzcore.add_prop("ga", {
             mzcore.copy(_estilos_guardados[arg1] = (_estilos_guardados[arg1] || {}), arg2);
         }
         _reescribir_css();
-        return nombre_clase;
+
+        if(nombre_clase.indexOf(".") != -1){
+            return nombre_clase.replace(".", "");
+        } else {
+            return null;
+        }
     }
 
     _css.clear = function(arg1){
