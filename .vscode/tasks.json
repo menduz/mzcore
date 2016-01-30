@@ -1,0 +1,67 @@
+{
+    "version": "0.1.0",
+    "command": "gulp",
+    "isShellCommand": true,
+    "args": [
+        "--no-color"
+    ],
+    "tasks": [
+        {
+            "taskName": "typescript",
+            "problemMatcher": ["$tsc"]
+        },
+        {
+            "taskName": "build_plugin",
+            "problemMatcher": ["$tsc"],
+            "args": [
+                "build_plugin",
+                "--file",
+                "${file}",
+                "--path",
+                "${fileDirname}"
+            ],
+            "suppressTaskName": true
+        },
+        {
+            "taskName": "dist_plugin",
+            "problemMatcher": ["$tsc"],
+            "args": [
+                "dist_plugin",
+                "--file",
+                "${file}",
+                "--path",
+                "${fileDirname}"
+            ],
+            "suppressTaskName": true
+        },
+        {
+            "taskName": "styles",
+            "problemMatcher": "$lessCompile"
+        },
+        {
+            "isBuildCommand": true,
+            "taskName": "default",
+            "problemMatcher": ["$tsc", "$lessCompile"]
+        },
+        {
+            "taskName": "default_legacy"
+        },
+        {
+            "taskName": "min",
+            "problemMatcher": ["$tsc", "$lessCompile"]
+        },
+        {
+            "taskName": "debug",
+            "problemMatcher": ["$tsc", "$lessCompile"]
+        },
+        {
+            "taskName": "dist",
+            "problemMatcher": ["$tsc", "$lessCompile"]
+        },
+        {
+            "taskName": "tsconfig_files",
+            "problemMatcher": ["$tsc", "$lessCompile"]
+        }
+    ]
+}
+
