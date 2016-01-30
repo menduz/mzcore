@@ -1,7 +1,7 @@
 /// <reference path="TDS/JQuery.d.ts" />
 /// <reference path="TDS/Promise.d.ts" />
 
-if(!('JQuery' in globalContext)){
+if(typeof this.JQuery === "undefined"){
     throw new Error("JQuery not present");
 }
 
@@ -47,7 +47,7 @@ namespace mz {
     
     (function() {
         var UID = 1;
-        mz.globalContext.Symbol = mz.globalContext.Symbol || function(a) {
+        globalContext.Symbol = globalContext.Symbol || function(a) {
             return `[[${a}-${UID++}]]`;
         }
     })();
@@ -122,6 +122,8 @@ namespace mz {
         return base;
     };
     
+    var originUrl = urlResolve(location.href);
+
     var urlParsingNode = document.createElement("a");
 
     /**

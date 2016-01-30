@@ -53,7 +53,7 @@ module mz {
 
             if (opts.url) {
                 opts.url = mz.getPath(opts.url);
-                fileProtocol = xr.urlResolve(opts.url).protocol == "file";
+                fileProtocol = mz.urlResolve(opts.url).protocol == "file";
             }
 
             var data = typeof opts.data === 'object' && !opts.raw ? opts.dump.call(opts, opts.data) : opts.data;
@@ -332,15 +332,5 @@ module mz.xr {
     export function options(url: string, args: IXrArgs) {
         return xr(mz.copy({ url: url, method: Methods.OPTIONS }, args));
     };
-
-
-
-
-    var originUrl = mz.urlResolve(location.href);
-
-
-    
-
-    
 }
 
