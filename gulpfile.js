@@ -38,11 +38,14 @@ var commandLineOptions = minimist(argv, knownOptions);
 var spawn = require('child_process').spawn;
 
 
-var ts_files = ['src/**/*.ts', 'src/**/*.tsx', 'src/TSD/*.ts'];
+var ts_files = ['src/**/*.ts', 'src/**/*.tsx', '!src/mz.d.ts'];
 
 // build
 gulp.task('default', ['min'], function () {
-
+    return merge([
+        gulp.src(['./src/TSD/*.ts']).pipe(gulp.dest('./dist/src/TSD')),
+        gulp.src(['./src/mz.d.ts', './src/mz.js']).pipe(gulp.dest('./dist'))
+    ]);
 });
 
 gulp.task('tsconfig_files', function () {
@@ -67,13 +70,13 @@ gulp.task('typescript', ['tsconfig_files'], function () {
         tsResult.js
             .pipe(concat('mz.js'))
             .pipe(sourcemaps.write())
-            .pipe(gulp.dest('dist'))
+            .pipe(gulp.dest('src'))
     ]);
 });
 
 // build
 gulp.task('min', ['typescript'], function () {
-    return gulp.src('./dist/mz.js')
+    return gulp.src('./src/mz.js')
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(concat('mz.min.js'))
         .pipe(

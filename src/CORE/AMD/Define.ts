@@ -1,6 +1,5 @@
 ﻿/// <reference path="module.ts" />
 
-declare var mzcore;
 
 module mz {
     export function undefine(mod: string) {
@@ -17,9 +16,9 @@ module mz {
     export function define(Module: string, Callback: Function): void;
     export function define(Module: string, RequiredModules: string[], Callback: IModuleCallback): void;
     export function define() {
-        var name = mzcore.buscarArgumentoTipo('string', arguments) || (mzcore.define.currentModule ? mzcore.define.currentModule.id : null) || null;
-        var fn = mzcore.buscarArgumentoTipo('function', arguments) || null;
-        var reqs = mzcore.buscarArgumentoTipo(Array, arguments) || null;
+        var name = mz.buscarArgumentoTipo('string', arguments) || (mz.define.currentModule ? mz.define.currentModule.id : null) || null;
+        var fn = mz.buscarArgumentoTipo('function', arguments) || null;
+        var reqs = mz.buscarArgumentoTipo(Array, arguments) || null;
 
         var obj = !fn && arguments.length && typeof arguments[arguments.length - 1] == "object" && arguments[arguments.length - 1] || null;
 

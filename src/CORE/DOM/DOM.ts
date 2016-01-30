@@ -1,4 +1,5 @@
 /// <reference path="../../mz.ts" />
+/// <reference path="../DOM.ts" />
 
 namespace mz.core.dom {
 	/* tslint:disable:requireParameterType */

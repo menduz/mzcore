@@ -195,6 +195,7 @@ declare namespace mz {
     function compileFilter<T>(filter: (element: T) => boolean): (elements: T[]) => T[];
     function getWindowSize(): Size;
     function globalCallback(cb: Function): string;
+    function buscarArgumentoTipo(tipo: any, argu: any): any;
 }
 declare namespace mz.auth.jwt {
     function urlBase64Decode(str: any): any;
@@ -519,7 +520,6 @@ declare module mz {
     }
 }
 declare var module: mz.Module;
-declare var mzcore: any;
 declare module mz {
     function undefine(mod: string): void;
     function define(ObjetoDefinido: Object): Object;
@@ -878,6 +878,12 @@ declare namespace mz {
     }
 }
 declare namespace mz.core.dom {
+    var adapter: mz.core.dom.AbstractDomAdapter;
+    var parser: mz.core.dom.AbstractDomParser;
+    function setRootDomAdapter(theAdapter: mz.core.dom.AbstractDomAdapter): void;
+    function setRootDomParser(theParser: mz.core.dom.AbstractDomParser): void;
+}
+declare namespace mz.core.dom {
     /**
      * Provides DOM operations in an environment-agnostic way.
      */
@@ -998,6 +1004,30 @@ declare namespace mz.core.dom {
         abstract getAnimationPrefix(): string;
         abstract getTransitionEnd(): string;
         abstract supportsAnimation(): boolean;
+    }
+}
+declare namespace mz.core.dom {
+    enum AstTypes {
+        root = 0,
+        directive = 1,
+        element = 2,
+        text = 3,
+        comment = 4,
+    }
+    class AstElement {
+        type: AstTypes;
+        name: string;
+        data: string;
+        children: AstElement[];
+        attrs: Dictionary<any>;
+    }
+    abstract class AbstractDomParser {
+        abstract parse(html: string): AstElement;
+    }
+}
+declare namespace mz.core.dom {
+    class HtmlParser extends AbstractDomParser {
+        parse(html: any): AstElement;
     }
 }
 declare namespace mz.core.dom {
@@ -1122,36 +1152,6 @@ declare namespace mz.core.dom {
         cancelAnimationFrame(id: number): void;
         performanceNow(): number;
     }
-}
-declare namespace mz.core.dom {
-    enum AstTypes {
-        root = 0,
-        directive = 1,
-        element = 2,
-        text = 3,
-        comment = 4,
-    }
-    class AstElement {
-        type: AstTypes;
-        name: string;
-        data: string;
-        children: AstElement[];
-        attrs: Dictionary<any>;
-    }
-    abstract class AbstractDomParser {
-        abstract parse(html: string): AstElement;
-    }
-}
-declare namespace mz.core.dom {
-    class HtmlParser extends AbstractDomParser {
-        parse(html: any): AstElement;
-    }
-}
-declare namespace mz.core.dom {
-    var adapter: mz.core.dom.AbstractDomAdapter;
-    var parser: mz.core.dom.AbstractDomParser;
-    function setRootDomAdapter(theAdapter: mz.core.dom.AbstractDomAdapter): void;
-    function setRootDomParser(theParser: mz.core.dom.AbstractDomParser): void;
 }
 declare module mz.core.decorators {
     function LogResult(target: Function, key: string, value: any): {

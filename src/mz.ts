@@ -1,5 +1,5 @@
-/// <reference path="TDS/JQuery.d.ts" />
-/// <reference path="TDS/Promise.d.ts" />
+/// <reference path="TSD/JQuery.d.ts" />
+/// <reference path="TSD/Promise.d.ts" />
 
 if(typeof this.jQuery === "undefined"){
     throw new Error("jQuery not present");
@@ -74,7 +74,7 @@ namespace mz {
     for (i = 0, ln = scripts.length; i < ln; i++) {
         scriptSrc = scripts[i].src;
 
-        match = scriptSrc.match(/mzcore\.js/);
+        match = scriptSrc.match(/mz(\.min){0,1}\.js/);
 
         if (match) {
             if (scriptSrc.match('(\\?|&)no-jquery') !== null) {
@@ -772,5 +772,22 @@ namespace mz {
         uid++;
         mz["__" + uid] = cb;
         return "mz.__" + uid;
+    }
+    
+    export function buscarArgumentoTipo(tipo, argu) {
+        var args = argu || arguments.callee.caller.arguments;
+        if (typeof tipo == 'string') {
+            for (var i in args) {
+                if (typeof args[i] == tipo) {
+                    return args[i];
+                }
+            }
+        } else if (typeof tipo == 'function') {
+            for (var i in args) {
+                if (args[i] instanceof tipo) {
+                    return args[i];
+                }
+            }
+        }
     }
 }

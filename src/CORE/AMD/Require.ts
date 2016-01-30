@@ -286,8 +286,10 @@ module mz.require {
 
 }
 
-mz.require.route("jquery", "@mz/plugins/jquery/jquery.js");
-mz.require.route("backbone", "@mz/plugins/backbone/backbone.js");
-mz.require.route("underscore", "@mz/plugins/underscore/underscore.js");
+mz.require.route("jquery", "@mz/jquery.js");
+mz.require.route("backbone", "@mz/backbone.js");
+mz.require.route("underscore", "@mz/underscore.js");
+
+
 
 (<any>window).require = mz.require;

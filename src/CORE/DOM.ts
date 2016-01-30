@@ -1,7 +1,3 @@
-/// <reference path="DOM/DOM_BrowserImpl.ts" />
-/// <reference path="DOM/DOMParser_Impl.ts" />
-
-
 namespace mz.core.dom {
 	export var adapter: mz.core.dom.AbstractDomAdapter;
 	export var parser: mz.core.dom.AbstractDomParser;

@@ -46,9 +46,16 @@ module mz.widgets {
 
             this.ponerElem = this.ponerElem.bind(this);
             this.delegateUnmountElements = this.delegateUnmountElements.bind(this);
+
+            // if the list contains elements.
+            if (this.list && this.list.length) {
+                this.list.forEach(this.ponerElem, this);
+            }
         }
 
         private list_changed(list, prevList) {
+            
+
             if (list === prevList) return;
 
             if (this.listenersLista) {
@@ -74,7 +81,7 @@ module mz.widgets {
                 this.listenersLista.push(this.list.on('changed', this.redraw.bind(this)));
                 this.listenersLista.push(this.list.on('pre_clear', a => this.redraw('pre_clear', a)));
 
-                if (this.list.length)
+                if (this.list.length && !!this.collectionKey /* collection initialized */)
                     this.redraw('refresh');
             }
         }
@@ -91,7 +98,10 @@ module mz.widgets {
 
             var existia = !!dom;
 
-            dom = itemDeLista[this.collectionKey] = dom || this.generateScopedContent(itemDeLista);
+            if (!existia) {
+                dom = this.generateScopedContent(itemDeLista);
+                itemDeLista[this.collectionKey] = dom;
+            }
 
             dom.forEach((e) => {
                 // si el elemento ya existia, llamo a refreshScope
