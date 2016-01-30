@@ -1,8 +1,8 @@
 /// <reference path="TDS/JQuery.d.ts" />
 /// <reference path="TDS/Promise.d.ts" />
 
-if(typeof this.JQuery === "undefined"){
-    throw new Error("JQuery not present");
+if(typeof this.jQuery === "undefined"){
+    throw new Error("jQuery not present");
 }
 
 function isDef(b) {
@@ -40,13 +40,13 @@ namespace mz {
         (...Modules: any[]): void;
     }
 
-    export var globalContext: any = (window as any) | (global as any);
+    export var globalContext: any = (window as any) || typeof global != "undefined" && global;
     
   
     
     
     (function() {
-        var UID = 1;
+        let UID = 1;
         globalContext.Symbol = globalContext.Symbol || function(a) {
             return `[[${a}-${UID++}]]`;
         }
@@ -122,9 +122,9 @@ namespace mz {
         return base;
     };
     
-    var originUrl = urlResolve(location.href);
 
     var urlParsingNode = document.createElement("a");
+    var originUrl = urlResolve(location.href);
 
     /**
      *

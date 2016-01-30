@@ -423,6 +423,26 @@ interface String {
 }
 declare var sp: String;
 declare var re: RegExp;
+declare module mz {
+    class EventDispatcherBinding {
+        id: string;
+        cb: any;
+        evento: string;
+        sharedList: any;
+        object: EventDispatcher;
+        off(): void;
+    }
+    class EventDispatcher {
+        private ed_bindeos;
+        private ed_bindeosTotales;
+        private ed_bindCount;
+        on(event: string, callback: Function, once?: boolean): any;
+        once(event: string, callback: Function): any;
+        off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
+        emit(event: string, ...params: any[]): any[];
+        trigger: (event: string, ...params: any[]) => any[];
+    }
+}
 declare namespace mz.oauth2 {
     interface IRoleChecker {
         (role: string): boolean;
@@ -513,26 +533,6 @@ declare module mz.define {
     var amd: any;
     var lastModule: Module;
     var currentModule: Module;
-}
-declare module mz {
-    class EventDispatcherBinding {
-        id: string;
-        cb: any;
-        evento: string;
-        sharedList: any;
-        object: EventDispatcher;
-        off(): void;
-    }
-    class EventDispatcher {
-        private ed_bindeos;
-        private ed_bindeosTotales;
-        private ed_bindCount;
-        on(event: string, callback: Function, once?: boolean): any;
-        once(event: string, callback: Function): any;
-        off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
-        emit(event: string, ...params: any[]): any[];
-        trigger: (event: string, ...params: any[]) => any[];
-    }
 }
 declare namespace mz {
     class MVCObject extends mz.EventDispatcher {

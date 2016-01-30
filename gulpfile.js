@@ -35,102 +35,47 @@ var knownOptions = {
 
 var commandLineOptions = minimist(argv, knownOptions);
 
-var refList = function (out, options) {
-
-    options = options || {};
-
-    var files = [];
-    var filePaths = [];
-
-    var onFile = function (file) {
-        files.push(file);
-        var path
-        if (options.absolute) {
-            path = file.path;
-        }
-        else {
-            path = file.path.replace(process.cwd(), '');
-            path = path.replace(new RegExp('^[/\\\\]'), '');
-        }
-        filePaths.push(path.replace(/\\/g, '/'));
-    };
-
-    var onEnd = function () {
-
-        var file = new File({
-            path: out,
-            contents: new Buffer(filePaths.map(function (a, b, i) {
-                return '\n/// <reference path="' + a + '" />';
-            }).join(""))
-        });
-
-        this.emit('data', file);
-        this.emit('end');
-
-    };
-
-    return through(onFile, onEnd);
-
-};
-
 var spawn = require('child_process').spawn;
 
 
-
-var ts_files = ['src/**/*.ts', 'src/**/*.tsx'];
+var ts_files = ['src/**/*.ts', 'src/**/*.tsx', 'src/TSD/*.ts'];
 
 // build
-gulp.task('default', ['debug', 'min'], function () {
+gulp.task('default', ['min'], function () {
 
 });
 
 gulp.task('tsconfig_files', function () {
     gulp.src(ts_files).pipe(tsc_f());
     return gulp.src(ts_files).pipe(tsc_f());
-})
+});
 
 gulp.task('typescript', ['tsconfig_files'], function () {
-
-    var tsProject = ts.createProject({
-        target: 'ES5',
-        declarationFiles: true,
-        declaration: true,
-        noImplicitAny: false,
-        noExternalResolve: false,
-        orderOutput: true,
-        typescript: require('typescript'),
-        experimentalDecorators: true,
-        noEmitOnError: true,
-        emitBOM: false,
-        emitDecoratorMetadata: true,
-        diagnostics: true
+    var tsProject = ts.createProject('tsconfig.json', {
+        typescript: require('typescript')
     });
 
-    var tsResult = gulp.src(ts_files)
+    var tsResult = tsProject.src()
         .pipe(sourcemaps.init({ loadMaps: true }))
         .pipe(ts(tsProject, undefined, ts.reporter.longReporter()));
-
-    tsResult.dts.pipe(refList('definitions.d.ts')).pipe(gulp.dest('./dist'));
 
     return merge([
         // Merge the two output streams, so this task is finished when the IO of both operations are done. 
         
-        tsResult.dts.pipe(gulp.dest('./dist/src')),
+        tsResult.dts.pipe(gulp.dest('./')),
 
         tsResult.js
             .pipe(concat('mz.js'))
             .pipe(sourcemaps.write())
-            .pipe(gulp.dest('src'))
+            .pipe(gulp.dest('dist'))
     ]);
 });
 
 // build
 gulp.task('min', ['typescript'], function () {
-    return gulp.src('mz.js')
+    return gulp.src('./dist/mz.js')
         .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('mz.min.js', {
-            newLine: '\n;' // the newline is needed in case the file ends with a line comment, the semi-colon is needed if the last statement wasn't terminated
-        }))
+        .pipe(concat('mz.min.js'))
         .pipe(
             uglify({
                 output: { // http://lisperator.net/uglifyjs/codegen
@@ -156,35 +101,7 @@ gulp.task('min', ['typescript'], function () {
         .pipe(gulp.dest('./dist'));
 });
 
-// uncompressed build, with sourcemaps
-gulp.task('debug', ['typescript'], function () {
-    return gulp.src(includeListTS)
-        .pipe(sourcemaps.init({ loadMaps: true }))
-        .pipe(concat('mzcore.js', {
-            newLine: '\n;' // the newline is needed in case the file ends with a line comment, the semi-colon is needed if the last statement wasn't terminated
-        }))
-        .pipe(prepend(license))
-        .pipe(sourcemaps.write('./'))
-        .pipe(gulp.dest('./dist'));
-});
 
-gulp.task('code', ['min', 'debug'], function () { });
-
-
-gulp.task('dist_code', ['code'], function () {
-    svn.commit('Build automatico. Only code. Tarea gulp dist_code', { args: 'dist' }, function (err) {
-        if (err) {
-            throw err;
-        }
-    })
-})
-
-gulp.task('dist', ['default'], function () {
-    svn.commit('Build automatico. Tarea gulp dist', { args: 'dist' }, function (err) {
-        if (err) {
-            throw err;
-        }
-    })
-})
+gulp.task('code', ['min'], function () { });
 
 gulp.task('vs', ['default'], function () { });

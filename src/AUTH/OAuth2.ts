@@ -1,6 +1,8 @@
 /// <reference path="../CORE/Xr.ts" />
 /// <reference path="../CORE/Strings.ts" />
 /// <reference path="JWT.ts" />
+/// <reference path="../CORE/EventDispatcher.ts" />
+
 
 
 namespace mz.oauth2 {
@@ -375,5 +377,4 @@ namespace mz.oauth2 {
     export var off = mz.EventDispatcher.prototype.off;
 
     mz.EventDispatcher.apply(oauth2);
-    (<any>mz).eventDispatcher.prototype.init.apply(oauth2);
 }
