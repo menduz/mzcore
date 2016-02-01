@@ -2,20 +2,33 @@
 /// <reference path="../mz.ts" />
 
 namespace mz {
+
     export class collection<T> extends MVCObject {
         opciones: IMZCollectionOpc = {};
-        
+
         protected array: T[];
-        private __indice__: Dictionary<number>;
+        private __indice__: Dictionary<number> = {};
+
+        static EVENTS = copy({
+            BeforeClearCollection: 'pre_clear',
+            AfterClearCollection: 'clear',
+            Changed: 'changed',
+            ElementInserted: 'insert_at',
+            ElementChanged: 'set_at',
+            ElementRemoved: 'remove_at',
+            ElementRangeInserted: 'addRange',
+            CollectionSorted: 'sorted',
+            ElementRangeRemoved: 'removed'
+        }, MVCObject.EVENTS);
         
+        @MVCObject.proxy
+        agregandoLote: boolean = false;
+
         constructor(base?: T[], opc?: IMZCollectionOpc) {
             super();
             this.opciones = opc || {};
 
             this.array = (this.opciones.initialSize ? new Array(this.opciones.initialSize) : new Array());
-            this.__indice__ = {};
-
-            this.set('agregandoLote', false);
 
             base && this.addRange(base);
         }
@@ -34,11 +47,11 @@ namespace mz {
         @param {Boolean} noTriggerear si es "true" entonces no se desencadena ningun evento del tipo "changed"
         */
         clear(noTriggerear?: boolean) {
-            this.trigger('pre_clear', !!noTriggerear);
+            this.trigger(collection.EVENTS.BeforeClearCollection, !!noTriggerear);
             this.array.length = 0;
             this.__indice__ = {};
-            this.trigger('clear', !!noTriggerear);
-            !noTriggerear && this.trigger('changed', 'clear', !!noTriggerear);
+            this.trigger(collection.EVENTS.AfterClearCollection, !!noTriggerear);
+            !noTriggerear && this.emit(collection.EVENTS.Changed, 'clear', !!noTriggerear);
         }
         /**
         Tamaño de la coleccion (getter)
@@ -59,6 +72,7 @@ namespace mz {
         getLength() {
             return this.array.length;
         }
+
         setLength(nuevoTamanio: number) {
             if (nuevoTamanio < 0) throw "Tamanio invalido";
             if (this.getLength() > nuevoTamanio) {
@@ -68,7 +82,7 @@ namespace mz {
             } else {
                 this.array.length = nuevoTamanio;
             }
-            this.trigger('changed', 'length', this.array.length);
+            this.emit(collection.EVENTS.Changed, 'length', this.array.length);
             return this;
         }
 
@@ -250,12 +264,12 @@ namespace mz {
                 this.array.push(elemento);
                 this.array = this.array.concat(fin);
                 this._reindizar();
-                this.trigger('sort');
-                this.trigger('changed', 'sort');
+                this.emit(collection.EVENTS.CollectionSorted);
+                this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
             }
 
-            this.trigger('insert_at', indice, elemento);
-            this.trigger('changed', 'insert_at', indice, elemento);
+            this.emit(collection.EVENTS.ElementInserted, indice, elemento);
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementInserted, indice, elemento);
         }
         /**
 	    Remueve un elemento en cualquier posicion de la coleccion. Dispara evento "changed" con los mismos argumentos que el evento "remove_at"
@@ -267,8 +281,8 @@ namespace mz {
             var backup = this.array[indice];
             this.array.splice(indice, 1);
             this._reindizar();
-            this.trigger('remove_at', indice, backup);
-            this.trigger('changed', 'remove_at', indice, backup);
+            this.emit(collection.EVENTS.ElementRemoved, indice, backup);
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRemoved, indice, backup);
             return backup;
         }
         /**
@@ -282,8 +296,8 @@ namespace mz {
             this._deindizar(backup);
             this.array[indice] = elemento;
             this._indizar(elemento, indice);
-            this.trigger('set_at', indice, elemento, backup);
-            this.trigger('changed', 'set_at', indice, elemento, backup);
+            this.emit(collection.EVENTS.ElementChanged, indice, elemento, backup);
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementChanged, indice, elemento, backup);
         }
 
 
@@ -319,8 +333,8 @@ namespace mz {
             }
 
             if (!noTriggerear) {
-                this.trigger('insert_at', indice, elemento);
-                this.trigger('changed', 'insert_at', indice, elemento);
+                this.emit(collection.EVENTS.ElementInserted, indice, elemento);
+                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementInserted, indice, elemento);
             }
 
             return indice;
@@ -337,20 +351,22 @@ namespace mz {
                 this._deindizar(ret);
 
                 if (!noTriggerear) {
-                    this.trigger('remove_at', this.array.length, ret);
-                    this.trigger('changed', 'remove_at', this.array.length, ret);
+                    this.emit(collection.EVENTS.ElementRemoved, this.array.length, ret);
+                    this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRemoved, this.array.length, ret);
                 }
                 return ret;
             }
             return null;
         }
+        
+        
 
         addRange(array: T[] | mz.collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean) {
             if (!array) return this;
 
             var inicio = this.array.length - 1;
 
-            this.set('agregandoLote', true);
+            this.agregandoLote = true;
 
             if (Object.prototype.toString.call(array).toLowerCase() === "[object array]" || array instanceof mz.collection) {
                 if ('forEach' in array && typeof array.forEach == 'function') {
@@ -370,11 +386,12 @@ namespace mz {
 
 
             if (!noTriggerear) {
-                this.trigger('addRange', inicio, this.array.length - 1, !noTriggerearCadaUno);
-                this.trigger('changed', 'addRange', inicio, this.array.length - 1, !noTriggerearCadaUno);
+                this.emit(collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
+                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
             }
 
-            this.set('agregandoLote', false);
+            this.agregandoLote = false;
+            
             return this;
         }
 
@@ -418,8 +435,8 @@ namespace mz {
         updateIndex(index: number) {
             if (index != -1) {
                 var elemento = this.getAt(index);
-                this.trigger('set_at', index, elemento, elemento);
-                this.trigger('changed', 'set_at', index, elemento, elemento);
+                this.emit(collection.EVENTS.ElementChanged, index, elemento, elemento);
+                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementChanged, index, elemento, elemento);
             }
             return this;
         }
@@ -506,6 +523,8 @@ namespace mz {
 	     *	@method orderBy
 	     *	@param {Mixed} what
 	     */
+
+
         orderBy(what: ((a: T, b: T) => number) | string): collection<T> {
 
             var orderBy = what ? mz.data.order.build(what) : undefined;
@@ -513,8 +532,8 @@ namespace mz {
             this.array.sort(orderBy);
             this._reindizar();
 
-            this.trigger('sorted', what, 'ASC');
-            this.trigger('changed', 'sort', what);
+            this.emit(collection.EVENTS.CollectionSorted, what, 'ASC');
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, what);
 
             return this;
         }
@@ -532,8 +551,8 @@ namespace mz {
 
             this._reindizar();
 
-            this.trigger('sorted', what, 'DESC');
-            this.trigger('changed', 'sort', what);
+            this.emit(collection.EVENTS.CollectionSorted, what, 'DESC');
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, what);
             return this;
         }
 
@@ -633,8 +652,7 @@ namespace mz {
                     cual = this.lastIndexOf(fn as T);
 
                 if (cual != -1) {
-                    this.removeAt(cual);
-                    return;
+                    return [this.removeAt(cual)];
                 }
 
                 if (tipo == 'object' || tipo == 'number' || tipo == 'boolean') return null;
@@ -663,8 +681,8 @@ namespace mz {
                         salida.push(e.e);
                     });
 
-                    this.trigger('removed', salida);
-                    this.trigger('changed', 'removed', salida);
+                    this.emit(collection.EVENTS.ElementRangeRemoved, salida);
+                    this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRangeRemoved, salida);
                 }
 
                 return salida;
@@ -967,7 +985,8 @@ namespace mz {
             this.array[segundo] = this.array[primero];
             this.array[primero] = viejo;
             this._reindizar();
-            this.trigger('changed', 'swap', primero, segundo);
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
+            this.emit(collection.EVENTS.Changed, 'swap', primero, segundo);
             return this;
         }
 
@@ -1020,7 +1039,8 @@ namespace mz {
         /** Reverses the actual collections order */
         reverse() {
             this.array.reverse();
-            this.trigger('changed', 'sort');
+            this.emit(collection.EVENTS.CollectionSorted);
+            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
         }
         
 
@@ -1096,7 +1116,7 @@ namespace mz {
         }
 
         private _handleChanged(tipo, nuevo, viejo) {
-            var necesitoReOrdenar = tipo == 'order' || tipo == 'sort' || tipo == 'insert_at' || tipo == 'set_at' || tipo == 'addRange';
+            var necesitoReOrdenar = tipo == 'order' || tipo == collection.EVENTS.CollectionSorted || tipo == 'insert_at' || tipo == 'set_at' || tipo == 'addRange';
 
             if (tipo == 'clear') {
                 this.clear();
@@ -1155,8 +1175,8 @@ namespace mz {
                 for (var i in this.array) {
                     if (this.array[i] !== vieja[i]) {
                         this._reindizar();
-                        this.trigger('sorted', orden.q, orden.desc ? 'DESC' : 'ASC');
-                        this.trigger('changed', 'sort', orden.q);
+                        this.emit(collection.EVENTS.CollectionSorted, orden.q, orden.desc ? 'DESC' : 'ASC');
+                        this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, orden.q);
                         break;
                     }
                 }

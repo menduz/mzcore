@@ -54,7 +54,7 @@ module mz.widgets {
         }
 
         private list_changed(list, prevList) {
-            
+
 
             if (list === prevList) return;
 
@@ -144,13 +144,15 @@ module mz.widgets {
                 this.ponerElem(b);
             } else if (tipo == "remove_at" && b && b[this.collectionKey]) {
                 this.delegateUnmountElements(b);
-            } else if (tipo == "addRange" || tipo == "removed" || tipo == "filter" || tipo == "swap" || tipo == "sort") {
+            } else if (/*tipo == "addRange" ||*/ tipo == "filter" || tipo == collection.EVENTS.CollectionSorted) {
                 rebuild = true;
-            } else if (tipo == "refresh") {
+            } /*else if (tipo == "removed") {
+                rebuild = true;
+            }*/ else if (tipo == "refresh") {
                 this.detachAllNodes();
                 this.list.forEach(delegateRefreshScope);
                 rebuild = true;
-            } else if (tipo == "pre_clear") {
+            } else if (tipo == collection.EVENTS.BeforeClearCollection) {
                 this.list.forEach(this.delegateUnmountElements);
                 return;
             }

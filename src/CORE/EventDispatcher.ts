@@ -17,7 +17,12 @@ module mz {
         }
     }
     
-    export class EventDispatcher {
+    export class EventDispatcher {       
+        
+        static EVENTS = {
+            
+        }
+         
         private ed_bindeos: any = {};
         private ed_bindeosTotales: any = [];
         private ed_bindCount = 0;
@@ -133,4 +138,5 @@ module mz {
         
         trigger = this.emit;
     }
+
 }

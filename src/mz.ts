@@ -1,7 +1,7 @@
 /// <reference path="TSD/JQuery.d.ts" />
 /// <reference path="TSD/Promise.d.ts" />
 
-if(typeof this.jQuery === "undefined"){
+if (typeof this.jQuery === "undefined") {
     throw new Error("jQuery not present");
 }
 
@@ -41,10 +41,10 @@ namespace mz {
     }
 
     export var globalContext: any = (window as any) || typeof global != "undefined" && global;
-    
-  
-    
-    
+
+
+
+
     (function() {
         let UID = 1;
         globalContext.Symbol = globalContext.Symbol || function(a) {
@@ -53,18 +53,6 @@ namespace mz {
     })();
 
     export var _debug = (window as any)._debug || window.location.search.match('(\\?|&)mz-debug') !== null;
-
-    function getParameterByName(name, qs) {
-        name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
-        var regexS = "[\\?&]" + name + "=([^&#]*)";
-        var regex = new RegExp(regexS);
-        var results = regex.exec(qs || window.location.search);
-        if (results == null)
-            return "";
-        else
-            return decodeURIComponent(results[1].replace(/\+/g, " "));
-    }
-
 
     var scripts = document.getElementsByTagName('script'),
         test, mzcorePath, i, ln, scriptSrc, match, lang;
@@ -91,9 +79,9 @@ namespace mz {
     export var core_path = (mzcorePath || '').toString();
 
     (core_path.substr(-1) !== '/') && (core_path += '/');
-    
-    
-    
+
+
+
 
     export function alias(clave, ruta) {
         (ruta.substr(-1) !== '/') && (ruta += '/');
@@ -121,144 +109,15 @@ namespace mz {
 
         return base;
     };
-    
 
-    var urlParsingNode = document.createElement("a");
-    var originUrl = urlResolve(location.href);
 
-    /**
-     *
-     * Implementation Notes for non-IE browsers
-     * ----------------------------------------
-     * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
-     * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
-     * URL will be resolved into an absolute URL in the context of the application document.
-     * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
-     * properties are all populated to reflect the normalized URL.  This approach has wide
-     * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
-     * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *
-     * Implementation Notes for IE
-     * ---------------------------
-     * IE <= 10 normalizes the URL when assigned to the anchor node similar to the other
-     * browsers.  However, the parsed components will not be set if the URL assigned did not specify
-     * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
-     * work around that by performing the parsing in a 2nd step by taking a previously normalized
-     * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
-     * properties such as protocol, hostname, port, etc.
-     *
-     * References:
-     *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
-     *   http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *   http://url.spec.whatwg.org/#urlutils
-     *   https://github.com/angular/angular.js/pull/2902
-     *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
-     *
-     * @kind function
-     * @param {string} url The URL to be parsed.
-     * @description Normalizes and parses a URL.
-     * @returns {object} Returns the normalized URL as a dictionary.
-     *
-     *   | member name   | Description    |
-     *   |---------------|----------------|
-     *   | href          | A normalized version of the provided URL if it was not an absolute URL |
-     *   | protocol      | The protocol including the trailing colon                              |
-     *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
-     *   | search        | The search params, minus the question mark                             |
-     *   | hash          | The hash string, minus the hash symbol
-     *   | hostname      | The hostname
-     *   | port          | The port, without ":"
-     *   | pathname      | The pathname, beginning with "/"
-     *
-     */
-    export function urlResolve(url: string) {
-        var href = url;
-
-        //if (msie) {
-        // Normalize before parse.  Refer Implementation Notes on why this is
-        // done in two steps on IE.
-        urlParsingNode.setAttribute("href", href);
-        href = urlParsingNode.href;
-        //}
-
-        urlParsingNode.setAttribute('href', href);
-
-        // urlParsingNode provides the UrlUtils interface - http://url.spec.whatwg.org/#urlutils
-        return {
-            href: urlParsingNode.href,
-            protocol: urlParsingNode.protocol ? urlParsingNode.protocol.replace(/:$/, '') : '',
-            host: urlParsingNode.host,
-            search: urlParsingNode.search ? urlParsingNode.search.replace(/^\?/, '') : '',
-            hash: urlParsingNode.hash ? urlParsingNode.hash.replace(/^#/, '') : '',
-            hostname: urlParsingNode.hostname,
-            port: urlParsingNode.port,
-            pathname: (urlParsingNode.pathname.charAt(0) === '/')
-                ? urlParsingNode.pathname
-                : '/' + urlParsingNode.pathname
-        };
-    }
-    
-    /**
-     * Parse a request URL and determine whether this is a same-origin request as the application document.
-     *
-     * @param {string|object} requestUrl The url of the request as a string that will be resolved
-     * or a parsed URL object.
-     * @returns {boolean} Whether the request is for the same origin as the application document.
-     */
-    function urlIsSameOrigin(requestUrl) {
-        var parsed = (typeof requestUrl == "string") ? mz.urlResolve(requestUrl) : requestUrl;
-        return (parsed.protocol === originUrl.protocol &&
-            parsed.host === originUrl.host);
-    }
-    
-    /**
-     * var moviles = 'Los Moviles/Autos'
-     * mz.xr.urlEncode `@api/v1/${moviles}/1` -> '@api/v1/Los%20Moviles%2FAutos/1'  
-     */
-    export function urlEncode(literalSections: TemplateStringsArray, ...substs):string {
-        var raw = literalSections.raw;
-
-        var result = '';
-
-        substs.forEach((subst, i) => {
-            var lit = raw[i];
-
-            if (Array.isArray(subst)) {
-                subst = subst.join('');
-            }
-
-            if (!lit.endsWith('$')) {
-                subst = encodeURIComponent(subst);
-            } else {
-                lit = lit.slice(0, -1);
-            }
-
-            result += lit;
-            result += subst;
-        });
-
-        result += raw[raw.length - 1]; // (A)
-    
-        return result;
-    }
-
-    export var getAbsoluteUrl: (path: string) => string = (function() {
-        var a;
-
-        return function(url) {
-            if (!a) a = document.createElement('a');
-            a.href = getPath(url);
-
-            return a.href;
-        };
-    })();
 
     // element helpers
     
     export function getElementPosition(element: Element | JQuery) {
-        
-        var elm : HTMLElement = element as any;
-        
+
+        var elm: HTMLElement = element as any;
+
         if (element instanceof jQuery)
             elm = element[0];
 
@@ -320,7 +179,13 @@ namespace mz {
     </code>
     */
     //export function copy( Destination: Object, ...Sources: Object[] ): Object;
-    export function copy<T>(Destination: T, ...Sources: Object[]): T {
+    
+    export function copy<T>(Destination: T): T;
+    export function copy<T, V>(Destination: T, Source: V): T & V;
+    export function copy<T, V, V1>(Destination: T, Source: V, Source1: V1): T & V & V1;
+    export function copy<T, V, V1, V2>(Destination: T, Source: V, Source1: V1, Source2: V2): T & V & V1 & V2;
+    export function copy<T, V, V1, V2, V3>(Destination: T, Source: V, Source1: V1, Source2: V2, Source3: V3): T & V & V1 & V2 & V3;
+    export function copy<T>(Destination: T): T {
         var dest = arguments[0] || {};
 
         if (arguments.length > 1) {
@@ -331,7 +196,7 @@ namespace mz {
         }
 
         if (arguments.length == 1) {
-            return oldCopy({}, Destination);
+            return oldCopy({}, arguments[0]);
         }
 
         return dest;
@@ -773,7 +638,7 @@ namespace mz {
         mz["__" + uid] = cb;
         return "mz.__" + uid;
     }
-    
+
     export function buscarArgumentoTipo(tipo, argu) {
         var args = argu || arguments.callee.caller.arguments;
         if (typeof tipo == 'string') {

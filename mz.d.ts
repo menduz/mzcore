@@ -31,67 +31,6 @@ declare namespace mz {
     var core_path: any;
     function alias(clave: any, ruta: any): void;
     function getPath(path: string, root?: string): any;
-    /**
-     *
-     * Implementation Notes for non-IE browsers
-     * ----------------------------------------
-     * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
-     * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
-     * URL will be resolved into an absolute URL in the context of the application document.
-     * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
-     * properties are all populated to reflect the normalized URL.  This approach has wide
-     * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
-     * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *
-     * Implementation Notes for IE
-     * ---------------------------
-     * IE <= 10 normalizes the URL when assigned to the anchor node similar to the other
-     * browsers.  However, the parsed components will not be set if the URL assigned did not specify
-     * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
-     * work around that by performing the parsing in a 2nd step by taking a previously normalized
-     * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
-     * properties such as protocol, hostname, port, etc.
-     *
-     * References:
-     *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
-     *   http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
-     *   http://url.spec.whatwg.org/#urlutils
-     *   https://github.com/angular/angular.js/pull/2902
-     *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
-     *
-     * @kind function
-     * @param {string} url The URL to be parsed.
-     * @description Normalizes and parses a URL.
-     * @returns {object} Returns the normalized URL as a dictionary.
-     *
-     *   | member name   | Description    |
-     *   |---------------|----------------|
-     *   | href          | A normalized version of the provided URL if it was not an absolute URL |
-     *   | protocol      | The protocol including the trailing colon                              |
-     *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
-     *   | search        | The search params, minus the question mark                             |
-     *   | hash          | The hash string, minus the hash symbol
-     *   | hostname      | The hostname
-     *   | port          | The port, without ":"
-     *   | pathname      | The pathname, beginning with "/"
-     *
-     */
-    function urlResolve(url: string): {
-        href: string;
-        protocol: string;
-        host: string;
-        search: string;
-        hash: string;
-        hostname: string;
-        port: string;
-        pathname: string;
-    };
-    /**
-     * var moviles = 'Los Moviles/Autos'
-     * mz.xr.urlEncode `@api/v1/${moviles}/1` -> '@api/v1/Los%20Moviles%2FAutos/1'
-     */
-    function urlEncode(literalSections: TemplateStringsArray, ...substs: any[]): string;
-    var getAbsoluteUrl: (path: string) => string;
     function getElementPosition(element: Element | JQuery): {
         x: number;
         y: number;
@@ -110,7 +49,11 @@ declare namespace mz {
     //a <- c luego copia el contenido de C en A
     </code>
     */
-    function copy<T>(Destination: T, ...Sources: Object[]): T;
+    function copy<T>(Destination: T): T;
+    function copy<T, V>(Destination: T, Source: V): T & V;
+    function copy<T, V, V1>(Destination: T, Source: V, Source1: V1): T & V & V1;
+    function copy<T, V, V1, V2>(Destination: T, Source: V, Source1: V1, Source2: V2): T & V & V1 & V2;
+    function copy<T, V, V1, V2, V3>(Destination: T, Source: V, Source1: V1, Source2: V2, Source3: V3): T & V & V1 & V2 & V3;
     function mapXInto(propiedades: string[], destino: any, ...n_args: any[]): any;
     function mapInto(destino: any, ...n_args: any[]): any;
     function isIterable(a: any): boolean;
@@ -404,6 +347,75 @@ declare module mz.xr {
         data: any;
         url: string;
     }
+    /**
+     *
+     * Implementation Notes for non-IE browsers
+     * ----------------------------------------
+     * Assigning a URL to the href property of an anchor DOM node, even one attached to the DOM,
+     * results both in the normalizing and parsing of the URL.  Normalizing means that a relative
+     * URL will be resolved into an absolute URL in the context of the application document.
+     * Parsing means that the anchor node's host, hostname, protocol, port, pathname and related
+     * properties are all populated to reflect the normalized URL.  This approach has wide
+     * compatibility - Safari 1+, Mozilla 1+, Opera 7+,e etc.  See
+     * http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
+     *
+     * Implementation Notes for IE
+     * ---------------------------
+     * IE <= 10 normalizes the URL when assigned to the anchor node similar to the other
+     * browsers.  However, the parsed components will not be set if the URL assigned did not specify
+     * them.  (e.g. if you assign a.href = "foo", then a.protocol, a.host, etc. will be empty.)  We
+     * work around that by performing the parsing in a 2nd step by taking a previously normalized
+     * URL (e.g. by assigning to a.href) and assigning it a.href again.  This correctly populates the
+     * properties such as protocol, hostname, port, etc.
+     *
+     * References:
+     *   http://developer.mozilla.org/en-US/docs/Web/API/HTMLAnchorElement
+     *   http://www.aptana.com/reference/html/api/HTMLAnchorElement.html
+     *   http://url.spec.whatwg.org/#urlutils
+     *   https://github.com/angular/angular.js/pull/2902
+     *   http://james.padolsey.com/javascript/parsing-urls-with-the-dom/
+     *
+     * @kind function
+     * @param {string} url The URL to be parsed.
+     * @description Normalizes and parses a URL.
+     * @returns {object} Returns the normalized URL as a dictionary.
+     *
+     *   | member name   | Description    |
+     *   |---------------|----------------|
+     *   | href          | A normalized version of the provided URL if it was not an absolute URL |
+     *   | protocol      | The protocol including the trailing colon                              |
+     *   | host          | The host and port (if the port is non-default) of the normalizedUrl    |
+     *   | search        | The search params, minus the question mark                             |
+     *   | hash          | The hash string, minus the hash symbol
+     *   | hostname      | The hostname
+     *   | port          | The port, without ":"
+     *   | pathname      | The pathname, beginning with "/"
+     *
+     */
+    function urlResolve(url: string): {
+        href: string;
+        protocol: string;
+        host: string;
+        search: string;
+        hash: string;
+        hostname: string;
+        port: string;
+        pathname: string;
+    };
+    /**
+     * Parse a request URL and determine whether this is a same-origin request as the application document.
+     *
+     * @param {string|object} requestUrl The url of the request as a string that will be resolved
+     * or a parsed URL object.
+     * @returns {boolean} Whether the request is for the same origin as the application document.
+     */
+    function urlIsSameOrigin(requestUrl: any): boolean;
+    /**
+     * var moviles = 'Los Moviles/Autos'
+     * mz.xr.urlEncode `@api/v1/${moviles}/1` -> '@api/v1/Los%20Moviles%2FAutos/1'
+     */
+    function urlEncode(literalSections: TemplateStringsArray, ...substs: any[]): string;
+    var getAbsoluteUrl: (path: string) => string;
     function get(url: string, params?: any, args?: IXrArgs): Promise<XrResponse>;
     function put(url: string, data?: any, args?: IXrArgs): Promise<XrResponse>;
     function post(url: string, data?: any, args?: IXrArgs): Promise<XrResponse>;
@@ -434,6 +446,7 @@ declare module mz {
         off(): void;
     }
     class EventDispatcher {
+        static EVENTS: {};
         private ed_bindeos;
         private ed_bindeosTotales;
         private ed_bindCount;
@@ -536,6 +549,10 @@ declare module mz.define {
 }
 declare namespace mz {
     class MVCObject extends mz.EventDispatcher {
+        static EVENTS: {
+            setValues: string;
+            valueChanged: string;
+        } & {};
         protected data: Dictionary<any>;
         constructor(args?: any);
         getAll(): Dictionary<any>;
@@ -552,6 +569,21 @@ declare namespace mz {
         opciones: IMZCollectionOpc;
         protected array: T[];
         private __indice__;
+        static EVENTS: {
+            BeforeClearCollection: string;
+            AfterClearCollection: string;
+            Changed: string;
+            ElementInserted: string;
+            ElementChanged: string;
+            ElementRemoved: string;
+            ElementRangeInserted: string;
+            CollectionSorted: string;
+            ElementRangeRemoved: string;
+        } & {
+            setValues: string;
+            valueChanged: string;
+        } & {};
+        agregandoLote: boolean;
         constructor(base?: T[], opc?: IMZCollectionOpc);
         first(): T;
         last(): T;

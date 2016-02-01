@@ -3,6 +3,15 @@
 
 namespace mz {
     export class MVCObject extends mz.EventDispatcher {
+        
+        static EVENTS = mz.copy({
+            /// Triggered when the method setValues is called
+            setValues: "setValues",
+            /// Triggered when a value is setted
+            valueChanged: "valueChanged"
+        },
+        EventDispatcher.EVENTS);
+        
         protected data: Dictionary<any> = {};
 
         constructor(args?) {
@@ -21,7 +30,7 @@ namespace mz {
                 this.set(i, values[i], !emit);
             }
 
-            this.emit('setValues', this.data, values);
+            this.emit(MVCObject.EVENTS.setValues, this.data, values);
         }
         
         set(field: string, value: any, NoTrigerearChanged?: boolean) {
@@ -38,7 +47,7 @@ namespace mz {
 
             this.emit(ch, this.data[field], viejo);
 
-            !NoTrigerearChanged && this.emit('valueChanged', this.data, field, this.data[field], viejo);
+            !NoTrigerearChanged && this.emit(MVCObject.EVENTS.valueChanged, this.data, field, this.data[field], viejo);
         }
         
         get(field: string){

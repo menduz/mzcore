@@ -1,4 +1,5 @@
 ﻿/// <reference path="../strings.ts" />
+/// <reference path="../Xr.ts" />
 /// <reference path="define.ts" />
 
 module mz {
@@ -121,9 +122,9 @@ module mz {
         var successflag = false;
 
         if ('scriptBase' in mz) {
-            var baseURL = mz.getAbsoluteUrl((<any>mz).scriptBase.toLowerCase()).toLowerCase();
+            var baseURL = mz.xr.getAbsoluteUrl((<any>mz).scriptBase.toLowerCase()).toLowerCase();
 
-            url = mz.getAbsoluteUrl(url);
+            url = mz.xr.getAbsoluteUrl(url);
 
             if (url.toLowerCase().startsWith(baseURL)) {
                 url = url.toLowerCase().replace(baseURL, '');
