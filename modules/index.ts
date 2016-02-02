@@ -24,8 +24,6 @@ class MarkdownAttr extends mz.AttributeDirective {
     }
 }
 
-
-
 class Index extends appController.PageCoordinator {
     @mz.MVCObject.proxy
     loading: boolean = false;
@@ -41,5 +39,4 @@ class Index extends appController.PageCoordinator {
         
     }
 }
-
 new Index;
