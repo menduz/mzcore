@@ -7,6 +7,56 @@
 
 
 module mz {
+    export class AttributeDirective {
+        private _value;
+
+        constructor(protected widget: Widget, protected component: Widget, value) {
+            this.value = value;
+            this.mount();
+        }
+
+        mount() {
+
+        }
+
+        unmount() {
+            delete this.widget;
+            delete this._value;
+        }
+
+        protected changed(value, prevValue?) {
+
+        }
+
+        set value(value) {
+            if (value !== this._value) {
+                let prevValue = this._value;
+                this._value = value;
+                this.changed(value);
+            }
+        }
+
+        get value() {
+            return this._value;
+        }
+    }
+
+    export module AttributeDirective {
+        export function Register(attrName: string) {
+            return function <T extends typeof AttributeDirective>(target: T) {
+                let lowerCaseName = attrName.toLowerCase();
+
+                if (lowerCaseName in AttributeDirective.directives) {
+                    console.warn("There is alredy a directive for '" + lowerCaseName + "'. It would be replaced.");
+                }
+
+                AttributeDirective.directives[lowerCaseName] = target;
+            }
+        }
+
+        export const directives: IMZComponentDirectiveCollection = {};
+    }
+
     export interface IChildWidget extends mz.IWidget {
         node: Node;
         children: IChildWidget[];
@@ -21,12 +71,8 @@ module mz {
         jQueryEvent?: JQueryEventObject;
     }
 
-    export interface IMZComponentDirective<T extends mz.Widget> {
-        (value: any, widget: T, parent: Widget): void;
-    }
-
     export interface IMZComponentDirectiveCollection {
-        [attributte: string]: IMZComponentDirective<any>;
+        [attributte: string]: typeof AttributeDirective;
     }
 
     function delegateRefreshScope(e) {
@@ -34,8 +80,6 @@ module mz {
             'refreshScope' in e && e.refreshScope();
         }
     }
-
-
 
     var templateCache: Dictionary<Document> = {};
 
@@ -313,6 +357,8 @@ module mz {
         private contentFragment: DocumentFragment;
         private _contentSelector: string;
 
+        protected attrDirectives: Dictionary<AttributeDirective>;
+
         private _unwrapedComponent: boolean;
 
         defaultTemplate: string;
@@ -384,14 +430,6 @@ module mz {
             return getChildNodes(this.node, this._params, this._parentComponent, scope || this);
         }
 
-        protected visible_changed(val) {
-            if (val && CBool(val) && val !== "0" && val.toString().toLowerCase() != "false") {
-                this.DOM.removeClass('mz-hidden').removeAttr('aria-hidden').removeAttr(mz.HIDDEN_PROP);
-            } else {
-                this.DOM.addClass('mz-hidden').attr('aria-hidden', "true").attr(mz.HIDDEN_PROP, mz.HIDDEN_PROP);
-            }
-        }
-
         attr(attrName: string, value?: any) {
             let attrNameLower = attrName.toLowerCase();
 
@@ -412,8 +450,14 @@ module mz {
                 this.set(attrName, value);
                 this.attrs[attrName] = value;
 
-                if (attrNameLower in Widget.directives && Widget.directives[attrNameLower]) {
-                    Widget.directives[attrNameLower](value, this, this._parentComponent);
+                if (attrNameLower in AttributeDirective.directives && AttributeDirective.directives[attrNameLower]) {
+                    if (!this.attrDirectives)
+                        this.attrDirectives = {};
+
+                    if (attrNameLower in this.attrDirectives)
+                        this.attrDirectives[attrNameLower].value = value;
+                    else
+                        this.attrDirectives[attrNameLower] = new AttributeDirective.directives[attrNameLower](this, this._parentComponent, value);
                 } else if (boolAttr) {
                     if (value) {
                         this.DOM.prop(attrName, value);
@@ -634,14 +678,10 @@ module mz {
         }
 
         protected initAttr(attr: any) {
-
             if (attr) {
                 if (!this.attrs) this.attr = attr;
                 for (let i in attr) {
                     this.attr(i, attr[i]);
-                }
-                if ('class' in attr && this.visible == false) {
-                    this.visible_changed(false);
                 }
             }
         }
@@ -656,16 +696,26 @@ module mz {
         /**
          *  Destroys the current widget and it's children
          */
-        unmount() {
+        unmount() {            
+            if (this.attrDirectives)
+                for (let i in this.attrDirectives)
+                    ('unmount' in this.attrDirectives) && this.attrDirectives[i].unmount();
+
             this.DOM.remove();
             this.innerDOM = null;
+            
             this.emit('unmount');
             this.off();
-            for (let i of this.listening) i && i.off && i.off();
+            for (let i of this.listening)
+                i && i.off && i.off();
             this.listening.length = 0;
+
+            delete this.data;
+
             for (let e of this.children) {
                 if ('unmount' in e) (<any>e).unmount();
             }
+
             this.children.length = 0;
         }
 
@@ -709,16 +759,6 @@ module mz {
     }
 
     export module Widget {
-        export var directives: IMZComponentDirectiveCollection = {};
-        export function registerDirective<T extends mz.Widget>(attrName: string, callback: (value: any, widget: T, parent: Widget) => void) {
-            let lowerCaseName = attrName.toLowerCase();
-            if (lowerCaseName in directives) {
-                console.warn("There is alredy a directive for '" + lowerCaseName + "'. It would be replaced.");
-            }
-
-            directives[lowerCaseName] = callback;
-        }
-
         export interface HTMLAttributes {
             accept?: string;
             acceptCharset?: string;
@@ -839,20 +879,18 @@ module mz {
 
         }
     }
-
-
 }
 
 module mz.widgets {
     export class BasePagelet extends Widget {
         constructor(attr?: mz.Dictionary<any>) {
-            super(null, attr || {}, [], this, this, this);
+            super(null, attr || {}, [], this, this, {});
         }
     }
 
     export class InlinePagelet extends Widget {
         constructor(template: string, attr?: mz.Dictionary<any>) {
-            super(null, attr || {}, [], this, this, this);
+            super(null, attr || {}, [], this, this, {});
             this.startComponent([template]);
         }
     }
