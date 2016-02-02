@@ -44,7 +44,8 @@ var ts_files = ['src/**/*.ts', 'src/**/*.tsx', '!src/mz.d.ts'];
 gulp.task('default', ['min'], function () {
     return merge([
         gulp.src(['./src/TSD/*.ts']).pipe(gulp.dest('./dist/src/TSD')),
-        gulp.src(['./src/mz.d.ts', './src/mz.js']).pipe(gulp.dest('./dist'))
+        gulp.src(['./src/mz.js']).pipe(gulp.dest('./dist')),
+        gulp.src(['./mz.d.ts']).pipe(gulp.dest('./dist'))
     ]);
 });
 

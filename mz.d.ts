@@ -28,6 +28,7 @@ declare namespace mz {
     }
     var globalContext: any;
     var _debug: any;
+    var scriptBase: string;
     var core_path: any;
     function alias(clave: any, ruta: any): void;
     function getPath(path: string, root?: string): any;
@@ -498,10 +499,10 @@ declare module mz.require {
     var routes: {
         key: string;
         source: string | RegExp;
-        destination: string | RegExp;
+        destination: string | RegExp | ((sourceName: string) => Promise<string>);
     }[];
-    function route(matchPath: string | RegExp, destination: RegExp | string): any;
-    function route(path: string): string;
+    function route(matchPath: string | RegExp, destination: RegExp | string | ((sourceName: string) => Promise<string>)): any;
+    function route(path: string): Promise<string>;
     function defineFiles(files: mz.Dictionary<string>): void;
 }
 declare module mz {
@@ -911,9 +912,7 @@ declare namespace mz {
 }
 declare namespace mz.core.dom {
     var adapter: mz.core.dom.AbstractDomAdapter;
-    var parser: mz.core.dom.AbstractDomParser;
     function setRootDomAdapter(theAdapter: mz.core.dom.AbstractDomAdapter): void;
-    function setRootDomParser(theParser: mz.core.dom.AbstractDomParser): void;
 }
 declare namespace mz.core.dom {
     /**
@@ -1036,30 +1035,6 @@ declare namespace mz.core.dom {
         abstract getAnimationPrefix(): string;
         abstract getTransitionEnd(): string;
         abstract supportsAnimation(): boolean;
-    }
-}
-declare namespace mz.core.dom {
-    enum AstTypes {
-        root = 0,
-        directive = 1,
-        element = 2,
-        text = 3,
-        comment = 4,
-    }
-    class AstElement {
-        type: AstTypes;
-        name: string;
-        data: string;
-        children: AstElement[];
-        attrs: Dictionary<any>;
-    }
-    abstract class AbstractDomParser {
-        abstract parse(html: string): AstElement;
-    }
-}
-declare namespace mz.core.dom {
-    class HtmlParser extends AbstractDomParser {
-        parse(html: any): AstElement;
     }
 }
 declare namespace mz.core.dom {
@@ -1284,6 +1259,20 @@ declare module mz.widgets {
     }
 }
 declare module mz {
+    class AttributeDirective {
+        protected widget: Widget;
+        protected component: Widget;
+        private _value;
+        constructor(widget: Widget, component: Widget, value: any);
+        mount(): void;
+        unmount(): void;
+        protected changed(value: any, prevValue?: any): void;
+        value: any;
+    }
+    module AttributeDirective {
+        function Register(attrName: string): <T extends typeof AttributeDirective>(target: T) => void;
+        const directives: IMZComponentDirectiveCollection;
+    }
     interface IChildWidget extends mz.IWidget {
         node: Node;
         children: IChildWidget[];
@@ -1296,11 +1285,8 @@ declare module mz {
         $element: JQuery;
         jQueryEvent?: JQueryEventObject;
     }
-    interface IMZComponentDirective<T extends mz.Widget> {
-        (value: any, widget: T, parent: Widget): void;
-    }
     interface IMZComponentDirectiveCollection {
-        [attributte: string]: IMZComponentDirective<any>;
+        [attributte: string]: typeof AttributeDirective;
     }
     /**
     * Cacheo en memoria de los templates descargados
@@ -1324,6 +1310,7 @@ declare module mz {
         innerWidget: mz.Widget;
         private contentFragment;
         private _contentSelector;
+        protected attrDirectives: Dictionary<AttributeDirective>;
         private _unwrapedComponent;
         defaultTemplate: string;
         visible: boolean;
@@ -1332,7 +1319,6 @@ declare module mz {
         constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
         protected setUnwrapedComponent(value: boolean): void;
         protected generateScopedContent(scope?: any): IChildWidget[];
-        protected visible_changed(val: any): void;
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
         find(selector: string | Element | JQuery): JQuery;
@@ -1364,8 +1350,6 @@ declare module mz {
         }
     }
     module Widget {
-        var directives: IMZComponentDirectiveCollection;
-        function registerDirective<T extends mz.Widget>(attrName: string, callback: (value: any, widget: T, parent: Widget) => void): void;
         interface HTMLAttributes {
             accept?: string;
             acceptCharset?: string;
@@ -1492,7 +1476,32 @@ declare module mz.widgets {
         constructor(template: string, attr?: mz.Dictionary<any>);
     }
 }
-declare var symbol2wb: symbol | string;
+declare class MzModelDirective extends mz.AttributeDirective {
+    static symbol2wb: symbol | string;
+    static jqueryBindings: string;
+    changeBinding: any;
+    componentBinding: mz.EventDispatcherBinding;
+    widgetValueBinding: mz.EventDispatcherBinding;
+    private delayedBinding;
+    unmount(): void;
+    private teardown();
+    changed(value: string, prevVal: string): void;
+}
+declare namespace mz.widgets {
+    class MzInput extends mz.Widget {
+        value: any;
+    }
+}
+declare class MzRawDirective extends mz.AttributeDirective {
+    changed(val: string): void;
+}
+declare class MzVisibleDirective extends mz.AttributeDirective {
+    static vendorHiddenClass: string;
+    private listener;
+    mount(): void;
+    unmount(): void;
+    changed(val: any): void;
+}
 declare module mz.view {
     function html(literalSections: any, ...substs: any[]): string;
 }
@@ -1627,9 +1636,9 @@ declare type WidgetCtor = typeof mz.Widget;
 interface T {
     props: any;
 }
-declare namespace React {
+declare namespace mz.vdom {
     function createElement(type: string | WidgetCtor, props?: any, ...children: WidgetsType[]): mz.Widget;
-    var __spread: typeof mz.copy;
+    var __spread: typeof copy;
 }
 declare namespace mz {
     /**
@@ -1656,5 +1665,19 @@ declare module mz.widgets {
         private detachAllNodes();
         private delegateUnmountElements(elementoLista);
         redraw(tipo: string, a?: any, b?: any): void;
+    }
+}
+declare namespace mz.widgets {
+    class MzSwitcher extends mz.Widget {
+        panelVisible: MzSwitcherPanel;
+        panels: collection<MzSwitcherPanel>;
+        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], a: any, b: any, scope: any);
+        show(panel: MzSwitcherPanel): void;
+        resize(): void;
+    }
+    class MzSwitcherPanel extends mz.Widget {
+        parent: MzSwitcher;
+        show(): void;
+        isVisible(): boolean;
     }
 }

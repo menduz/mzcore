@@ -9,8 +9,6 @@
     "src/CORE/Collection.ts",
     "src/CORE/DOM.ts",
     "src/CORE/DOM/DOM.ts",
-    "src/CORE/DOM/DOMParser.ts",
-    "src/CORE/DOM/DOMParser_Impl.ts",
     "src/CORE/DOM/DOM_BrowserImpl.ts",
     "src/CORE/Date.ts",
     "src/CORE/Decorators.ts",
@@ -36,6 +34,7 @@
     "src/VIEW/Tmpl.ts",
     "src/VIEW/Widget.ts",
     "src/WIDGETS/mz-repeat.ts",
+    "src/WIDGETS/mz-switcher.ts",
     "src/mz.ts"
   ],
   "compilerOptions": {
