@@ -1,4 +1,4 @@
-import appController = require('bower_components/mz-appController/mz-appController-base');
+import appController = require('bower_components/mz-appcontroller/mz-appcontroller-base');
 
 @mz.Widget.Template(`<div>sarasa</div>`)
 class Main extends appController.Page {
