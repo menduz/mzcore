@@ -53,43 +53,44 @@ module mz {
                     }
                 }
             } else {
-                var archivo = mz.require.route(elem);
-
-                if (!archivo) {
-                    if (!/\.js$/.test(elem))
-                        archivo = elem + '.js';
-                    else
-                        archivo = elem;
-                }
-                if (archivo.endsWith('.ts')) {
-                    archivo = archivo.replace(/\.ts$/, '.js');
-                }
-
-                if (archivo) {
-                    mz.include(archivo, elem, esFn);
-                }
-
-                if (!esFn) {
-                    if (mz.modules[elem]) {
-                        if (mz.modules[elem].loaded)
-                            return mz.modules[elem].exports;
-                    } else {
-                        throw 'Módulo desconocido [[' + elem + ']]';
-                    }
-                } else {
-                    if (mz.modules[elem]) {
-                        if (mz.modules[elem].loaded)
-                            callback(mz.modules[elem].exports);
+                var promise = mz.require.route(elem).then(archivo => {
+                    if (!archivo) {
+                        if (!/\.js$/.test(elem))
+                            archivo = elem + '.js';
                         else
-                            mz.modules[elem].callbacks.push({
-                                cb: callback,
-                                reqs: elem
-                            });
-                        return mz.modules[elem];
-                    } else {
-                        return null;
+                            archivo = elem;
                     }
-                }
+                    
+                    if (archivo.endsWith('.ts')) {
+                        archivo = archivo.replace(/\.ts$/, '.js');
+                    }
+
+                    if (archivo) {
+                        mz.include(archivo, elem, esFn);
+                    }
+
+                    if (!esFn) {
+                        if (mz.modules[elem]) {
+                            if (mz.modules[elem].loaded)
+                                return mz.modules[elem].exports;
+                        } else {
+                            throw 'Módulo desconocido [[' + elem + ']]';
+                        }
+                    } else {
+                        if (mz.modules[elem]) {
+                            if (mz.modules[elem].loaded)
+                                callback(mz.modules[elem].exports);
+                            else
+                                mz.modules[elem].callbacks.push({
+                                    cb: callback,
+                                    reqs: elem
+                                });
+                            return mz.modules[elem];
+                        } else {
+                            return null;
+                        }
+                    }
+                });
             }
         }
     }
@@ -122,7 +123,7 @@ module mz {
         var successflag = false;
 
         if ('scriptBase' in mz) {
-            var baseURL = mz.xr.getAbsoluteUrl((<any>mz).scriptBase.toLowerCase()).toLowerCase();
+            var baseURL = mz.xr.getAbsoluteUrl(mz.scriptBase.toLowerCase()).toLowerCase();
 
             url = mz.xr.getAbsoluteUrl(url);
 
@@ -227,19 +228,22 @@ module mz.require {
         return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
     }
 
-    export var routes: { key: string; source: string|RegExp; destination: string|RegExp; }[] = [];
+    export var routes: { key: string; source: string | RegExp; destination: string | RegExp | ((sourceName: string) => Promise<string>); }[] = [];
 
-    export function route(matchPath: string | RegExp, destination: RegExp | string);
-    export function route(path: string): string;
-    export function route(source: string | RegExp, dest?: string | RegExp): string {
+
+    export function route(matchPath: string | RegExp, destination: RegExp | string | ((sourceName: string) => Promise<string>));
+    export function route(path: string): Promise<string>;
+    export function route(source: string | RegExp, dest?: string | RegExp) {
         if (arguments.length == 1 && typeof source === 'string') {
             for (var i in routes) {
                 var rt = routes[i];
 
                 if (typeof rt.source === "string" && rt.source == source) {
-                    return <string>rt.destination;
+                    return Promise.resolve(<string>rt.destination);
+                } else if (typeof routes[i].destination === "function") {
+                    return (routes[i].destination as any)(source);
                 } else if ((<RegExp>rt.source).test(source)) {
-                    return source.replace(<any>routes[i].source, <any>routes[i].destination);
+                    return Promise.resolve(source.replace(<any>routes[i].source, <any>routes[i].destination));
                 }
             }
         } else if (arguments.length == 2) {
@@ -263,21 +267,12 @@ module mz.require {
             else
                 routes[routeIndex] = newRoute;
         }
-        return null;
+        return Promise.resolve(null);
     }
 
     route('http://*', 'http://$1');
     route('https://*', 'https://$1');
     route('/*.js', '/$1.js');
-
-    route('mz.plugin.*.*\@latest', './plugins/$1/$1.$2.js');
-    route(/mz\.plugin\.([\w-]+)\.([\w-]+)\@([\w\.]+)$/, './plugins/$1/$3/$1.$2.js');
-    route('mz.plugin.*.*', './plugins/$1/$1.$2.js');
-    route('mz.plugin.*\@latest', './plugins/$1/$1.js');
-    route(/mz\.plugin\.([\w-]+)\@([\w\.]+)$/, './plugins/$1/$2/$1.js');
-    route('mz.plugin.*', './plugins/$1/$1.js');
-
-    route('mzcore.*', './mzcore.$1.js');
 
     export function defineFiles(files: mz.Dictionary<string>) {
         for (var i in files) {
@@ -288,9 +283,5 @@ module mz.require {
 }
 
 mz.require.route("jquery", "@mz/jquery.js");
-mz.require.route("backbone", "@mz/backbone.js");
-mz.require.route("underscore", "@mz/underscore.js");
-
-
 
 (<any>window).require = mz.require;
