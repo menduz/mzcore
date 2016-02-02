@@ -74,6 +74,7 @@ namespace mz {
         }
     }
     
+    export var scriptBase = '';
 
     // Path helpers
     export var core_path = (mzcorePath || '').toString();

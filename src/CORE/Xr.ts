@@ -39,7 +39,7 @@ module mz {
         }
 
         return promise(args, function(resolve, reject) {
-            var opts: xr.IXrArgs = <any>mz.copy({}, xr.defaults);
+            var opts: xr.IXrArgs = mz.copy({}, xr.defaults);
             
             // avoid copying headers to default's headers object
             opts.headers = mz.copy(opts.headers);
@@ -83,12 +83,6 @@ module mz {
                         data: xhr.response ? !opts.raw ? opts.load(xhr.response, xhr) : xhr.response : null,
                         url: originalURL
                     });
-
-                    (<any>mz).WebMethods.trigger(xhr.status, resultado);
-
-                    (<any>mz).WebMethods.trigger(originalURL, resultado.data);
-
-
 
                     if (resultado.data && resultado.data instanceof Promise) {
                         resultado.data.then(ok => {
@@ -224,15 +218,6 @@ module mz.xr {
                     return x.d;
                 return x;
             }).then(mz.promise.parseStringDates);
-
-            try {
-                x = (<any>xhr).responseJSON || JSON.parse(x);
-
-                if ('d' in x)
-                    x = x.d;
-
-                x = (<any>mz).json.leer_dates(x);
-            } catch (e) { }
         }
 
         return x;
@@ -280,8 +265,8 @@ module mz.xr {
 
             return t;
         };
-        
-       
+
+
     }
 
     export var defaults: IXrArgs = {
@@ -312,8 +297,8 @@ module mz.xr {
         data: any;
         url: string;
     }
-    
-    
+
+
     var urlParsingNode = document.createElement("a");
     var originUrl = urlResolve(location.href);
 
