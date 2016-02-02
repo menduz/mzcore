@@ -1,0 +1,96 @@
+<div>
+    <div style="margin:100px 0 161px 0">
+        <header class="title"><h1>To do list</h1></header>
+        
+        
+        <form onsubmit="{newToDo}" style="margin: 0 30px">
+            <div class="form-group">
+                <input type="text" class="form-control" style="width: calc(100% - 100px)" placeholder="New entry..." mz-model="todoText"/>
+                <button class="btn {btn-positive: CBool(todoText)} pull-right btn-large" type="submit" style="width: 85px;" disabled="{!CBool(todoText)}">Add</button>
+            </div>
+        </form>
+        
+        
+        <mz-repeat tag="ul" list="{todoList}">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" onclick="{taskFinished}" /> {scope.Name}
+                </label>
+            </div>
+        </mz-repeat>
+    </div>
+            
+    <pre lang="xml" syntax="YEAH!">
+        <h3>XML</h3>
+<![CDATA[
+<h1>To do list</h1>
+
+<form onsubmit="\{newToDo}">
+    <input type="text" placeholder="New entry..." mz-model="todoText" />
+    
+    <button class="btn \{btn-positive: !!todoText}" type="submit" disabled="\{!!todoText}"> 
+        Add
+    </button>
+</form>
+
+<mz-repeat tag="ul" list="\{todoList}">
+    <input type="checkbox" onclick="\{taskFinished}" /> 
+        {scope.Name}
+</mz-repeat>
+]]></pre>
+    <pre lang="typescript" syntax="YEAH!">
+        <h3>Typescript</h3>
+<![CDATA[
+// 
+class ToDo extends mz.widgets.BasePagelet \{
+    @mz.MVCObject.proxy
+    elementCount: number = 0;
+
+    @mz.MVCObject.proxy
+    todoText: string = '';
+
+    todoList = new mz.collection<any>;
+
+    constructor() \{
+        super();
+
+        this.loadTemplate("@views/todo.xml")
+
+        this.todoList.on('changed', () => this.elementCount = this.todoList.length);
+
+        this.todoList.addRange([
+            \{
+                Name: 'Example task..',
+                Date: new Date().toISOString()
+            }, \{
+                Name: 'Another task',
+                Date: new Date().toISOString()
+            }, \{
+                Name: 'Remember the milk',
+                Date: new Date().toISOString()
+            }, \{
+                Name: 'Learn Typescript',
+                Date: new Date().toISOString()
+            }
+        ]);
+    }
+
+    newToDo(e: mz.IMZComponentEvent) \{
+        if (this.todoText &amp;&amp; this.todoText.length) \{
+            this.todoList.push(\{
+                Name: this.todoText,
+                Date: new Date().toISOString()
+            \});
+            this.todoText = null;
+        }
+        e.event.preventDefault();
+    }
+
+    taskFinished(e: mz.IMZComponentEvent) \{
+        if (e.$element.is(":checked"))
+            this.todoList.remove(e.data);
+    }
+}
+]]>
+    </pre>
+</div>

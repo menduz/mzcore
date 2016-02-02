@@ -1,0 +1,30 @@
+[
+    {
+        "name": "index",
+        "module": "modules/index/index",
+        "routes": [
+            {
+                "name": "index",
+                "route": ""
+            },
+            {
+                "name": "index",
+                "route": "!index"
+            },
+            {
+                "name": "index",
+                "route": "!"
+            }
+        ]
+    },
+    {
+        "name": "examples-todo",
+        "module": "modules/examples/todo/todo",
+        "routes": [
+            {
+                "name": "todo",
+                "route": "!examples/todo"
+            }
+        ]
+    }
+]

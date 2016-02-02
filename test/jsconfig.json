@@ -1,7 +1,0 @@
-{
-	"compilerOptions": {
-		"module": "amd",
-		"target": "ES6",
-		"diagnostics": true
-	}
-}

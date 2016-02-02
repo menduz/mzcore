@@ -1,0 +1,8 @@
+{
+  "name": "mzcore-gh-pages",
+  "dependencies": {
+    "backbone": ">=1.2.0",
+    "underscore": "*",
+    "markdown-it": "^5.1.0"
+  }
+}

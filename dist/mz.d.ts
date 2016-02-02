@@ -28,7 +28,6 @@ declare namespace mz {
     }
     var globalContext: any;
     var _debug: any;
-    var scriptBase: string;
     var core_path: any;
     function alias(clave: any, ruta: any): void;
     function getPath(path: string, root?: string): any;
@@ -499,10 +498,10 @@ declare module mz.require {
     var routes: {
         key: string;
         source: string | RegExp;
-        destination: string | RegExp | ((sourceName: string) => Promise<string>);
+        destination: string | RegExp;
     }[];
-    function route(matchPath: string | RegExp, destination: RegExp | string | ((sourceName: string) => Promise<string>)): any;
-    function route(path: string): Promise<string>;
+    function route(matchPath: string | RegExp, destination: RegExp | string): any;
+    function route(path: string): string;
     function defineFiles(files: mz.Dictionary<string>): void;
 }
 declare module mz {
