@@ -4,7 +4,7 @@
 declare var MarkdownIt;
 mz.alias("views", module.getPath("./views"));
 
-import appController = require('bower_components/mz-appController/mz-appController-base');
+import appController = require('bower_components/mz-appcontroller/mz-appController-base');
 
 declare var hljs;
 

@@ -14,7 +14,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define(["require", "exports", "bower_components/markdown-it/dist/markdown-it.min.js", 'bower_components/mz-appController/mz-appController-base'], function (require, exports, MarkdownIt, appController) {
+define(["require", "exports", "bower_components/markdown-it/dist/markdown-it.min.js", 'bower_components/mz-appcontroller/mz-appController-base'], function (require, exports, MarkdownIt, appController) {
     mz.alias("views", module.getPath("./views"));
     var SyntaxHighlighter = (function (_super) {
         __extends(SyntaxHighlighter, _super);
