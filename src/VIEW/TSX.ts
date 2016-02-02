@@ -134,16 +134,16 @@ declare type WidgetCtor = typeof mz.Widget;
 
 interface T { props: any; }
 
-namespace React {
+namespace mz.vdom {
     export function createElement(
         type: string | WidgetCtor,
         props?: any,
         ...children: WidgetsType[]): mz.Widget {
         let ctor: WidgetCtor = null;
 
-        if (typeof type == "string") {
-            ctor = (<any>mz).widgets.BaseElement;
-            let typeStr = (<string>type).toLowerCase();
+        if (typeof type === "string") {
+            ctor = mz.widgets.BaseElement;
+            let typeStr = type.toLowerCase();
 
             if (typeStr in mz.widgets)
                 ctor = mz.widgets[typeStr];
@@ -164,7 +164,7 @@ namespace mz {
      * Hyperscript for JSX or TSX
      */
     export function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget {
-        var clase = (<any>mz).widgets.BaseElement;
+        var clase = mz.widgets.BaseElement;
         componentName = componentName.toLowerCase();
 
         if (componentName in widgets)
