@@ -65,9 +65,9 @@ module mz {
                 xhr.withCredentials = opts.withCredentials;
             }
 
+            let queryString = opts.params ? getParams(opts.params) : null;
 
-
-            xhr.open(opts.method, opts.params ? '' + opts.url.split('?')[0] + '?' + getParams(opts.params) : opts.url, true);
+            xhr.open(opts.method, queryString && queryString.length ? '' + opts.url.split('?')[0] + '?' + queryString : opts.url, true);
 
             xhr.addEventListener(xr.Events.READY_STATE_CHANGE, function(e) {
                 if (xhr.readyState == 4) {
