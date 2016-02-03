@@ -12,7 +12,7 @@ module mz.widgets {
         DOM: JQuery;
 
         constructor(private value: string, private component: Widget, private scope: any) {
-            var t = view.tmpl(value, component, scope);
+            let t = view.tmpl(value, component, scope);
 
             if (typeof t === "undefined") t = '';
 
@@ -29,7 +29,7 @@ module mz.widgets {
             this.component = component;
             this.scope = scope;
 
-            var t = view.tmpl(value, component, scope);
+            let t = view.tmpl(value, component, scope);
 
             if (typeof t === "undefined" || t === null) t = '';
 

@@ -3,7 +3,7 @@
 
 namespace mz {
 
-    export class collection<T> extends MVCObject {
+    export class Collection<T> extends MVCObject {
         opciones: IMZCollectionOpc = {};
 
         protected array: T[];
@@ -47,11 +47,11 @@ namespace mz {
         @param {Boolean} noTriggerear si es "true" entonces no se desencadena ningun evento del tipo "changed"
         */
         clear(noTriggerear?: boolean) {
-            this.trigger(collection.EVENTS.BeforeClearCollection, !!noTriggerear);
+            this.trigger(Collection.EVENTS.BeforeClearCollection, !!noTriggerear);
             this.array.length = 0;
             this.__indice__ = {};
-            this.trigger(collection.EVENTS.AfterClearCollection, !!noTriggerear);
-            !noTriggerear && this.emit(collection.EVENTS.Changed, 'clear', !!noTriggerear);
+            this.trigger(Collection.EVENTS.AfterClearCollection, !!noTriggerear);
+            !noTriggerear && this.emit(Collection.EVENTS.Changed, 'clear', !!noTriggerear);
         }
         /**
         Tamaño de la coleccion (getter)
@@ -82,7 +82,7 @@ namespace mz {
             } else {
                 this.array.length = nuevoTamanio;
             }
-            this.emit(collection.EVENTS.Changed, 'length', this.array.length);
+            this.emit(Collection.EVENTS.Changed, 'length', this.array.length);
             return this;
         }
 
@@ -92,10 +92,10 @@ namespace mz {
 	    @method map
 	    @param {Function} callback función que se va a ejecutar, a esta function se le pasa 1 argumento, el elemento de la coleccion que se esta iterando
 	    */
-        map<J>(func: (elem: T) => J, thisp?: any): collection<J> {
+        map<J>(func: (elem: T) => J, thisp?: any): Collection<J> {
             var thisp = arguments[1] || this;
 
-            var coll = new mz.collection<J>();
+            var coll = new Collection<J>();
 
             for (var i = 0; i < this.array.length; i++)
                 (i in this.array) && coll.push(func.call(thisp, this.array[i]));
@@ -204,7 +204,7 @@ namespace mz {
 	    @method groupBy
 	    @param {Mixed} what
 	    */
-        groupBy(what: ((T) => string) | string): Dictionary<collection<T>> {
+        groupBy(what: ((T) => string) | string): Dictionary<Collection<T>> {
             var fn;
 
             if (typeof what != 'function') {
@@ -215,7 +215,7 @@ namespace mz {
 
             if (!fn) return {};
 
-            var output: Dictionary<collection<T>> = {};
+            var output: Dictionary<Collection<T>> = {};
 
             this.forEach(function(e) {
                 var g = fn(e);
@@ -223,7 +223,7 @@ namespace mz {
                     if (g in output) {
                         output[g].push(e);
                     } else {
-                        output[g] = new mz.collection<T>([e], this.opciones);
+                        output[g] = new Collection<T>([e], this.opciones);
                     }
                 }
             });
@@ -264,12 +264,12 @@ namespace mz {
                 this.array.push(elemento);
                 this.array = this.array.concat(fin);
                 this._reindizar();
-                this.emit(collection.EVENTS.CollectionSorted);
-                this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
+                this.emit(Collection.EVENTS.CollectionSorted);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted);
             }
 
-            this.emit(collection.EVENTS.ElementInserted, indice, elemento);
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementInserted, indice, elemento);
+            this.emit(Collection.EVENTS.ElementInserted, indice, elemento);
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementInserted, indice, elemento);
         }
         /**
 	    Remueve un elemento en cualquier posicion de la coleccion. Dispara evento "changed" con los mismos argumentos que el evento "remove_at"
@@ -281,8 +281,8 @@ namespace mz {
             var backup = this.array[indice];
             this.array.splice(indice, 1);
             this._reindizar();
-            this.emit(collection.EVENTS.ElementRemoved, indice, backup);
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRemoved, indice, backup);
+            this.emit(Collection.EVENTS.ElementRemoved, indice, backup);
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementRemoved, indice, backup);
             return backup;
         }
         /**
@@ -296,8 +296,8 @@ namespace mz {
             this._deindizar(backup);
             this.array[indice] = elemento;
             this._indizar(elemento, indice);
-            this.emit(collection.EVENTS.ElementChanged, indice, elemento, backup);
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementChanged, indice, elemento, backup);
+            this.emit(Collection.EVENTS.ElementChanged, indice, elemento, backup);
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementChanged, indice, elemento, backup);
         }
 
 
@@ -333,8 +333,8 @@ namespace mz {
             }
 
             if (!noTriggerear) {
-                this.emit(collection.EVENTS.ElementInserted, indice, elemento);
-                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementInserted, indice, elemento);
+                this.emit(Collection.EVENTS.ElementInserted, indice, elemento);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementInserted, indice, elemento);
             }
 
             return indice;
@@ -351,8 +351,8 @@ namespace mz {
                 this._deindizar(ret);
 
                 if (!noTriggerear) {
-                    this.emit(collection.EVENTS.ElementRemoved, this.array.length, ret);
-                    this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRemoved, this.array.length, ret);
+                    this.emit(Collection.EVENTS.ElementRemoved, this.array.length, ret);
+                    this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementRemoved, this.array.length, ret);
                 }
                 return ret;
             }
@@ -361,14 +361,14 @@ namespace mz {
         
         
 
-        addRange(array: T[] | mz.collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean) {
+        addRange(array: T[] | Collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean) {
             if (!array) return this;
 
             var inicio = this.array.length - 1;
 
             this.agregandoLote = true;
 
-            if (Object.prototype.toString.call(array).toLowerCase() === "[object array]" || array instanceof mz.collection) {
+            if (Object.prototype.toString.call(array).toLowerCase() === "[object array]" || array instanceof Collection) {
                 if ('forEach' in array && typeof array.forEach == 'function') {
                     var that = this;
                     array.forEach(function(elem) {
@@ -386,8 +386,8 @@ namespace mz {
 
 
             if (!noTriggerear) {
-                this.emit(collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
-                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
+                this.emit(Collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementRangeInserted, inicio, this.array.length - 1, !noTriggerearCadaUno);
             }
 
             this.agregandoLote = false;
@@ -435,8 +435,8 @@ namespace mz {
         updateIndex(index: number) {
             if (index != -1) {
                 var elemento = this.getAt(index);
-                this.emit(collection.EVENTS.ElementChanged, index, elemento, elemento);
-                this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementChanged, index, elemento, elemento);
+                this.emit(Collection.EVENTS.ElementChanged, index, elemento, elemento);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementChanged, index, elemento, elemento);
             }
             return this;
         }
@@ -525,19 +525,19 @@ namespace mz {
 	     */
 
 
-        orderBy(what: ((a: T, b: T) => number) | string): collection<T> {
+        orderBy(what: ((a: T, b: T) => number) | string) {
 
             var orderBy = what ? mz.data.order.build(what) : undefined;
 
             this.array.sort(orderBy);
             this._reindizar();
 
-            this.emit(collection.EVENTS.CollectionSorted, what, 'ASC');
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, what);
+            this.emit(Collection.EVENTS.CollectionSorted, what, 'ASC');
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted, what);
 
             return this;
         }
-        orderByDesc(what: ((a: T, b: T) => number) | string): collection<T> {
+        orderByDesc(what: ((a: T, b: T) => number) | string) {
             var fn = what ? mz.data.order.build(what) : null;
 
             if (fn) {
@@ -551,8 +551,8 @@ namespace mz {
 
             this._reindizar();
 
-            this.emit(collection.EVENTS.CollectionSorted, what, 'DESC');
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, what);
+            this.emit(Collection.EVENTS.CollectionSorted, what, 'DESC');
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted, what);
             return this;
         }
 
@@ -580,9 +580,9 @@ namespace mz {
 	     *	@param {Function|MzDelegate} condicion
 	     */
 
-        where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any): collection<T> {
+        where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any) {
             if (typeof campoOCondicion === "string") {
-                var arr = new collection<T>();
+                var arr = new Collection<T>();
 
                 for (var i = 0; i < this.array.length; i++)
                     if ((i in this.array) && this.array[i][campoOCondicion] == arguments[1])
@@ -593,13 +593,13 @@ namespace mz {
                 if (this.array.length >= 10000) {
                     let fn = mz.compileFilter(campoOCondicion);
 
-                    return new mz.collection<T>(fn(this.array));
+                    return new Collection<T>(fn(this.array));
                 }
 
                 if (this.array.filter)
-                    return new collection<T>(this.array.filter(campoOCondicion));
+                    return new Collection<T>(this.array.filter(campoOCondicion));
 
-                var arr = new collection<T>();
+                var arr = new Collection<T>();
 
                 for (var i = 0; i < this.array.length; i++)
                     if ((i in this.array) && campoOCondicion(this.array[i]))
@@ -681,8 +681,8 @@ namespace mz {
                         salida.push(e.e);
                     });
 
-                    this.emit(collection.EVENTS.ElementRangeRemoved, salida);
-                    this.emit(collection.EVENTS.Changed, collection.EVENTS.ElementRangeRemoved, salida);
+                    this.emit(Collection.EVENTS.ElementRangeRemoved, salida);
+                    this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementRangeRemoved, salida);
                 }
 
                 return salida;
@@ -775,8 +775,8 @@ namespace mz {
 	    Clona la colección. Las referencias a los objetos van a ser las mismas.
 	    @method clone
 	    */
-        clone(): collection<T> {
-            var coll = new collection<T>(null, mz.copy(this.opciones));
+        clone() {
+            var coll = new Collection<T>(null, mz.copy(this.opciones));
 
             for (var i = 0; i < this.array.length; i++)
                 (i in this.array) && coll.push(this.array[i]);
@@ -985,8 +985,8 @@ namespace mz {
             this.array[segundo] = this.array[primero];
             this.array[primero] = viejo;
             this._reindizar();
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
-            this.emit(collection.EVENTS.Changed, 'swap', primero, segundo);
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted);
+            this.emit(Collection.EVENTS.Changed, 'swap', primero, segundo);
             return this;
         }
 
@@ -1039,8 +1039,8 @@ namespace mz {
         /** Reverses the actual collections order */
         reverse() {
             this.array.reverse();
-            this.emit(collection.EVENTS.CollectionSorted);
-            this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted);
+            this.emit(Collection.EVENTS.CollectionSorted);
+            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted);
         }
         
 
@@ -1049,7 +1049,7 @@ namespace mz {
          * - Merged = (Original ∈ New) + (New ∉ Original)
          * En todos los casos se va a llamar un evento changed del tipo insert_at, set_at o remove_at dependiendo de la operación.
          */
-        mergeArray(array: T[] | any[] | collection<T>, eliminarNoMatcheados?: boolean): { added: T[]; removed: T[] } {
+        mergeArray(array: T[] | any[] | Collection<T>, eliminarNoMatcheados?: boolean): { added: T[]; removed: T[] } {
             var ret = {
                 added: [],
                 removed: []
@@ -1084,8 +1084,8 @@ namespace mz {
             return ret;
         }
 
-        createView(): collectionView<T> {
-            return new collectionView<T>(this, mz.copy(this.opciones));
+        createView() {
+            return new CollectionView<T>(this, mz.copy(this.opciones));
         }
         
         /**
@@ -1095,8 +1095,8 @@ namespace mz {
     }
 
 
-    export class collectionView<T> extends collection<T> {
-        constructor(base: collection<T>, opc: IMZCollectionOpc) {
+    export class CollectionView<T> extends Collection<T> {
+        constructor(base: Collection<T>, opc: IMZCollectionOpc) {
             super(null, opc);
 
 
@@ -1116,7 +1116,7 @@ namespace mz {
         }
 
         private _handleChanged(tipo, nuevo, viejo) {
-            var necesitoReOrdenar = tipo == 'order' || tipo == collection.EVENTS.CollectionSorted || tipo == 'insert_at' || tipo == 'set_at' || tipo == 'addRange';
+            var necesitoReOrdenar = tipo == 'order' || tipo == Collection.EVENTS.CollectionSorted || tipo == 'insert_at' || tipo == 'set_at' || tipo == 'addRange';
 
             if (tipo == 'clear') {
                 this.clear();
@@ -1175,8 +1175,8 @@ namespace mz {
                 for (var i in this.array) {
                     if (this.array[i] !== vieja[i]) {
                         this._reindizar();
-                        this.emit(collection.EVENTS.CollectionSorted, orden.q, orden.desc ? 'DESC' : 'ASC');
-                        this.emit(collection.EVENTS.Changed, collection.EVENTS.CollectionSorted, orden.q);
+                        this.emit(Collection.EVENTS.CollectionSorted, orden.q, orden.desc ? 'DESC' : 'ASC');
+                        this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted, orden.q);
                         break;
                     }
                 }

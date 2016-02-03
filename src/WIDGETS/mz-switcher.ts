@@ -7,7 +7,7 @@ namespace mz.widgets {
         @mz.MVCObject.proxy
         panelVisible: MzSwitcherPanel;
 
-        panels = new mz.collection<MzSwitcherPanel>();
+        panels = new mz.Collection<MzSwitcherPanel>();
 
         constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], a, b, scope) {
             super(rootNode, attr, [], a, b, scope);

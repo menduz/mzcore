@@ -141,6 +141,361 @@ declare namespace mz {
     function globalCallback(cb: Function): string;
     function buscarArgumentoTipo(tipo: any, argu: any): any;
 }
+declare module mz.view {
+    function tmpl(str: string, context: any, scope?: any): any;
+    module tmpl {
+        var debug: boolean;
+        function internalTmpl(s: string, p?: any): Function;
+        function expr(s: any, n?: any): string;
+        function wrap(s: any, nonull: any): string;
+        function split(str: any, substrings: any): any[];
+        function extract(str: any, open: any, close: any): any[];
+    }
+}
+declare namespace mz {
+    var HIDDEN_PROP: string;
+    var hiddenProp: string;
+    var TRANSFORM_STYLE: string;
+    var TRANSFORM_CSS: string;
+}
+declare module mz {
+    class EventDispatcherBinding {
+        id: string;
+        cb: any;
+        evento: string;
+        sharedList: any;
+        object: EventDispatcher;
+        off(): void;
+    }
+    class EventDispatcher {
+        static EVENTS: {};
+        private ed_bindeos;
+        private ed_bindeosTotales;
+        private ed_bindCount;
+        on(event: string, callback: Function, once?: boolean): any;
+        once(event: string, callback: Function): any;
+        off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
+        emit(event: string, ...params: any[]): any[];
+        trigger: (event: string, ...params: any[]) => any[];
+    }
+}
+declare namespace mz {
+    class MVCObject extends mz.EventDispatcher {
+        static EVENTS: {
+            setValues: string;
+            valueChanged: string;
+        } & {};
+        protected data: Dictionary<any>;
+        constructor(args?: any);
+        getAll(): Dictionary<any>;
+        setValues(values: any | MVCObject, emit?: boolean): void;
+        set(field: string, value: any, NoTrigerearChanged?: boolean): void;
+        get(field: string): any;
+    }
+}
+declare namespace mz.MVCObject {
+    function proxy(target: mz.MVCObject, propertyKey: string | symbol): void;
+}
+declare module mz.core.decorators {
+    function LogResult(target: Function, key: string, value: any): {
+        value: (...args: any[]) => any;
+    };
+    function noEnumerable(target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any>;
+    function delayer(timeout: number): (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => TypedPropertyDescriptor<any>;
+    function screenDelayer<T>(target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> | void;
+}
+declare module mz.widgets {
+    class TextNode implements mz.IChildWidget {
+        private value;
+        private component;
+        private scope;
+        node: Text;
+        children: any[];
+        listening: EventDispatcherBinding[];
+        DOM: JQuery;
+        constructor(value: string, component: Widget, scope: any);
+        setup(value: string, component: Widget, scope: any): void;
+        unmount(): void;
+        refreshScope(): void;
+        private static pollObjects;
+        static returnToPoll(val: TextNode): void;
+        static getFromPoll(value: string, component: Widget, scope: any): TextNode;
+    }
+}
+declare module mz {
+    class AttributeDirective {
+        protected widget: Widget;
+        protected component: Widget;
+        private _value;
+        constructor(widget: Widget, component: Widget, value: any);
+        mount(): void;
+        unmount(): void;
+        protected changed(value: any, prevValue?: any): void;
+        value: any;
+    }
+    module AttributeDirective {
+        function Register(attrName: string): <T extends typeof AttributeDirective>(target: T) => void;
+        const directives: IMZComponentDirectiveCollection;
+    }
+    interface IChildWidget extends mz.IWidget {
+        node: Node;
+        children: IChildWidget[];
+        listening: any[];
+    }
+    interface IMZComponentEvent {
+        event: Event;
+        data: any;
+        element: Element;
+        $element: JQuery;
+        jQueryEvent?: JQueryEventObject;
+    }
+    interface IMZComponentDirectiveCollection {
+        [attributte: string]: typeof AttributeDirective;
+    }
+    /**
+    * Cacheo en memoria de los templates descargados
+    */
+    var widgetTemplateSource: {
+        [url: string]: any;
+    };
+    class Widget extends mz.MVCObject implements IChildWidget {
+        private _params;
+        private _parentComponent;
+        static EMPTY_TAG: boolean;
+        static props: {};
+        DOM: JQuery;
+        innerDOM: JQuery;
+        rootNode: Element;
+        contentNode: Element;
+        protected attrs: Dictionary<any>;
+        children: IChildWidget[];
+        node: Node;
+        listening: EventDispatcherBinding[];
+        innerWidget: mz.Widget;
+        private contentFragment;
+        private _contentSelector;
+        protected attrDirectives: Dictionary<AttributeDirective>;
+        private _unwrapedComponent;
+        defaultTemplate: string;
+        visible: boolean;
+        scope: any;
+        scope_changed(scope: any): void;
+        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
+        protected setUnwrapedComponent(value: boolean): void;
+        protected generateScopedContent(scope?: any): IChildWidget[];
+        attr(attrName: string, value?: any): any;
+        refreshScope(): void;
+        find(selector: string | Element | JQuery): JQuery;
+        protected loadTemplate(url: string, forceSync?: boolean): void;
+        protected componentInitialized(): void;
+        protected startComponent(xml: Document): any;
+        protected startComponent(parts?: string[] | XMLDocument, ...params: any[]): any;
+        protected appendChildrens(): void;
+        protected setContentSelector(selector: string): boolean;
+        append(element: JQuery | mz.IWidget | Node | Element): JQuery;
+        appendTo(element: JQuery | mz.IWidget | string | Element): JQuery;
+        protected initAttr(attr: any): void;
+        /**
+         * Resizes the current widget, it also sends a signal "resize" to all the childrens
+         */
+        resize(): void;
+        /**
+         *  Destroys the current widget and it's children
+         */
+        unmount(): void;
+        static RegisterComponent(componentName: string): (target: Function) => void;
+        static IsEmptyTag(target: typeof Widget): void;
+        static Template(template: string, contentSelector?: string): (target: Function) => void;
+        static Unwrap(target: Function): void;
+    }
+    module widgets {
+        class BaseElement extends Widget {
+            constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
+        }
+    }
+    module Widget {
+        interface HTMLAttributes {
+            accept?: string;
+            acceptCharset?: string;
+            accessKey?: string;
+            action?: string;
+            allowFullScreen?: boolean;
+            allowTransparency?: boolean;
+            alt?: string;
+            async?: boolean;
+            autoComplete?: boolean;
+            autoFocus?: boolean;
+            autoPlay?: boolean;
+            cellPadding?: number | string;
+            cellSpacing?: number | string;
+            charSet?: string;
+            checked?: boolean;
+            classID?: string;
+            cols?: number;
+            colSpan?: number;
+            content?: string;
+            contentEditable?: boolean;
+            contextMenu?: string;
+            controls?: any;
+            coords?: string;
+            crossOrigin?: string;
+            data?: string;
+            dateTime?: string;
+            defaultChecked?: boolean;
+            defaultValue?: string;
+            defer?: boolean;
+            dir?: string;
+            disabled?: boolean;
+            download?: any;
+            draggable?: boolean;
+            encType?: string;
+            form?: string;
+            formAction?: string;
+            formEncType?: string;
+            formMethod?: string;
+            formNoValidate?: boolean;
+            formTarget?: string;
+            frameBorder?: number | string;
+            headers?: string;
+            height?: number | string;
+            hidden?: boolean;
+            high?: number;
+            href?: string;
+            hrefLang?: string;
+            htmlFor?: string;
+            httpEquiv?: string;
+            icon?: string;
+            label?: string;
+            lang?: string;
+            list?: string;
+            loop?: boolean;
+            low?: number;
+            manifest?: string;
+            marginHeight?: number;
+            marginWidth?: number;
+            max?: number | string;
+            maxLength?: number;
+            media?: string;
+            mediaGroup?: string;
+            method?: string;
+            min?: number | string;
+            multiple?: boolean;
+            muted?: boolean;
+            name?: string;
+            noValidate?: boolean;
+            open?: boolean;
+            optimum?: number;
+            pattern?: string;
+            placeholder?: string;
+            poster?: string;
+            preload?: string;
+            radioGroup?: string;
+            readOnly?: boolean;
+            rel?: string;
+            required?: boolean;
+            role?: string;
+            rows?: number;
+            rowSpan?: number;
+            sandbox?: string;
+            scope?: string;
+            scoped?: boolean;
+            scrolling?: string;
+            seamless?: boolean;
+            selected?: boolean;
+            shape?: string;
+            size?: number;
+            sizes?: string;
+            span?: number;
+            spellCheck?: boolean;
+            src?: string;
+            srcDoc?: string;
+            srcSet?: string;
+            start?: number;
+            step?: number | string;
+            style?: string;
+            tabIndex?: number;
+            target?: string;
+            title?: string;
+            type?: string;
+            useMap?: string;
+            value?: string;
+            width?: number | string;
+            wmode?: string;
+            class?: string;
+            autoCapitalize?: boolean;
+            autoCorrect?: boolean;
+            property?: string;
+            itemProp?: string;
+            itemScope?: boolean;
+            itemType?: string;
+            unselectable?: boolean;
+        }
+    }
+}
+declare module mz.widgets {
+    class BasePagelet extends Widget {
+        constructor(attr?: mz.Dictionary<any>);
+    }
+    class InlinePagelet extends Widget {
+        constructor(template: string, attr?: mz.Dictionary<any>);
+    }
+}
+declare namespace mz.widgets {
+    class MzSwitcher extends mz.Widget {
+        panelVisible: MzSwitcherPanel;
+        panels: Collection<MzSwitcherPanel>;
+        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], a: any, b: any, scope: any);
+        show(panel: MzSwitcherPanel): void;
+        resize(): void;
+    }
+    class MzSwitcherPanel extends mz.Widget {
+        parent: MzSwitcher;
+        show(): void;
+        isVisible(): boolean;
+    }
+}
+declare var Backbone: any;
+declare namespace mz.app {
+    interface IAppControllerRoute {
+        name: string;
+        route: string;
+    }
+    interface IAppControllerRouteModule extends IAppControllerRoute {
+        page: IAppPageModule;
+    }
+    interface IAppPage {
+        name: string;
+        module: string;
+        routes: Array<IAppControllerRoute>;
+    }
+    interface IAppPageModule extends IAppPage {
+    }
+    class Page extends mz.widgets.MzSwitcherPanel {
+        routeHandler: mz.Dictionary<Function> | any;
+        parent: PageCoordinator;
+        constructor(appController: PageCoordinator);
+        handleRoute(routeName: string, ...args: any[]): void;
+        show(): void;
+        static instance: Page;
+    }
+    class PageCoordinator extends mz.widgets.MzSwitcher {
+        pages: mz.Collection<IAppPageModule>;
+        actualPage: Page;
+        constructor(opc: {
+            templateUrl?: string;
+            templateHtml?: string;
+            templateSelector?: string;
+            pages: string | Array<IAppPage>;
+            pagesCollection?: mz.Collection<IAppPageModule>;
+        });
+        setPages(pages: Array<IAppPage>): void;
+        routeHistory: string[];
+        loaded(): void;
+        show(page: Page): void;
+        navigate(route: string, trigger?: boolean): void;
+        getPage(pageName: string): Promise<Page>;
+    }
+}
 declare namespace mz.auth.jwt {
     function urlBase64Decode(str: any): any;
     function decodeToken(token: any): any;
@@ -437,27 +792,6 @@ interface String {
 }
 declare var sp: String;
 declare var re: RegExp;
-declare module mz {
-    class EventDispatcherBinding {
-        id: string;
-        cb: any;
-        evento: string;
-        sharedList: any;
-        object: EventDispatcher;
-        off(): void;
-    }
-    class EventDispatcher {
-        static EVENTS: {};
-        private ed_bindeos;
-        private ed_bindeosTotales;
-        private ed_bindCount;
-        on(event: string, callback: Function, once?: boolean): any;
-        once(event: string, callback: Function): any;
-        off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
-        emit(event: string, ...params: any[]): any[];
-        trigger: (event: string, ...params: any[]) => any[];
-    }
-}
 declare namespace mz.oauth2 {
     interface IRoleChecker {
         (role: string): boolean;
@@ -549,24 +883,7 @@ declare module mz.define {
     var currentModule: Module;
 }
 declare namespace mz {
-    class MVCObject extends mz.EventDispatcher {
-        static EVENTS: {
-            setValues: string;
-            valueChanged: string;
-        } & {};
-        protected data: Dictionary<any>;
-        constructor(args?: any);
-        getAll(): Dictionary<any>;
-        setValues(values: any | MVCObject, emit?: boolean): void;
-        set(field: string, value: any, NoTrigerearChanged?: boolean): void;
-        get(field: string): any;
-    }
-}
-declare namespace mz.MVCObject {
-    function proxy(target: mz.MVCObject, propertyKey: string | symbol): void;
-}
-declare namespace mz {
-    class collection<T> extends MVCObject {
+    class Collection<T> extends MVCObject {
         opciones: IMZCollectionOpc;
         protected array: T[];
         private __indice__;
@@ -611,7 +928,7 @@ declare namespace mz {
         @method map
         @param {Function} callback función que se va a ejecutar, a esta function se le pasa 1 argumento, el elemento de la coleccion que se esta iterando
         */
-        map<J>(func: (elem: T) => J, thisp?: any): collection<J>;
+        map<J>(func: (elem: T) => J, thisp?: any): Collection<J>;
         /**
         The forEach() method executes a provided function once per array element.
         El contexto "this" es el segundo argumento si se especifica, sino es la coleccion
@@ -643,7 +960,7 @@ declare namespace mz {
         @method groupBy
         @param {Mixed} what
         */
-        groupBy(what: ((T) => string) | string): Dictionary<collection<T>>;
+        groupBy(what: ((T) => string) | string): Dictionary<Collection<T>>;
         /**
         Obtiene la key de la coleccion
         @property key
@@ -684,7 +1001,7 @@ declare namespace mz {
         @param {Bool} noTriggerear si == 'true' entonces no se dispara ningún evento.
         */
         pop(noTriggerear?: boolean): T;
-        addRange(array: T[] | mz.collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean): this;
+        addRange(array: T[] | Collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean): this;
         /**
         Cuando se actualiza un valor en la colección y se quiere informar, se invoca a un método "update", "updateByKey" o "updateIndex".
         Estos desencadenan los eventos "set_at" y "changed".
@@ -735,8 +1052,8 @@ declare namespace mz {
          *	@method orderBy
          *	@param {Mixed} what
          */
-        orderBy(what: ((a: T, b: T) => number) | string): collection<T>;
-        orderByDesc(what: ((a: T, b: T) => number) | string): collection<T>;
+        orderBy(what: ((a: T, b: T) => number) | string): this;
+        orderByDesc(what: ((a: T, b: T) => number) | string): this;
         /**
         Devuelve true si hay algun elemento que cumpla con la condición
         @method some
@@ -750,7 +1067,7 @@ declare namespace mz {
          *	@method where
          *	@param {Function|MzDelegate} condicion
          */
-        where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any): collection<T>;
+        where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any): Collection<T>;
         /**
         Remueve un elemento buscandolo por clave
         @method removeByKey
@@ -814,7 +1131,7 @@ declare namespace mz {
         Clona la colección. Las referencias a los objetos van a ser las mismas.
         @method clone
         */
-        clone(): collection<T>;
+        clone(): Collection<T>;
         /**
         Obtiene un elemento buscando en el indice interno por clave primaria
         @method indexedGet
@@ -883,18 +1200,18 @@ declare namespace mz {
          * - Merged = (Original ∈ New) + (New ∉ Original)
          * En todos los casos se va a llamar un evento changed del tipo insert_at, set_at o remove_at dependiendo de la operación.
          */
-        mergeArray(array: T[] | any[] | collection<T>, eliminarNoMatcheados?: boolean): {
+        mergeArray(array: T[] | any[] | Collection<T>, eliminarNoMatcheados?: boolean): {
             added: T[];
             removed: T[];
         };
-        createView(): collectionView<T>;
+        createView(): CollectionView<T>;
         /**
          * Usar con cuidado.
          */
         getPrivateArray(): T[];
     }
-    class collectionView<T> extends collection<T> {
-        constructor(base: collection<T>, opc: IMZCollectionOpc);
+    class CollectionView<T> extends Collection<T> {
+        constructor(base: Collection<T>, opc: IMZCollectionOpc);
         private _handleChanged(tipo, nuevo, viejo);
         private _remake(noTriggerear?);
         resort(): void;
@@ -1160,14 +1477,6 @@ declare namespace mz.core.dom {
         performanceNow(): number;
     }
 }
-declare module mz.core.decorators {
-    function LogResult(target: Function, key: string, value: any): {
-        value: (...args: any[]) => any;
-    };
-    function noEnumerable(target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any>;
-    function delayer(timeout: number): (target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<any>) => TypedPropertyDescriptor<any>;
-    function screenDelayer<T>(target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> | void;
-}
 declare namespace Reflect {
     var MetadataInfo: string | symbol;
     function metadata(metadataKey: any, metadataValue: any): any;
@@ -1221,259 +1530,6 @@ declare namespace mz.css {
         private remake;
         refresh(): void;
         set(property: string, val: Dictionary<string | number>): void;
-    }
-}
-declare module mz.view {
-    function tmpl(str: string, context: any, scope?: any): any;
-    module tmpl {
-        var debug: boolean;
-        function internalTmpl(s: string, p?: any): Function;
-        function expr(s: any, n?: any): string;
-        function wrap(s: any, nonull: any): string;
-        function split(str: any, substrings: any): any[];
-        function extract(str: any, open: any, close: any): any[];
-    }
-}
-declare namespace mz {
-    var HIDDEN_PROP: string;
-    var hiddenProp: string;
-    var TRANSFORM_STYLE: string;
-    var TRANSFORM_CSS: string;
-}
-declare module mz.widgets {
-    class TextNode implements mz.IChildWidget {
-        private value;
-        private component;
-        private scope;
-        node: Text;
-        children: any[];
-        listening: EventDispatcherBinding[];
-        DOM: JQuery;
-        constructor(value: string, component: Widget, scope: any);
-        setup(value: string, component: Widget, scope: any): void;
-        unmount(): void;
-        refreshScope(): void;
-        private static pollObjects;
-        static returnToPoll(val: TextNode): void;
-        static getFromPoll(value: string, component: Widget, scope: any): TextNode;
-    }
-}
-declare module mz {
-    class AttributeDirective {
-        protected widget: Widget;
-        protected component: Widget;
-        private _value;
-        constructor(widget: Widget, component: Widget, value: any);
-        mount(): void;
-        unmount(): void;
-        protected changed(value: any, prevValue?: any): void;
-        value: any;
-    }
-    module AttributeDirective {
-        function Register(attrName: string): <T extends typeof AttributeDirective>(target: T) => void;
-        const directives: IMZComponentDirectiveCollection;
-    }
-    interface IChildWidget extends mz.IWidget {
-        node: Node;
-        children: IChildWidget[];
-        listening: any[];
-    }
-    interface IMZComponentEvent {
-        event: Event;
-        data: any;
-        element: Element;
-        $element: JQuery;
-        jQueryEvent?: JQueryEventObject;
-    }
-    interface IMZComponentDirectiveCollection {
-        [attributte: string]: typeof AttributeDirective;
-    }
-    /**
-    * Cacheo en memoria de los templates descargados
-    */
-    var widgetTemplateSource: {
-        [url: string]: any;
-    };
-    class Widget extends mz.MVCObject implements IChildWidget {
-        private _params;
-        private _parentComponent;
-        static EMPTY_TAG: boolean;
-        static props: {};
-        DOM: JQuery;
-        innerDOM: JQuery;
-        rootNode: Element;
-        contentNode: Element;
-        protected attrs: Dictionary<any>;
-        children: IChildWidget[];
-        node: Node;
-        listening: EventDispatcherBinding[];
-        innerWidget: mz.Widget;
-        private contentFragment;
-        private _contentSelector;
-        protected attrDirectives: Dictionary<AttributeDirective>;
-        private _unwrapedComponent;
-        defaultTemplate: string;
-        visible: boolean;
-        scope: any;
-        scope_changed(scope: any): void;
-        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
-        protected setUnwrapedComponent(value: boolean): void;
-        protected generateScopedContent(scope?: any): IChildWidget[];
-        attr(attrName: string, value?: any): any;
-        refreshScope(): void;
-        find(selector: string | Element | JQuery): JQuery;
-        protected loadTemplate(url: string, forceSync?: boolean): void;
-        protected componentInitialized(): void;
-        protected startComponent(xml: Document): any;
-        protected startComponent(parts?: string[] | XMLDocument, ...params: any[]): any;
-        protected appendChildrens(): void;
-        protected setContentSelector(selector: string): boolean;
-        append(element: JQuery | mz.IWidget | Node | Element): JQuery;
-        appendTo(element: JQuery | mz.IWidget | string | Element): JQuery;
-        protected initAttr(attr: any): void;
-        /**
-         * Resizes the current widget, it also sends a signal "resize" to all the childrens
-         */
-        resize(): void;
-        /**
-         *  Destroys the current widget and it's children
-         */
-        unmount(): void;
-        static RegisterComponent(componentName: string): (target: Function) => void;
-        static IsEmptyTag(target: typeof Widget): void;
-        static Template(template: string, contentSelector?: string): (target: Function) => void;
-        static Unwrap(target: Function): void;
-    }
-    module widgets {
-        class BaseElement extends Widget {
-            constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
-        }
-    }
-    module Widget {
-        interface HTMLAttributes {
-            accept?: string;
-            acceptCharset?: string;
-            accessKey?: string;
-            action?: string;
-            allowFullScreen?: boolean;
-            allowTransparency?: boolean;
-            alt?: string;
-            async?: boolean;
-            autoComplete?: boolean;
-            autoFocus?: boolean;
-            autoPlay?: boolean;
-            cellPadding?: number | string;
-            cellSpacing?: number | string;
-            charSet?: string;
-            checked?: boolean;
-            classID?: string;
-            cols?: number;
-            colSpan?: number;
-            content?: string;
-            contentEditable?: boolean;
-            contextMenu?: string;
-            controls?: any;
-            coords?: string;
-            crossOrigin?: string;
-            data?: string;
-            dateTime?: string;
-            defaultChecked?: boolean;
-            defaultValue?: string;
-            defer?: boolean;
-            dir?: string;
-            disabled?: boolean;
-            download?: any;
-            draggable?: boolean;
-            encType?: string;
-            form?: string;
-            formAction?: string;
-            formEncType?: string;
-            formMethod?: string;
-            formNoValidate?: boolean;
-            formTarget?: string;
-            frameBorder?: number | string;
-            headers?: string;
-            height?: number | string;
-            hidden?: boolean;
-            high?: number;
-            href?: string;
-            hrefLang?: string;
-            htmlFor?: string;
-            httpEquiv?: string;
-            icon?: string;
-            label?: string;
-            lang?: string;
-            list?: string;
-            loop?: boolean;
-            low?: number;
-            manifest?: string;
-            marginHeight?: number;
-            marginWidth?: number;
-            max?: number | string;
-            maxLength?: number;
-            media?: string;
-            mediaGroup?: string;
-            method?: string;
-            min?: number | string;
-            multiple?: boolean;
-            muted?: boolean;
-            name?: string;
-            noValidate?: boolean;
-            open?: boolean;
-            optimum?: number;
-            pattern?: string;
-            placeholder?: string;
-            poster?: string;
-            preload?: string;
-            radioGroup?: string;
-            readOnly?: boolean;
-            rel?: string;
-            required?: boolean;
-            role?: string;
-            rows?: number;
-            rowSpan?: number;
-            sandbox?: string;
-            scope?: string;
-            scoped?: boolean;
-            scrolling?: string;
-            seamless?: boolean;
-            selected?: boolean;
-            shape?: string;
-            size?: number;
-            sizes?: string;
-            span?: number;
-            spellCheck?: boolean;
-            src?: string;
-            srcDoc?: string;
-            srcSet?: string;
-            start?: number;
-            step?: number | string;
-            style?: string;
-            tabIndex?: number;
-            target?: string;
-            title?: string;
-            type?: string;
-            useMap?: string;
-            value?: string;
-            width?: number | string;
-            wmode?: string;
-            class?: string;
-            autoCapitalize?: boolean;
-            autoCorrect?: boolean;
-            property?: string;
-            itemProp?: string;
-            itemScope?: boolean;
-            itemType?: string;
-            unselectable?: boolean;
-        }
-    }
-}
-declare module mz.widgets {
-    class BasePagelet extends Widget {
-        constructor(attr?: mz.Dictionary<any>);
-    }
-    class InlinePagelet extends Widget {
-        constructor(template: string, attr?: mz.Dictionary<any>);
     }
 }
 declare class MzModelDirective extends mz.AttributeDirective {
@@ -1648,12 +1704,12 @@ declare namespace mz {
 }
 declare module mz.widgets {
     class MzRepeat extends mz.Widget {
-        list: mz.collection<any>;
+        list: mz.Collection<any>;
         afterAdd: (doms: mz.IChildWidget[], scope: any) => void;
         collectionKey: symbol | string;
         private item;
         props: {
-            list: mz.collection<any>;
+            list: mz.Collection<any>;
             afterAdd?: (doms: mz.IChildWidget[], scope: any) => void;
         };
         listenersLista: mz.EventDispatcherBinding[];
@@ -1665,19 +1721,5 @@ declare module mz.widgets {
         private detachAllNodes();
         private delegateUnmountElements(elementoLista);
         redraw(tipo: string, a?: any, b?: any): void;
-    }
-}
-declare namespace mz.widgets {
-    class MzSwitcher extends mz.Widget {
-        panelVisible: MzSwitcherPanel;
-        panels: collection<MzSwitcherPanel>;
-        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], a: any, b: any, scope: any);
-        show(panel: MzSwitcherPanel): void;
-        resize(): void;
-    }
-    class MzSwitcherPanel extends mz.Widget {
-        parent: MzSwitcher;
-        show(): void;
-        isVisible(): boolean;
     }
 }

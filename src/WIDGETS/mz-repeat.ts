@@ -23,7 +23,7 @@ module mz.widgets {
     export class MzRepeat extends mz.Widget {
 
         @mz.MVCObject.proxy
-        list: mz.collection<any>;
+        list: mz.Collection<any>;
 
         @mz.MVCObject.proxy
         afterAdd: (doms: mz.IChildWidget[], scope: any) => void;
@@ -33,7 +33,7 @@ module mz.widgets {
         private item: any;
 
         props: {
-            list: mz.collection<any>;
+            list: mz.Collection<any>;
             afterAdd?: (doms: mz.IChildWidget[], scope: any) => void;
         };
 
@@ -72,8 +72,8 @@ module mz.widgets {
                 this.detachAllNodes();
             }
 
-            if (list && !(list instanceof mz.collection)) {
-                console.error(new Error("<mz-repeat> expects attr 'list: mz.collection'"));
+            if (list && !(list instanceof mz.Collection)) {
+                console.error(new Error("<mz-repeat> expects attr 'list: mz.Collection'"));
                 return;
             }
 
@@ -144,7 +144,7 @@ module mz.widgets {
                 this.ponerElem(b);
             } else if (tipo == "remove_at" && b && b[this.collectionKey]) {
                 this.delegateUnmountElements(b);
-            } else if (/*tipo == "addRange" ||*/ tipo == "filter" || tipo == collection.EVENTS.CollectionSorted) {
+            } else if (/*tipo == "addRange" ||*/ tipo == "filter" || tipo == Collection.EVENTS.CollectionSorted) {
                 rebuild = true;
             } /*else if (tipo == "removed") {
                 rebuild = true;
@@ -152,7 +152,7 @@ module mz.widgets {
                 this.detachAllNodes();
                 this.list.forEach(delegateRefreshScope);
                 rebuild = true;
-            } else if (tipo == collection.EVENTS.BeforeClearCollection) {
+            } else if (tipo == Collection.EVENTS.BeforeClearCollection) {
                 this.list.forEach(this.delegateUnmountElements);
                 return;
             }
