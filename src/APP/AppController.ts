@@ -138,7 +138,7 @@ namespace mz.app {
 
             var that = this;
             
-            if(!Backbone && !('backbone' in mz.modules && (Backbone = mz.require('backbone')) && Backbone.history))
+            if(!mz.globalContext.Backbone && !('backbone' in mz.modules && (Backbone = mz.require('backbone')) && Backbone.history))
                 throw new Error("AppController requires Backbone, please install it before creating this.");
 
             for (var i in routes) {
