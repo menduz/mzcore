@@ -461,7 +461,7 @@ declare namespace mz.app {
         route: string;
     }
     interface IAppControllerRouteModule extends IAppControllerRoute {
-        page: IAppPageModule;
+        page: IAppPage;
     }
     interface IAppPage {
         name: string;
