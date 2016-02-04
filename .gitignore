@@ -1,2 +1,5 @@
 node_modules/**
-src/**/*.js
+src/**/*
+mz.d.ts
+mz.js.map
+src/**/*.ts
