@@ -1,5 +1,6 @@
 /// <reference path="../dist/mz.d.ts" />
 /// <amd-dependency path="bower_components/markdown-it/dist/markdown-it.min.js" name="MarkdownIt" />
+/// <amd-dependency path="bower_components/backbone/backbone.js" name="backbone" />
 
 declare var MarkdownIt;
 mz.alias("views", module.getPath("./views"));
