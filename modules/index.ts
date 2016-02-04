@@ -1,11 +1,12 @@
 /// <reference path="../dist/mz.d.ts" />
 /// <amd-dependency path="bower_components/markdown-it/dist/markdown-it.min.js" name="MarkdownIt" />
-/// <amd-dependency path="bower_components/backbone/backbone.js" name="backbone" />
+/// <amd-dependency path="backbone" name="backbone" />
 
 declare var MarkdownIt;
 mz.alias("views", module.getPath("./views"));
 
 declare var hljs;
+
 
 @mz.AttributeDirective.Register('syntax')
 class SyntaxHighlighter extends mz.AttributeDirective {
@@ -38,4 +39,5 @@ class Index extends mz.app.PageCoordinator {
         
     }
 }
-new Index;
+var app = new Index();
+export = {};
