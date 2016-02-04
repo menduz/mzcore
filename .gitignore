@@ -6,3 +6,9 @@ src/**/*.ts
 mz.d.ts
 
 src/APP/AppController.ts
+
+mz.d.ts
+
+src/APP/AppController.ts
+
+src/CORE/Route.ts
