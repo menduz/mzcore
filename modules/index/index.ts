@@ -1,7 +1,6 @@
-import appController = require('bower_components/mz-appcontroller/mz-appcontroller-base');
 
 @mz.Widget.Template(`<div>sarasa</div>`)
-class Main extends appController.Page {
+class Main extends mz.app.Page {
     constructor(a){
         super(a);
         this.loadTemplate(module.getPath('./index.xml'));

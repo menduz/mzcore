@@ -12,7 +12,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define(["require", "exports", 'bower_components/mz-appcontroller/mz-appcontroller-base'], function (require, exports, appController) {
+define(["require", "exports"], function (require, exports) {
     var Main = (function (_super) {
         __extends(Main, _super);
         function Main(a) {
@@ -30,7 +30,7 @@ define(["require", "exports", 'bower_components/mz-appcontroller/mz-appcontrolle
             __metadata('design:paramtypes', [Object])
         ], Main);
         return Main;
-    })(appController.Page);
+    })(mz.app.Page);
     return Main;
 });
 //# sourceMappingURL=index.js.map

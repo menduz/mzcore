@@ -1,6 +1,5 @@
-import appController = require('bower_components/mz-appcontroller/mz-appcontroller-base');
 
-class ToDo extends appController.Page {
+class ToDo extends mz.app.Page {
     /// TODO:
     @mz.MVCObject.proxy
     elementCount: number = 0;
@@ -8,7 +7,7 @@ class ToDo extends appController.Page {
     @mz.MVCObject.proxy
     todoText: string = '';
 
-    todoList = new mz.collection<any>();
+    todoList = new mz.Collection<any>();
 
     constructor(appController) {
         super(appController);

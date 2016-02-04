@@ -4,8 +4,6 @@
 declare var MarkdownIt;
 mz.alias("views", module.getPath("./views"));
 
-import appController = require('bower_components/mz-appcontroller/mz-appcontroller-base');
-
 declare var hljs;
 
 @mz.AttributeDirective.Register('syntax')
@@ -24,7 +22,7 @@ class MarkdownAttr extends mz.AttributeDirective {
     }
 }
 
-class Index extends appController.PageCoordinator {
+class Index extends mz.app.PageCoordinator {
     @mz.MVCObject.proxy
     loading: boolean = false;
 
