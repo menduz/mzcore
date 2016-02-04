@@ -145,7 +145,7 @@ namespace mz.app {
                 ((route: IAppControllerRouteModule) => {
                     routerParam[route.name] = function() {
                         var t = <any>arguments;
-                        this.getPage(route.page.name).then((modulo: Page) => {
+                        that.getPage(route.page.name).then((modulo: Page) => {
                             if (route.name in modulo.routeHandler) {
                                 modulo.routeHandler[route.name].apply(modulo, t);
                             }

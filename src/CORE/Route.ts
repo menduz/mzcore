@@ -1,15 +1,17 @@
 ﻿/// <reference path="AMD/Require.ts" />
 
-interface RouterOptions {
+
+module mz {
+    export interface RouterOptions {
         routes: any;
     }
-    
-     interface NavigateOptions {
+
+    export interface NavigateOptions {
         trigger?: boolean;
     }
-    
 
-     interface TheRouter  {
+
+    export interface TheRouter {
         on(eventName: string, callback?: Function, context?: any): any;
         off(eventName?: string, callback?: Function, context?: any): any;
         trigger(eventName: string, ...args: any[]): any;
@@ -36,23 +38,19 @@ interface RouterOptions {
         navigate(fragment: string, trigger?: boolean): TheRouter;
 
     }
-    
-     
-    interface mzBackboneRouter extends TheRouter {
+
+
+    export interface mzBackboneRouter extends TheRouter {
         start(options: RouterOptions, cb?: (route: TheRouter) => void);
     }
 
-module mz {
-    
-    
-
     export var route: mzBackboneRouter = <any>{
         start: (options: RouterOptions, cb?: (route: TheRouter) => void) => {
-            var b = mz.require("backbone");
+            var b = mz.globalContext.Backbone || mz.require("backbone");
 
             route = mz.route = new (b.Router.extend(options))();
             b.history.start();
-            route.start = function (a, b) {
+            route.start = function(a, b) {
                 b && b(route)
             };
             console.log("Backbone loaded! Route started!", mz.route);
