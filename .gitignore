@@ -4,3 +4,5 @@ mz.d.ts
 mz.js.map
 src/**/*.ts
 mz.d.ts
+
+src/APP/AppController.ts
