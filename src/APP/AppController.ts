@@ -50,6 +50,7 @@ namespace mz.app {
         static instance: Page;
     }
 
+    @mz.Widget.ConfigureUnwrapped
     export class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
 
@@ -67,7 +68,7 @@ namespace mz.app {
 
             this.pages = opc.pagesCollection || new mz.Collection<IAppPageModule>(null, { key: "name" });
 
-            this.setUnwrapedComponent(true);
+            
 
             if (opc.templateHtml && opc.templateUrl) {
                 throw new Error("You must set only templateUrl or templateHtml, not both.")

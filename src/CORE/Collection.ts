@@ -1203,42 +1203,40 @@ namespace mz {
             });
             return this;
         }
-        attachTo(obj) {
+        attachTo(obj: Collection<T>) {
             this.detach();
             this.set('bindeosParent', []);
             this.set('parent', obj);
             if (obj) {
                 var that = this;
 
-                this.get('bindeosParent').push(obj.on('clear', function(noPropagado) {
-                    if (noPropagado) {
-                        that.clear(noPropagado);
-                    }
+                this.get('bindeosParent').push(obj.on(Collection.EVENTS.AfterClearCollection, function() {
+                    that.clear();
                 }));
 
                 this.get('bindeosParent').push(
-                    obj.on('pre_clear', function(noPropagado) {
-                        that.trigger('pre_clear', noPropagado);
+                    obj.on(Collection.EVENTS.BeforeClearCollection, function(noPropagado) {
+                        that.trigger(CollectionView.EVENTS.BeforeClearCollection, noPropagado);
                     })
                 );
 
                 this.get('bindeosParent').push(
                     obj.on('changed', function(tipo, a1, a2) {
-                        if ((tipo == 'insert_at' || tipo == 'set_at') && obj.get('agregandoLote')) return;
+                        if ((tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged) && obj.agregandoLote) return;
 
                         var filter = that.get('filter');
 
-                        if (tipo == 'insert_at' || tipo == 'set_at' || tipo == 'remove_at') {
+                        if (tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged || tipo == Collection.EVENTS.ElementRemoved) {
                             var indice = that.indexOf(a2);
                             if (!filter || filter(a2)) {
                                 switch (tipo) {
-                                    case 'insert_at':
+                                    case Collection.EVENTS.ElementInserted:
                                         if (indice == -1) {
                                             that.push(a2);
                                             that.resort();
                                         }
                                         return;
-                                    case 'set_at':
+                                    case Collection.EVENTS.ElementChanged:
 
                                         if (indice != -1) {
                                             that.updateIndex(indice);
@@ -1249,7 +1247,7 @@ namespace mz {
                                         that.resort();
 
                                         return;
-                                    case 'remove_at':
+                                    case Collection.EVENTS.ElementRemoved:
                                         if (indice != -1) {
                                             that.removeAt(indice);
                                             return;

@@ -58,7 +58,7 @@ module mz {
     }
 
     export interface IChildWidget extends mz.IWidget {
-        node: Node;
+        rootNode: Node;
         children: IChildWidget[];
         listening: any[];
     }
@@ -129,6 +129,8 @@ module mz {
     }
 
     var lonelyProperty = /^\{([A-Za-z0-9_$\-]+)\}$/;
+    var lonelyPropertyThis = /^\{this\.([A-Za-z0-9_$\-]+)\}$/;
+
 
     /**
     * Esta función es usada para bindear un atributo a los cambios de MVCObject que pueden llegar a modificar el valor del atributo
@@ -138,7 +140,7 @@ module mz {
         
         // attr="{hola}" 
         // mando directamente Val(hola) a el atributo
-        if (match = lonelyProperty.exec(attrValue)) {
+        if ((match = lonelyProperty.exec(attrValue)) || (match = lonelyPropertyThis.exec(attrValue))) {
             return observable.on(match[1] + '_changed', function(a, b) {
                 if (a !== b) {
                     if (widget.attr(attrName) != a)
@@ -171,7 +173,7 @@ module mz {
 
 
     /** 
-    * Cacheo en memoria de los templates descargados
+    * Local template's document caché
     */
     export var widgetTemplateSource: {
         [url: string]: any;
@@ -193,28 +195,32 @@ module mz {
             if (match)
                 return params[parseInt(match[1])];
 
+
+            // detect if we have {} on the text
             if (tieneLlaves.test(value)) {
                 var childWidget = widgets.TextNode.getFromPoll(value, component, scope);
 
-                // Si el valor del text se no mete en el scope directamente "{scope.hola}"
+                // We don't mess with "{scope.hola}" expr
+                // But we do with 
                 if (component && !(testScope.test(value))) {
 
-
-                    if (match = lonelyProperty.exec(value)) {
+                    // If the expr is "{prop}" or "{this.prop}" we assume a proxy
+                    if ((match = lonelyProperty.exec(value)) || (match = lonelyPropertyThis.exec(value))) {
                         childWidget.listening.push(component.on(match[1] + '_changed', function(a, b) {
                             if (a != b) {
                                 if (typeof a === "undefined" || a === null) a = '';
-                                if (childWidget.node.textContent != a)
-                                    childWidget.node.textContent = a;
+                                if (childWidget.rootNode.textContent != a)
+                                    childWidget.rootNode.textContent = a;
                             }
                         }));
                     } else {
+                        // catch other samples, ex: "$ {this.value + scope.value} {currency}"
                         childWidget.listening.push(component.on('valueChanged', function(data, elem, a, b) {
                             if (a != b && value.indexOf(elem) != -1) {
                                 let t = view.tmpl(value, component, scope);
                                 if (typeof t === "undefined" || t === null) t = '';
-                                if (childWidget.node.textContent != t) {
-                                    childWidget.node.textContent = t;
+                                if (childWidget.rootNode.textContent != t) {
+                                    childWidget.rootNode.textContent = t;
                                 }
                             }
                         }));
@@ -246,6 +252,7 @@ module mz {
 
         for (var i = node.attributes.length - 1; i >= 0; i--) {
             var attr = node.attributes[i];
+
             attrs[attr.name] = attr.value;
 
             match = attr.value.match(paramRegex);
@@ -258,8 +265,8 @@ module mz {
                     attrs[attr.name] = view.tmpl(attr.value, component, scope);
 
                     if (typeof attrs[attr.name] === "function") {
-                        attrs[attr.name] = attrs[attr.name].bind(component);//testScope.test(attr.value) ? scope : component);
-                    }  
+                        attrs[attr.name] = attrs[attr.name].bind(component);
+                    }
                     // el atributo puede llegar a cambiar, tiene una llave. Lo marco como elegible para escuchar los cambios del MVCObject
                     else if (tieneLlaves.test(attr.value)) {
                         bindeableAttrs[attr.name] = attr.value;
@@ -344,16 +351,27 @@ module mz {
     export class Widget extends mz.MVCObject implements IChildWidget {
         static EMPTY_TAG = false;
         static props = {};
+        static nodeName = null;
 
-        DOM: JQuery;
-        innerDOM: JQuery;
+        static EVENTS = mz.copy({
+            ComponentUnmounted: 'unmount',
+            ComponentResized: 'resize',
+            ComponentMounted: 'mount'
+        }, mz.MVCObject.EVENTS)
+
+
+
         rootNode: Element;
+        
+        // element where all the children will be appended
+        
         contentNode: Element;
-        protected attrs: Dictionary<any> = {};
+
         children: IChildWidget[];
-        node: Node;
+
         listening: EventDispatcherBinding[] = [];
         innerWidget: mz.Widget = null;
+
         private contentFragment: DocumentFragment;
         private _contentSelector: string;
 
@@ -364,36 +382,34 @@ module mz {
         defaultTemplate: string;
 
         @mz.MVCObject.proxy
-        visible: boolean;
-
-        @mz.MVCObject.proxy
         scope: any;
 
         scope_changed(scope) {
             (<any>this.rootNode).$scope = scope;
         }
 
-        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], private _params: any = null, private _parentComponent: Widget = null, scope = null) {
+        private _cachedDOM: JQuery;
+
+        get DOM(): JQuery {
+            return this._cachedDOM || (this._cachedDOM = $(this.rootNode));
+        }
+
+        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], private _params: any = null, private _parentComponent: Widget = null, scope?) {
             super();
 
             this.contentFragment = document.createDocumentFragment();
             this.contentNode = this.rootNode = document.createElement(attr && attr["tag"] || rootNode && rootNode.nodeName || (<any>this["constructor"]).nodeName || (<any>this["constructor"]).name || 'div');
 
-
             (<any>this.rootNode).$widget = this;
             (<any>this.rootNode).$component = _parentComponent || this;
-
-            this.node = rootNode || this.rootNode;
-
-            this.DOM = $(this.rootNode);
 
             this.scope = scope || null;
 
             this.children = children;
-            this.attrs = attr || {};
 
             if (this.defaultTemplate) {
                 this.startComponent([this.defaultTemplate]);
+                this.emit(Widget.EVENTS.ComponentMounted);
             }
 
             if (attr) {
@@ -405,29 +421,8 @@ module mz {
             }
         }
 
-        protected setUnwrapedComponent(value: boolean) {
-            if (this._unwrapedComponent != undefined) {
-                throw new Error("unwrapedComponent can be setted only once");
-            }
-
-            this._unwrapedComponent = value;
-
-            if (value) {
-                var originalNode = this.rootNode;
-
-                if (this.innerDOM) {
-                    this.DOM = this.innerDOM;
-                    this.rootNode = this.DOM[0];
-                }
-
-                if (originalNode && originalNode.parentElement && this.rootNode != originalNode) {
-                    originalNode.parentElement.replaceChild(this.rootNode, originalNode)
-                }
-            }
-        }
-
         protected generateScopedContent(scope?): IChildWidget[] {
-            return getChildNodes(this.node, this._params, this._parentComponent, scope || this);
+            return getChildNodes(this.rootNode, this._params, this._parentComponent, scope || this);
         }
 
         attr(attrName: string, value?: any) {
@@ -448,7 +443,6 @@ module mz {
                 }
 
                 this.set(attrName, value);
-                this.attrs[attrName] = value;
 
                 if (attrNameLower in AttributeDirective.directives && AttributeDirective.directives[attrNameLower]) {
                     if (!this.attrDirectives)
@@ -519,11 +513,13 @@ module mz {
                     widgetTemplateSource[url] = xhr.responseXML;
                     this.startComponent(xhr.responseXML);
                     this.componentInitialized();
+                    this.emit(Widget.EVENTS.ComponentMounted);
                     requestAnimationFrame(() => this.resize());
                 } else if (xhr.responseText && xhr.responseText.length) {
                     widgetTemplateSource[url] = [xhr.responseText];
                     this.startComponent([xhr.responseText], []);
                     this.componentInitialized();
+                    this.emit(Widget.EVENTS.ComponentMounted);
                     requestAnimationFrame(() => this.resize());
                 } else {
                     throw new TypeError("Unexpected response for mz.Widget.loadTemplate. Url: " + transformedUrl + ' (' + url + ')');
@@ -554,24 +550,14 @@ module mz {
 
                 if (doc.childNodes.length > 1) console.warn("Only one child node is allowed per widget.", doc, this);
 
-                if (!this._contentSelector) {
-                    if (doc.firstChild && doc.firstChild.childNodes.length == 0)
-                        this._contentSelector = ':root';
-                    else
-                        this._contentSelector = 'content';
-                }
-
                 this.innerWidget = <Widget>domToWidgets(doc.firstChild, params, this, this.scope);
-
-                this.innerDOM = this.innerWidget.DOM;
             }
 
             if (this._unwrapedComponent) {
                 let originalNode = this.rootNode, originalNode$ = this.DOM;
 
-                if (this.innerDOM) {
-                    this.DOM = this.innerDOM;
-                    this.rootNode = this.DOM[0];
+                if (this.innerWidget) {
+                    this.rootNode = this.innerWidget.rootNode;
 
                     if (this.rootNode != originalNode) {
                         for (var i = 0; i < originalNode.attributes.length; i++) {
@@ -579,29 +565,29 @@ module mz {
 
                             if (!('specified' in attrib) || attrib.specified) {
                                 if (attrib.name.toLowerCase() == "class")
-                                    this.DOM.addClass(attrib.value);
+                                    mz.dom.adapter.addClass(this.rootNode, attrib.value);
                                 else
-                                    this.DOM.attr(attrib.name, attrib.value);
+                                    mz.dom.adapter.setAttribute(this.rootNode, attrib.name, attrib.value);
+
                             }
                         }
 
                         if (originalNode && originalNode.parentElement) {
-                            originalNode.parentElement.replaceChild(this.rootNode, originalNode.parentElement)
+                            mz.dom.adapter.replaceChild(originalNode.parentElement, this.rootNode, originalNode);
                         }
                     }
                 }
+            } else {
+                mz.dom.adapter.appendChild(this.rootNode, this.innerWidget.rootNode);
             }
 
-            if (this.innerDOM || !this.contentNode)
-                this.contentNode = this.innerDOM && this.innerDOM[0] || this.rootNode || this.contentNode;
-
-            if (this.innerDOM && this.innerDOM != this.DOM)
-                this.innerDOM.appendTo(this.DOM);
+            if (!this.contentNode)
+                this.contentNode = this.rootNode || this.contentNode;
 
             let apendeado = false;
 
             if (this._contentSelector)
-                apendeado = this.setContentSelector(this._contentSelector);
+                apendeado = this.findContentSelector();
 
             if (!apendeado)
                 this.appendChildrens();
@@ -612,7 +598,7 @@ module mz {
         protected appendChildrens() {
             this.children.forEach((element: any) => {
                 if (element && typeof element == "object") {
-                    if ('rootNode' in element && element.rootNode instanceof HTMLElement)
+                    if ('rootNode' in element && element.rootNode instanceof Node)
                         this.contentFragment.appendChild(element.rootNode);
                     else if ('DOM' in element && element.DOM)
                         element.DOM.appendTo(this.contentFragment);
@@ -626,6 +612,7 @@ module mz {
                     this.contentFragment.appendChild(document.createTextNode(element));
                 }
             });
+
             if (this.contentNode) {
                 this.contentNode.appendChild(this.contentFragment);
             } else if (this.contentFragment.firstChild) {
@@ -633,17 +620,17 @@ module mz {
             }
         }
 
-        protected setContentSelector(selector: string): boolean {
-            this._contentSelector = selector;
-            if (this.innerDOM) { // Component started
-                var prevContent = this.contentNode;
-                this.contentNode = selector == ":root" ? this.rootNode : (<HTMLElement>this.rootNode).querySelector(selector);
+        protected findContentSelector(): boolean {
+            var prevContent = this.contentNode;
 
-                if (prevContent !== this.contentNode && this.contentNode) {
-                    this.appendChildrens();
-                    return true;
-                }
+            this.contentNode = this._contentSelector == ":root" ? this.rootNode : mz.dom.adapter.querySelector(this.rootNode, this._contentSelector);
+
+            if (prevContent !== this.contentNode && this.contentNode) {
+                this.appendChildrens();
+                return true;
             }
+
+
             return false;
         }
 
@@ -654,13 +641,13 @@ module mz {
                 } else if (element instanceof Widget) {
                     this.contentNode.appendChild((<mz.Widget>element).rootNode);
                 } else if (element instanceof widgets.TextNode) {
-                    this.contentNode.appendChild((<widgets.TextNode>element).node);
+                    this.contentNode.appendChild((<widgets.TextNode>element).rootNode);
                 } else if (element instanceof $) {
                     return (<JQuery>element).appendTo($(this.contentNode));
                 } else if ('DOM' in element && (<IWidget>element).DOM instanceof $) {
                     return (<IWidget>element).DOM.appendTo($(this.contentNode));
                 } else {
-                    return $(element).appendTo($(this.contentNode));
+                    return this.contentNode && $(element).appendTo(this.contentNode);
                 }
             }
         }
@@ -669,17 +656,16 @@ module mz {
             if (element && element instanceof Widget) {
                 return (<mz.Widget>element).append(this);
             } else if (element && typeof element == "object" && 'DOM' in (<any>element) && (<any>element).DOM instanceof $) {
-                return (<mz.IWidget>element).DOM.append(this.DOM);
+                return (<mz.IWidget>element).DOM.append(this.rootNode);
             } else if (element && element instanceof $) {
-                return (<JQuery>element).append(this.DOM);
+                return (<JQuery>element).append(this.rootNode);
             } else {
-                return $(element).append(this.DOM);
+                return $(element).append(this.rootNode);
             }
         }
 
         protected initAttr(attr: any) {
             if (attr) {
-                if (!this.attrs) this.attr = attr;
                 for (let i in attr) {
                     this.attr(i, attr[i]);
                 }
@@ -689,25 +675,27 @@ module mz {
          * Resizes the current widget, it also sends a signal "resize" to all the childrens
          */
         resize() {
-            this.emit('resize');
+            this.emit(Widget.EVENTS.ComponentResized);
             this.innerWidget && this.innerWidget.resize && this.innerWidget.resize();
             this.children.forEach((e: any) => e && typeof e == 'object' && e.resize && e.resize());
         }
         /**
          *  Destroys the current widget and it's children
          */
-        unmount() {            
+        unmount() {
             if (this.attrDirectives)
                 for (let i in this.attrDirectives)
                     ('unmount' in this.attrDirectives) && this.attrDirectives[i].unmount();
 
-            this.DOM.remove();
-            this.innerDOM = null;
-            
-            this.emit('unmount');
+            mz.dom.adapter.remove(this.rootNode);
+            this._cachedDOM && this._cachedDOM.remove();
+
+            this.emit(Widget.EVENTS.ComponentUnmounted);
             this.off();
+
             for (let i of this.listening)
                 i && i.off && i.off();
+
             this.listening.length = 0;
 
             delete this.data;
@@ -731,8 +719,8 @@ module mz {
             }
         }
 
-        static IsEmptyTag(target: typeof Widget) {
-            target.EMPTY_TAG = true;
+        static ConfigureEmptyTag(target: Function) {
+            (target as any).EMPTY_TAG = true;
         }
 
         static Template(template: string, contentSelector?: string) {
@@ -744,21 +732,20 @@ module mz {
             }
         }
 
-        static Unwrap(target: Function) {
+        static ConfigureUnwrapped(target: Function) {
             target.prototype._unwrapedComponent = true;
         }
-    }
-    export module widgets {
-        export class BaseElement extends Widget {
-            constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params: any = null, _parentComponent: Widget = null, scope = null) {
-                if (rootNode) attr['tag'] = rootNode.nodeName;
-                super(rootNode, attr, children, _params, _parentComponent, scope);
-                this.appendChildrens();
+
+        static ConfigureTag(tagName: string) {
+            return function(target: Function) {
+                target.prototype.tagName = true;
             }
         }
     }
 
-    export module Widget {
+    export namespace Widget {
+
+
         export interface HTMLAttributes {
             accept?: string;
             acceptCharset?: string;
@@ -881,16 +868,24 @@ module mz {
     }
 }
 
-module mz.widgets {
+namespace mz.widgets {
+    export class BaseElement extends Widget {
+        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params: any = null, _parentComponent: Widget = null, scope = null) {
+            if (rootNode) attr['tag'] = rootNode.nodeName;
+            super(rootNode, attr, children, _params, _parentComponent, scope);
+            this.appendChildrens();
+        }
+    }
+
     export class BasePagelet extends Widget {
         constructor(attr?: mz.Dictionary<any>) {
-            super(null, attr || {}, [], this, this, {});
+            super(null, attr || {}, [], this, this, null);
         }
     }
 
     export class InlinePagelet extends Widget {
         constructor(template: string, attr?: mz.Dictionary<any>) {
-            super(null, attr || {}, [], this, this, {});
+            super(null, attr || {}, [], this, this, null);
             this.startComponent([template]);
         }
     }
