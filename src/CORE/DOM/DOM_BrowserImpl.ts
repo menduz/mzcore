@@ -1,6 +1,6 @@
 /// <reference path="DOM.ts" />
 
-namespace mz.core.dom {
+namespace mz.dom {
 	var _attrToPropMap = {
 		'class': 'className',
 		'innerHtml': 'innerHTML',

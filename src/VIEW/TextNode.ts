@@ -6,7 +6,7 @@
 
 module mz.widgets {
     export class TextNode implements mz.IChildWidget {
-        node: Text;
+        rootNode: Text;
         children: any[];
         listening: EventDispatcherBinding[] = [];
         DOM: JQuery;
@@ -16,12 +16,12 @@ module mz.widgets {
 
             if (typeof t === "undefined") t = '';
 
-            this.node = document.createTextNode(t);
+            this.rootNode = mz.dom.adapter.createTextNode(t);
             
-            (<any>this.node).$tmpl = value;
-            (<any>this.node).$component = component;
-            (<any>this.node).$scope = scope;
-            (<any>this.node).$widget = this;
+            (<any>this.rootNode).$tmpl = value;
+            (<any>this.rootNode).$component = component;
+            (<any>this.rootNode).$scope = scope;
+            (<any>this.rootNode).$widget = this;
         }
 
         setup(value: string, component: Widget, scope: any) {
@@ -33,20 +33,20 @@ module mz.widgets {
 
             if (typeof t === "undefined" || t === null) t = '';
 
-            this.node.textContent = t;
+            this.rootNode.textContent = t;
             
-            (<any>this.node).$tmpl = value;
-            (<any>this.node).$component = component;
-            (<any>this.node).$scope = scope;
-            (<any>this.node).$widget = this;
+            (<any>this.rootNode).$tmpl = value;
+            (<any>this.rootNode).$component = component;
+            (<any>this.rootNode).$scope = scope;
+            (<any>this.rootNode).$widget = this;
         }
 
         unmount() {
-            this.node.remove();
-            (<any>this.node).$tmpl = null;
-            (<any>this.node).$component = null;
-            (<any>this.node).$scope = null;
-            (<any>this.node).$widget = null;
+            this.rootNode.remove();
+            (<any>this.rootNode).$tmpl = null;
+            (<any>this.rootNode).$component = null;
+            (<any>this.rootNode).$scope = null;
+            (<any>this.rootNode).$widget = null;
             
             for (var i of this.listening) i && i.off && i.off();
             this.listening.length = 0;
@@ -57,8 +57,8 @@ module mz.widgets {
         refreshScope() {
             let t = view.tmpl(this.value, this.component, this.scope);
             if (typeof t === "undefined" || t === null) t = '';
-            if (this.node.textContent != t) {
-                this.node.textContent = t;
+            if (this.rootNode.textContent != t) {
+                this.rootNode.textContent = t;
             }
         }
 

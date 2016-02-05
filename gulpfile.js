@@ -22,7 +22,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var merge = require('merge2');
 var svn = require('gulp-svn');
 var tsc_f = require('gulp-tsconfig-files')
-
+var qunit = require('gulp-qunit');
 var through = require('through');
 var File = require('vinyl');
 
@@ -48,6 +48,10 @@ gulp.task('default', ['min'], function () {
         gulp.src(['./mz.d.ts']).pipe(gulp.dest('./dist'))
     ]);
 });
+
+gulp.task('test', ['default'], function () {
+    return gulp.src('./test/index.html').pipe(qunit());
+})
 
 gulp.task('tsconfig_files', function () {
     gulp.src(ts_files).pipe(tsc_f());

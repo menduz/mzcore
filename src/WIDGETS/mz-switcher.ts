@@ -39,12 +39,12 @@ namespace mz.widgets {
             }
 
             if (this.panelVisible) {
-                mz.core.dom.adapter.remove(this.panelVisible.rootNode);
+                mz.dom.adapter.remove(this.panelVisible.rootNode);
             }
 
             this.panelVisible = panel;
 
-            mz.core.dom.adapter.appendChild(this.contentNode, this.panelVisible.rootNode)
+            mz.dom.adapter.appendChild(this.contentNode, this.panelVisible.rootNode)
 
             this.panelVisible.show();
 

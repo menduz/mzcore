@@ -1,7 +1,7 @@
 /// <reference path="../../mz.ts" />
 /// <reference path="../DOM.ts" />
 
-namespace mz.core.dom {
+namespace mz.dom {
 	/* tslint:disable:requireParameterType */
 	/**
 	 * Provides DOM operations in an environment-agnostic way.

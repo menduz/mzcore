@@ -19,7 +19,7 @@ module mz.widgets {
     }
 
     @mz.Widget.RegisterComponent("mz-repeat")
-    @mz.Widget.IsEmptyTag
+    @mz.Widget.ConfigureEmptyTag
     export class MzRepeat extends mz.Widget {
 
         @mz.MVCObject.proxy
@@ -53,7 +53,7 @@ module mz.widgets {
             }
         }
 
-        private list_changed(list, prevList) {
+        private list_changed(list: mz.Collection<any>, prevList: mz.Collection<any>) {
 
 
             if (list === prevList) return;
@@ -133,18 +133,16 @@ module mz.widgets {
             }
         }
 
-        redraw(tipo: string, a?, b?) {
-            var that = this;
-
+        redraw(tipo?: string, a?, b?) {
             var rebuild = !tipo;
 
-            if (tipo == "set_at" && b[this.collectionKey]) {
+            if (tipo == Collection.EVENTS.ElementChanged && b[this.collectionKey]) {
                 b[this.collectionKey].forEach(delegateRefreshScope);
-            } else if (tipo == "insert_at" || tipo == "set_at") {
+            } else if (tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged) {
                 this.ponerElem(b);
-            } else if (tipo == "remove_at" && b && b[this.collectionKey]) {
+            } else if (tipo == Collection.EVENTS.ElementRemoved && b && b[this.collectionKey]) {
                 this.delegateUnmountElements(b);
-            } else if (/*tipo == "addRange" ||*/ tipo == "filter" || tipo == Collection.EVENTS.CollectionSorted) {
+            } else if (/*tipo == "addRange" || tipo == "filter" ||*/ tipo == Collection.EVENTS.CollectionSorted) {
                 rebuild = true;
             } /*else if (tipo == "removed") {
                 rebuild = true;
