@@ -2,7 +2,7 @@
 	"name": "mzcore",
 	"version": "16.02.01",
 	"scripts": {
-		"test": "mocha test"
+		"test": "gulp test"
 	},
 	"dependencies": {},
 	"private": true,
@@ -22,6 +22,7 @@
 		"gulp-tsconfig-files": "*",
 		"through": "*",
 		"vinyl": "*",
-		"minimist": "*"
+		"minimist": "*",
+        "gulp-qunit": "1.3.1"
 	}
 }
