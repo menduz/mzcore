@@ -42,39 +42,33 @@ function doTest(cb) {
 }
 
 
-
-
-
 // TEST 1
 
-doTest(function (assert) {
+QUnit.test("Basic html template, content", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>Hello world!</div>`;
 
     var result = new HelloWorld();
 
-    result.appendTo('body')
-
-    return assert(result.rootNode.innerHTML, HelloWorld.prototype.defaultTemplate);
+    assert.equal(result.rootNode.innerHTML, HelloWorld.prototype.defaultTemplate, 'Basic rendering');
 })
 
 // TEST 2
 
-doTest(function (assert) {
+QUnit.test("Basic html template, outer html", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>Hello world! OuterHTML</div>`;
 
     var result = new HelloWorld();
 
-    result.appendTo('body')
-    return assert(result.rootNode.outerHTML, '<helloworld>' + HelloWorld.prototype.defaultTemplate + '</helloworld>');
+    assert.equal(result.rootNode.outerHTML, '<helloworld>' + HelloWorld.prototype.defaultTemplate + '</helloworld>');
 })
 
 // TEST 3
 
-doTest(function (assert) {
+QUnit.test("Basic html template, unwrapped", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>Hello world! OuterHTML</div>`;
@@ -83,14 +77,13 @@ doTest(function (assert) {
 
     var result = new HelloWorld();
 
-    result.appendTo('body')
-    return assert(result.rootNode.outerHTML, HelloWorld.prototype.defaultTemplate);
+    assert.equal(result.rootNode.outerHTML, HelloWorld.prototype.defaultTemplate);
 })
 
 
 // TEST 4
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression value", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>{this.value}</div>`;
@@ -98,14 +91,14 @@ doTest(function (assert) {
     HelloWorld.prototype._unwrapedComponent = true;
 
     var result = new HelloWorld();
-    result.appendTo('body')
-    return assert(result.rootNode.outerHTML, `<div>${result.value}</div>`);
+
+    assert.equal(result.rootNode.outerHTML, `<div>${result.value}</div>`);
 })
 
 
 // TEST 5
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression, change value on the fly", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>{this.value}</div>`;
@@ -113,28 +106,28 @@ doTest(function (assert) {
     HelloWorld.prototype._unwrapedComponent = true;
 
     var result = new HelloWorld();
-    result.appendTo('body')
+
     result.set('value', 'ABC')
-    return assert(result.rootNode.outerHTML, `<div>${result.get('value') }</div>`);
+    assert.equal(result.rootNode.outerHTML, `<div>${result.get('value') }</div>`);
 })
 
 // TEST 6
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression, value from attr", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>[{value}]</div>`;
     HelloWorld.prototype._unwrapedComponent = true;
 
     var result = new HelloWorld();
-    result.appendTo('body')
-    result.set('value', 'ABC');
-    return assert(result.rootNode.outerHTML, `<div>[${result.get('value') }]</div>`);
+
+    result.attr('value', 'ABC');
+    assert.equal(result.rootNode.outerHTML, `<div>[${result.get('value') }]</div>`);
 })
 
 // TEST 7
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression with js", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div>[{value.toLowerCase()}]</div>`;
@@ -144,18 +137,16 @@ doTest(function (assert) {
 
     var result = new HelloWorld();
 
-
-    result.appendTo('body')
     result.set('value', 'ABC')
-    return assert(result.rootNode.outerHTML, `<div>[${result.get('value').toLowerCase() }]</div>`);
+    assert.equal(result.rootNode.outerHTML, `<div>[${result.get('value').toLowerCase() }]</div>`);
 })
 
 // TEST 8
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression composed with js", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
-    HelloWorld.prototype.defaultTemplate = `<div>{value}<span>[{this.value.toLowerCase()}]</span></div>`;
+    HelloWorld.prototype.defaultTemplate = `<div>{value} a<span>[{this.value.toLowerCase()}]</span></div>`;
     HelloWorld.prototype._unwrapedComponent = true;
 
 
@@ -164,22 +155,20 @@ doTest(function (assert) {
 
     result.on('value_changed', function (a) { this.value = a });
 
-    result.appendTo('body')
     result.set('value', 'ABC')
-    return assert(result.rootNode.outerHTML, `<div>${result.get('value') }<span>[${result.value.toLowerCase() }]</span></div>`);
+    assert.equal(result.rootNode.outerHTML, `<div>${result.get('value') } a<span>[${result.value.toLowerCase() }]</span></div>`);
 });
 
-
+/*
 // TEST 9
 
-doTest(function (assert) {
-    var resolve = null;
+QUnit.test("Events", function (assert) {
 
-    var prom = new Promise(function (r) { resolve = r; });
+    var done = assert.async();
 
     class HelloWorld extends mz.widgets.BasePagelet {
         click() {
-            resolve();
+            done();
         }
     }
 
@@ -188,13 +177,15 @@ doTest(function (assert) {
     var result = new HelloWorld();
 
     result.appendTo('body')
+    
+    doc.trigger( $.Event( "keydown", { keyCode: 9 } ) );
 
     return prom;
 });
-
+*/
 // TEST 10
 
-doTest(function (assert) {
+QUnit.test("Basic html template, expression with class selectors", function (assert) {
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     HelloWorld.prototype.defaultTemplate = `<div style='color: {"red": this.value, black: !this.value}'>this sould be red</div>`;
@@ -206,14 +197,15 @@ doTest(function (assert) {
 
     result.on('value_changed', function (a) { this.value = a });
 
-    result.appendTo('body')
     result.set('value', true);
-
-    return assert($(result.rootNode).attr('style'), "color: red");
+    
+    assert.equal($(result.rootNode).attr('style'), "color: red");
 });
 
-doTest(function (assert) {
 
+function exprTests(assrt) {
+
+    var assert = assrt.ok.bind(assrt);
     var scope = new mz.MVCObject();
 
     scope.setValues({
@@ -240,14 +232,14 @@ doTest(function (assert) {
         }
 
     // expressions always return a raw value
-    assert(render('{ 1 }'), 1)
+    assert(render('{ 1 }'), 1, '')
     assert(render('{ x }'), 2)
     assert(render('{ str }'), data.str)
     assert(render('{ obj }'), data.obj)
     assert(render('{ arr }'), data.arr)
     assert(render('{ fn }'), data.fn)
-    assert(render('{ null }'), null)
-    assert(render('{ no }'), false)
+    assrt.ok(render('{ null }') === null)
+    assrt.ok(render('{ no }') === false)
     assert(render('{ yes }'), true)
 
     // templates always return a string value
@@ -258,18 +250,18 @@ doTest(function (assert) {
     //// empty arguments
 
     // empty expressions equal to undefined
-    assert(render('{}'), undefined)
-    assert(render('{ }'), undefined)
+    assrt.ok(render('{}') === undefined)
+    assrt.ok(render('{ }') === undefined)
 
     // empty templates equal to empty string
-    assert(render(''), '')
-    assert(render('{ } '), ' ')
+    assrt.ok(render('') === '')
+    assrt.ok(render('{ } ')=== ' ')
 
 
     //// undefined values
 
     // ignore undefined value errors in expressions (catch the error, and set value to undefined)
-    assert(render('{ nonExistingVar }'), undefined)
+    assrt.ok(render('{ nonExistingVar }') === undefined)
     assert(render('{ !nonExistingVar }'), true)
     assert(render('{ nonExistingVar ? "yes" : "no" }'), 'no')
     assert(render('{ !nonExistingVar ? "yes" : "no" }'), 'yes')
@@ -289,7 +281,7 @@ doTest(function (assert) {
     assert(render('{ arr.pop() }'), 2)
     assert(render('{ fn(str) }'), 'hi x')
     assert(render('{ yes && "ok" }'), 'ok')
-    assert(render('{ no && "ok" }'), false)
+    assrt.ok(render('{ no && "ok" }') == false)
     assert(render('{ false || null || !no && yes }'), true)
     assert(render('{ !no ? "yes" : "no" }'), 'yes')
     assert(render('{ !yes ? "yes" : "no" }'), 'no')
@@ -302,7 +294,7 @@ doTest(function (assert) {
     assert(render('{ true ? "a \\"b\\" c" : "foo" }'), 'a "b" c')
     assert(render('{ str + " y" + \' z\'}'), 'x y z')
     assert(render('{ esc }'), data.esc)
-    assert(render('{ $a }'), 0)
+    assert(render('{ $a }') === 0, true)
     assert(render('{ $a + $b }'), 1)
     assert(render('{ this.str }'), 'x')
 
@@ -310,7 +302,7 @@ doTest(function (assert) {
     assert(render('{ globalVar }'), globalVar)
 
     // all comments in expressions are stripped from the output
-    assert(render('{ /* comment */ /* as*/ }'), undefined)
+    assrt.ok(render('{ /* comment */ /* as*/ }') === undefined)
     assert(render(' { /* comment */ }'), ' ')
     assert(render('{ 1 /* comment */ + 1 }'), 2)
     assert(render('{ 1 /* comment */ + 1 } '), '2 ')
@@ -378,7 +370,7 @@ doTest(function (assert) {
     // though escaping is optional...
     assert(render('{ JSON.stringify({ x: 5 }) }'), '{"x":5}')
     assert(render('a{ "b{c}d" }e { "{f{f}}" } g'), 'ab{c}de {f{f}} g');
+}
 
-
-    return Promise.resolve(1);
-});
+QUnit.test("Expressions", exprTests);
+QUnit.test("Expressions (cached, should be faster)", exprTests);

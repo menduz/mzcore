@@ -3,15 +3,27 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Basic test</title>
+    <title>MUST WORK tests</title>
+
+    <script src="//code.jquery.com/qunit/qunit-1.21.0.js"></script>
     <script src="../dist/jquery.js"></script>
     <script src="../dist/mz.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.21.0.css">
+
 </head>
 
 <body>
-    <h1>Widgets' Tests</h1>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
     <script>
-        require('basic', () => console.log('Basic tests finished'));
+        QUnit.test("Module loading", function(assert){
+            var done = assert.async();
+            require('basic', () => {
+                assert.ok(true, 'Module loaded');
+                done();
+                console.log('Basic tests loaded')
+            });
+        })
     </script>
 </body>
 
