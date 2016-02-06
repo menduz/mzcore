@@ -58,10 +58,6 @@ module mz {
             this.children.push(mz.define.lastModule);
             return ret;
         }
-
-        ñ(a, b) {
-            return (<any>mz).ñ(a, b, this.id);
-        }
     }
 
     export class ModuleExports {
@@ -111,14 +107,13 @@ module mz {
                 let bkExports = globalContext.exports;
                 let bkModulo = globalContext.module;
                 let bkDefine = globalContext.define;
-                let bkñ = globalContext.ñ;
+                
 
                 try {
                     globalContext.define = this.module.define.bind(this.module);
                     globalContext.exports = this.module.exports;
                     globalContext.require = this.module.require.bind(this.module);
                     globalContext.module = this.module;
-                    globalContext.ñ = this.module.ñ.bind(this.module);
 
                     (<any>globalContext.define).amd = bkDefine.amd;
 
@@ -128,7 +123,6 @@ module mz {
                     globalContext.exports = bkExports;
                     globalContext.require = bkRequire;
                     globalContext.module = bkModulo;
-                    globalContext.ñ = bkñ;
                 }
             } else result = factory;
 
