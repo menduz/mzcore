@@ -16,7 +16,7 @@ module mz {
 
     var erroresEncontradosIdioma = {};
 
-    var ñ_privada: I18nTranslate = function ñ( claveIdioma: string, defaultValue?: string ) {
+    export var translate: I18nTranslate = function ( claveIdioma: string, defaultValue?: string ) {
         if ( !( claveIdioma in idioma ) ) {
             if ( claveIdioma in mzLang )
                 return idioma[claveIdioma] = mzLang[claveIdioma];
@@ -29,10 +29,10 @@ module mz {
         return idioma[claveIdioma];
     }
 
-    ñ_privada.faltantes = erroresEncontradosIdioma;
-    ñ_privada.idioma = idioma;
+    translate.faltantes = erroresEncontradosIdioma;
+    translate.idioma = idioma;
 
-    export var ñ = globalContext.ñ = ñ_privada;
+    globalContext["ñ"] = translate;
 } 
 
 declare var ñ: mz.I18nTranslate;

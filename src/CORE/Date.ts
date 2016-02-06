@@ -146,7 +146,7 @@ namespace mz.date {
     * @type Array
     * @cat Plugins/Methods/Date
     */
-    export var dayNames = ñ('#dayNames', 'Domingo|Lunes|Martes|Miercoles|Jueves|Viernes|Sabado').split('|');
+    export var dayNames = mz.translate('#dayNames', 'Domingo|Lunes|Martes|Miercoles|Jueves|Viernes|Sabado').split('|');
 
     /**
     * An Array of abbreviated day names starting with Sun.
@@ -158,7 +158,7 @@ namespace mz.date {
     * @type Array
     * @cat Plugins/Methods/Date
     */
-    export var abbrDayNames = ñ('#abbrDayNames', 'Dom|Lun|Mar|Mie|Jue|Vie|Sab').split('|');
+    export var abbrDayNames = mz.translate('#abbrDayNames', 'Dom|Lun|Mar|Mie|Jue|Vie|Sab').split('|');
 
     /**
     * An Array of month names starting with Janurary.
@@ -170,7 +170,7 @@ namespace mz.date {
     * @type Array
     * @cat Plugins/Methods/Date
     */
-    export var monthNames = ñ('#monthNames', 'Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre').split('|');
+    export var monthNames = mz.translate('#monthNames', 'Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre').split('|');
 
     /**
     * An Array of abbreviated month names starting with Jan.
@@ -182,7 +182,7 @@ namespace mz.date {
     * @type Array
     * @cat Plugins/Methods/Date
     */
-    export var abbrMonthNames = ñ('#abbrMonthNames', 'Ene|Feb|Mar|Abr|May|Jun|Jul|Ago|Sep|Oct|Nov|Dic').split('|');
+    export var abbrMonthNames = mz.translate('#abbrMonthNames', 'Ene|Feb|Mar|Abr|May|Jun|Jul|Ago|Sep|Oct|Nov|Dic').split('|');
 
     /**
     * The first day of the week for this locale.
@@ -202,7 +202,7 @@ namespace mz.date {
     * @cat Plugins/Methods/Date
     * @author Kelvin Luck
     */
-    export var format = ñ('#DateFormat', 'dd/mm/yyyy');
+    export var format = mz.translate('#DateFormat', 'dd/mm/yyyy');
     //Date.format = 'mm/dd/yyyy';
     //Date.format = 'yyyy-mm-dd';
     //Date.format = 'dd mmm yy';

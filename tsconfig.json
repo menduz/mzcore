@@ -45,7 +45,7 @@
     "removeComments": false,
     "sourceMap": true,
     "suppressExcessPropertyErrors": true,
-    "emitBOM": false,
+    "emitBOM": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "diagnostics": true,

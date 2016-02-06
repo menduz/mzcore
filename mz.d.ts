@@ -514,7 +514,7 @@ declare module mz {
         faltantes?: any;
         idioma?: any;
     }
-    var ñ: I18nTranslate;
+    var translate: I18nTranslate;
 }
 declare var ñ: mz.I18nTranslate;
 interface Date {
@@ -862,7 +862,6 @@ declare module mz {
         getPath(x: any): any;
         require(Module: Array<string> | string, b?: any): void;
         define(...args: any[]): any;
-        ñ(a: any, b: any): any;
     }
     class ModuleExports {
         module: Module;

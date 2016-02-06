@@ -142,14 +142,12 @@ module mz {
             var bkExports = globalContext.exports;
             var bkModulo = globalContext.module;
             var bkDefine = globalContext.define;
-            var bkñ = globalContext.ñ;
 
             try {
                 globalContext.define = module.define.bind(module);
                 globalContext.exports = module.exports;
                 globalContext.require = module.require.bind(module);
                 globalContext.module = module;
-                globalContext.ñ = module.ñ.bind(module);
 
                 (<any>globalContext.define).amd = bkDefine.amd;
 
@@ -165,7 +163,7 @@ module mz {
                 globalContext.exports = bkExports;
                 globalContext.require = bkRequire;
                 globalContext.module = bkModulo;
-                globalContext.ñ = bkñ;
+                
             }
 
             /*

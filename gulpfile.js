@@ -49,8 +49,19 @@ gulp.task('default', ['min'], function () {
     ]);
 });
 
-gulp.task('test', ['default'], function () {
-    return gulp.src('./test/index.html').pipe(qunit());
+gulp.task('test_full', ['default'], function () {
+    return gulp.src('./test/index.html').pipe(qunit()).on('error', function (err) {
+            console.log(err.toString());
+            this.emit('end');
+        });
+})
+
+
+gulp.task('test', function () {
+    return gulp.src('./test/index.html').pipe(qunit()).on('error', function (err) {
+            console.log(err.toString());
+            this.emit('end');
+        });
 })
 
 gulp.task('tsconfig_files', function () {
