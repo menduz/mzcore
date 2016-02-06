@@ -23,6 +23,7 @@
 		"through": "*",
 		"vinyl": "*",
 		"minimist": "*",
-        "gulp-qunit": "*"
+        "gulp-qunit": "*",
+        "qunitjs": "*"
 	}
 }
