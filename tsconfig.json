@@ -28,6 +28,7 @@
     "src/VIEW/DIRECTIVES/MzModel.ts",
     "src/VIEW/DIRECTIVES/MzRaw.ts",
     "src/VIEW/DIRECTIVES/Visible.ts",
+    "src/VIEW/DIRECTIVES/className.ts",
     "src/VIEW/Helpers.ts",
     "src/VIEW/HtmlSanitizer.ts",
     "src/VIEW/TSX.ts",
