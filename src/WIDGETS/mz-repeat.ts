@@ -11,11 +11,19 @@ module mz.widgets {
         }
     }
 
-    function delegateRefreshScope(e) {
-        if (e && typeof e == "object") {
-            'scope' in e && (e.scope = e.scope);
-            'refreshScope' in e && e.refreshScope();
+    function delegateRefreshScope(e: mz.Widget) {
+        if (e && 'refreshScope' in e) {
+            //let parent = mz.dom.adapter.parentElement(e.rootNode);
+            //let next = mz.dom.adapter.nextSibling(e.rootNode);
+            //mz.dom.adapter.remove(e.rootNode);
+            e.refreshScope();
+            //if (next) {
+            //    mz.dom.adapter.insertBefore(next, e.rootNode);
+            //} else {
+            //    mz.dom.adapter.appendChild(parent, e.rootNode);
+            //}
         }
+
     }
 
     @mz.Widget.RegisterComponent("mz-repeat")
@@ -136,8 +144,11 @@ module mz.widgets {
         redraw(tipo?: string, a?, b?) {
             var rebuild = !tipo;
 
-            if (tipo == Collection.EVENTS.ElementChanged && b[this.collectionKey]) {
-                b[this.collectionKey].forEach(delegateRefreshScope);
+            if (tipo == Collection.EVENTS.ElementChanged && this.collectionKey in b) {
+                let widgets = b[this.collectionKey];
+                for (var i in widgets) {
+                    delegateRefreshScope(widgets[i]);
+                }
             } else if (tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged) {
                 this.ponerElem(b);
             } else if (tipo == Collection.EVENTS.ElementRemoved && b && b[this.collectionKey]) {

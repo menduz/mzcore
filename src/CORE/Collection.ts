@@ -20,7 +20,7 @@ namespace mz {
             CollectionSorted: 'sorted',
             ElementRangeRemoved: 'removed'
         }, MVCObject.EVENTS);
-        
+
         @MVCObject.proxy
         agregandoLote: boolean = false;
 
@@ -358,8 +358,8 @@ namespace mz {
             }
             return null;
         }
-        
-        
+
+
 
         addRange(array: T[] | Collection<T>, noTriggerearCadaUno?: boolean, noTriggerear?: boolean) {
             if (!array) return this;
@@ -391,7 +391,7 @@ namespace mz {
             }
 
             this.agregandoLote = false;
-            
+
             return this;
         }
 
@@ -1056,28 +1056,32 @@ namespace mz {
             };
             if (this.opciones.key) {
                 var keys = {};
-                var that = this;
-                array.forEach(function(elem, index) {
-                    if (!(that.opciones.key in elem)) {
+                
+                //array.forEach(function(elem, index) {
+                for (var index in array) {
+                    let elem = array[index];
+                    if (!(this.opciones.key in elem)) {
                         throw new TypeError("El elemento no contiene la clave primaria");
                     }
 
-                    var indice = that.indexedGetIndex(elem[that.opciones.key]);
+                    var indice = this.indexedGetIndex(elem[this.opciones.key]);
 
-                    keys[elem[that.opciones.key]] = true;
+                    keys[elem[this.opciones.key]] = true;
 
                     if (indice != -1) {
-                        mz.copy(that.array[indice], elem);
-                        that.updateIndex(indice);
+                        mz.copy(this.array[indice], elem);
+                        this.updateIndex(indice);
                     } else {
-                        that.push(elem);
+                        this.push(elem);
                         ret.added.push(elem);
                     }
-                });
+
+                }
+                //});
 
                 if (eliminarNoMatcheados) {
-                    ret.removed = that.remove((elem: T) => {
-                        return !(elem[that.opciones.key] in keys);
+                    ret.removed = this.remove((elem: T) => {
+                        return !(elem[this.opciones.key] in keys);
                     });
                 }
             } else console.error("You cannot mergeArray if the collection does not have 'key'")

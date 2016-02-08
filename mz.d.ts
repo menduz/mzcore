@@ -274,6 +274,7 @@ declare module mz {
         } & {};
         rootNode: Element;
         contentNode: Element;
+        originalNode: Node;
         children: IChildWidget[];
         listening: EventDispatcherBinding[];
         innerWidget: mz.Widget;
@@ -286,7 +287,7 @@ declare module mz {
         scope_changed(scope: any): void;
         private _cachedDOM;
         DOM: JQuery;
-        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
+        constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
         protected generateScopedContent(scope?: any): IChildWidget[];
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
@@ -1560,6 +1561,9 @@ declare class MzVisibleDirective extends mz.AttributeDirective {
     mount(): void;
     unmount(): void;
     changed(val: any): void;
+}
+declare class MzClassNameDirective extends mz.AttributeDirective {
+    changed(value: string, prevVal: string): void;
 }
 declare module mz.view {
     function html(literalSections: any, ...substs: any[]): string;

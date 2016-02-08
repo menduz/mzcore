@@ -366,6 +366,7 @@ module mz {
         // element where all the children will be appended
         
         contentNode: Element;
+        originalNode: Node;
 
         children: IChildWidget[];
 
@@ -394,11 +395,13 @@ module mz {
             return this._cachedDOM || (this._cachedDOM = $(this.rootNode));
         }
 
-        constructor(rootNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], private _params: any = null, private _parentComponent: Widget = null, scope?) {
+        constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], private _params: any = null, private _parentComponent: Widget = null, scope?) {
             super();
-
+            
+            this.originalNode = originalNode;
+            
             this.contentFragment = document.createDocumentFragment();
-            this.contentNode = this.rootNode = document.createElement(attr && attr["tag"] || rootNode && rootNode.nodeName || (<any>this["constructor"]).nodeName || (<any>this["constructor"]).name || 'div');
+            this.contentNode = this.rootNode = document.createElement(attr && attr["tag"] || originalNode && originalNode.nodeName || (<any>this["constructor"]).nodeName || (<any>this["constructor"]).name || 'div');
 
             (<any>this.rootNode).$widget = this;
             (<any>this.rootNode).$component = _parentComponent || this;
@@ -422,7 +425,7 @@ module mz {
         }
 
         protected generateScopedContent(scope?): IChildWidget[] {
-            return getChildNodes(this.rootNode, this._params, this._parentComponent, scope || this);
+            return getChildNodes(this.originalNode, this._params, this._parentComponent, scope || this);
         }
 
         attr(attrName: string, value?: any) {
@@ -439,7 +442,7 @@ module mz {
                     if (typeofValue === "function")
                         value = value();
 
-                    value = CBool(value) && value.toString().toLowerCase() !== "false" && value !== "0";
+                    value = CBool(value);
                 }
 
                 this.set(attrName, value);
