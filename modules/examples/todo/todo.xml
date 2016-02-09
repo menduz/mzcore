@@ -1,17 +1,17 @@
 <div>
     <div style="margin:100px 0 161px 0">
-        <header class="title"><h1>To do list</h1></header>
+        <h1 style="text-align:center">To do list</h1>
         
         
         <form onsubmit="{newToDo}" style="margin: 0 30px">
             <div class="form-group">
                 <input type="text" class="form-control" style="width: calc(100% - 100px)" placeholder="New entry..." mz-model="todoText"/>
-                <button class="btn {btn-positive: CBool(todoText)} pull-right btn-large" type="submit" style="width: 85px;" disabled="{!CBool(todoText)}">Add</button>
+                <button class="btn {btn-positive: CBool(todoText)} pull-right btn-large" type="submit" style="width: 85px;margin-left:15px;" disabled="{!CBool(todoText)}">Add</button>
             </div>
         </form>
         
         
-        <mz-repeat tag="ul" list="{todoList}">
+        <mz-repeat tag="ul" list="{todoList}" style="padding: 1em 32px;">
             <div class="checkbox">
                 <label>
                     <input type="checkbox" onclick="{taskFinished}" /> {scope.Name}
@@ -21,25 +21,25 @@
     </div>
             
     <pre lang="xml" syntax="YEAH!">
-        <h3>XML</h3>
+        <h3>todo.xml</h3>
 <![CDATA[
 <h1>To do list</h1>
 
-<form onsubmit="\{newToDo}">
+<form onsubmit="\{this.newToDo}">
     <input type="text" placeholder="New entry..." mz-model="todoText" />
     
-    <button class="btn \{btn-positive: !!todoText}" type="submit" disabled="\{!!todoText}"> 
+    <button class="btn \{btn-positive: this.todoText}" type="submit" disabled="\{this.todoText}"> 
         Add
     </button>
 </form>
 
-<mz-repeat tag="ul" list="\{todoList}">
-    <input type="checkbox" onclick="\{taskFinished}" /> 
+<mz-repeat tag="ul" list="\{this.todoList}">
+    <input type="checkbox" onclick="\{this.taskFinished}" /> 
         {scope.Name}
 </mz-repeat>
 ]]></pre>
     <pre lang="typescript" syntax="YEAH!">
-        <h3>Typescript</h3>
+        <h3>todo.ts</h3>
 <![CDATA[
 // 
 class ToDo extends mz.widgets.BasePagelet \{
@@ -49,7 +49,7 @@ class ToDo extends mz.widgets.BasePagelet \{
     @mz.MVCObject.proxy
     todoText: string = '';
 
-    todoList = new mz.collection<any>;
+    todoList = new mz.Collection<any>;
 
     constructor() \{
         super();

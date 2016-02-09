@@ -1,13 +1,67 @@
-<div markdown="YEAH!">
-# Heading 1
+<div style="font-size: 1.2em; padding: 1em 1.6em">
+    <h1>mzcore</h1>
+    <p>
+    <b>What is this?</b> A templating library built on top of <img alt="Typescript" src="ts.svg" style="
+        display: inline;
+        height: 1em;
+        vertical-align: middle;
+    "/>
+    </p><p>
+    <b>Dependencies?</b> No external library or framework is needed, only Visual Studio, VSCode or tsc
+    </p>
 
-Heading 2
-----
-{now}
-Sarasa
-
-```js
-var t = new Object();
-
-```
+    <h1>Inspiration</h1>
+    <p>
+        The idea of this library is to give the opportunity to develop web applications quickly, without needing to use Gulp, Grunt, Bower, Node.js, Babel or other transpiler. Only Typescript, which is included in VSCode or Visual Studio.
+    </p><p>
+        Is simple, you tap Cmd+S and your code is compiled, then you can try out your changes easily. You are happy, the PM is happy, you ship your product faster and everything without (a drop of rum!) setting up the right version of node, or fighting hours with a gulp file, bower dependencies, compilers, watching tasks, etc.
+    </p>
+    
+    <h1>Focus on easy learning</h1>
+    <p>
+        Are you familiar with Typescript and HTML? ... We then have the job almost done
+    </p>
+    <p>
+        Our crowd was familiar with C#, jQuery, plain HTML and <![CDATA[<scripts>]]>. Our business grew up, our products too, became more complex and almost impossible to maintain built on plains HTML and hardcoded scripts. But there was a problem: nobody ever used Angular, React, Ember or similar technology. Even Node.js.
+    </p>
+    <p>
+        Then I thought: can I keep the basic HTML layout, and attach a simple controller to it without spend resources dealing with controllers, directives, scopes, virtual dom or weird syntaxes on templates? This library is the answer
+    </p>
+    
+    <h1>Getting started</h1>
+    <p>
+        The main wiki is on <a href="https://github.com/menduz/mzcore/wiki">GitHub</a>, here are the quick start links:
+    </p>
+    
+    <ol style="margin-left: 1.6em">
+        <li><a href="https://github.com/menduz/mzcore/wiki/Introduction">Introduction</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/Setting-up-VSCode">Setting up VSCode</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/Setting-up-Visual-Studio">Setting up Visual Studio</a></li>
+        <li>
+            <a href="https://github.com/menduz/mzcore/wiki/Widget">Widgets</a>
+            <ul style="margin-left: 1.6em">
+                <li><a href="https://github.com/menduz/mzcore/wiki/Widget#proxy">Sharing data between Views and Widgets</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/Widget#expressions">Template expressions</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/mz-repeat"><code>&lt;mz-repeat&gt;</code> tag</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/mz-visible"><code>mz-visible</code> attribute</a></li>
+            </ul>
+        </li>
+        <li>
+            <a href="https://github.com/menduz/mzcore/wiki/Forms">Forms</a>
+            <ul style="margin-left: 1.6em">
+                <li><a href="https://github.com/menduz/mzcore/wiki/Forms#mz-model-attribute"><code>mz-model</code> attributte</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/Forms#mz-input-component">Creating custom input components</a></li>
+            </ul>
+        </li>
+        
+        <li><a href="https://github.com/menduz/mzcore/wiki/MVCObject">MVCObject, the base of everythig</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/Collections">Data collections</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/Xr">Talking to servers (REST interface)</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/AppController">AppController, route/view manager for SPAs</a></li>
+    </ol>
+    
+    <h1>Examples</h1>
+    <p>
+        You can find the examples on the left sidebar of this page!
+    </p>
 </div>
