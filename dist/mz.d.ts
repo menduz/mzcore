@@ -486,6 +486,7 @@ declare namespace mz.app {
     class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
         actualPage: Page;
+        loadingPage: boolean;
         constructor(opc: {
             templateUrl?: string;
             templateHtml?: string;

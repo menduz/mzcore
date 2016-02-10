@@ -51,11 +51,15 @@ namespace mz.app {
     }
 
     @mz.Widget.ConfigureUnwrapped
+    @mz.Widget.Template(null, 'content')
     export class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
 
         @mz.MVCObject.proxy
         actualPage: Page;
+        
+        @mz.MVCObject.proxy
+        loadingPage: boolean = true;
 
         constructor(opc: {
             templateUrl?: string;
@@ -146,6 +150,7 @@ namespace mz.app {
                 ((route: IAppControllerRouteModule) => {
                     routerParam[route.name] = function() {
                         var t = <any>arguments;
+                        that.loadingPage = true;
                         that.getPage(route.page.name).then((modulo: Page) => {
                             if (route.name in modulo.routeHandler) {
                                 modulo.routeHandler[route.name].apply(modulo, t);
@@ -155,6 +160,7 @@ namespace mz.app {
                             that.show(modulo);
 
                             that.routeHistory.push(Backbone.history.getFragment());
+                            that.loadingPage = false;
                         });
                     };
                 })(routes[i]);
