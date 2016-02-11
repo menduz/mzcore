@@ -68,7 +68,7 @@ namespace mz.app {
             pages: string | Array<IAppPage>;
             pagesCollection?: mz.Collection<IAppPageModule>;
         }) {
-            super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, this);
+            super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, undefined);
 
             this.pages = opc.pagesCollection || new mz.Collection<IAppPageModule>(null, { key: "name" });
 

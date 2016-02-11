@@ -1556,15 +1556,15 @@ declare namespace mz.widgets {
 declare class MzRawDirective extends mz.AttributeDirective {
     changed(val: string): void;
 }
+declare class MzClassNameDirective extends mz.AttributeDirective {
+    changed(value: string, prevVal: string): void;
+}
 declare class MzVisibleDirective extends mz.AttributeDirective {
     static vendorHiddenClass: string;
     private listener;
     mount(): void;
     unmount(): void;
     changed(val: any): void;
-}
-declare class MzClassNameDirective extends mz.AttributeDirective {
-    changed(value: string, prevVal: string): void;
 }
 declare module mz.view {
     function html(literalSections: any, ...substs: any[]): string;

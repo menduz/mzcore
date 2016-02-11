@@ -1,24 +1,38 @@
 /// <reference path="../Widget.ts" />
+/// <reference path="className.ts" />
 
 @mz.AttributeDirective.Register("visible")
 class MzVisibleDirective extends mz.AttributeDirective {
     static vendorHiddenClass = 'mz-hidden';
-    
+
     private listener: mz.EventDispatcherBinding;
-    
-    mount(){
+
+    mount() {
         this.listener = this.widget.on('class_changed', () => this.changed(this.value))
     }
-    
-    unmount(){
+
+    unmount() {
         this.listener.off();
+        this.listener = null;
     }
-    
-    changed(val){
-        if (CBool(val)) {
-            this.widget.DOM.addClass(MzVisibleDirective.vendorHiddenClass).removeAttr('aria-hidden').removeProp(mz.HIDDEN_PROP);
+
+    changed(val) {
+        if (!CBool(val)) {
+            mz.dom.adapter.addClass(this.widget.rootNode, MzVisibleDirective.vendorHiddenClass);
+            try {
+                mz.dom.adapter.setAttribute(this.widget.rootNode, 'aria-hidden', 'true');
+            } catch (e) { }
+            try {
+                mz.dom.adapter.setAttribute(this.widget.rootNode, mz.HIDDEN_PROP, mz.HIDDEN_PROP);
+            } catch (e) { }
         } else {
-            this.widget.DOM.removeClass(MzVisibleDirective.vendorHiddenClass).attr('aria-hidden', "true").prop(mz.HIDDEN_PROP, true);
+            mz.dom.adapter.removeClass(this.widget.rootNode, MzVisibleDirective.vendorHiddenClass);
+            try {
+                mz.dom.adapter.removeAttribute(this.widget.rootNode, 'aria-hidden');
+            } catch (e) { }
+            try {
+                mz.dom.adapter.removeAttribute(this.widget.rootNode, mz.HIDDEN_PROP);
+            } catch (e) { }
         }
     }
 }

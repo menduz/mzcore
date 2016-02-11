@@ -183,6 +183,11 @@ module mz {
         var match;
 
         // text node, comment, etc
+        
+        if(node instanceof CDATASection){
+            return <any>mz.dom.adapter.createTextNode(node.nodeValue);
+        }
+        
         if (node.nodeValue) {
             var value = node.nodeValue;
 

@@ -1,4 +1,3 @@
-
 @mz.AttributeDirective.Register("class")
 class MzClassNameDirective extends mz.AttributeDirective {
     changed(value: string, prevVal: string) {
