@@ -122,7 +122,7 @@ module mz {
     function loadModule(url: string, module: Module, async?: boolean) {
         var successflag = false;
 
-        if ('scriptBase' in mz) {
+        if (mz.scriptBase) {
             var baseURL = mz.xr.getAbsoluteUrl(mz.scriptBase.toLowerCase()).toLowerCase();
 
             url = mz.xr.getAbsoluteUrl(url);
