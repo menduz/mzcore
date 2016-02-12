@@ -1720,6 +1720,27 @@ declare namespace mz {
     function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
 }
 declare namespace mz.widgets {
+    class Fit extends mz.Widget {
+        class_changed(): void;
+    }
+    class Clear extends mz.Widget {
+        constructor(n: any, attr: mz.Dictionary<any>, a: any, b: any, c: any);
+    }
+    class FlexCol extends mz.Widget {
+        style_changed(): void;
+        class_changed(): void;
+    }
+    class FlexContainer extends mz.Widget {
+        class_changed(): void;
+    }
+    class FlexRow extends mz.Widget {
+        class_changed(): void;
+    }
+    class FlexCell extends mz.Widget {
+        class_changed(): void;
+    }
+}
+declare namespace mz.widgets {
     class MzForm<T> extends mz.Widget {
         static EMPTY_TAG: boolean;
         primaryButton: mz.Widget;
