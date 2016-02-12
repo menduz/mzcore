@@ -595,7 +595,7 @@ module mz {
                     }
                 }
             } else {
-                mz.dom.adapter.appendChild(this.rootNode, this.innerWidget.rootNode);
+                this.innerWidget && mz.dom.adapter.appendChild(this.rootNode, this.innerWidget.rootNode);
             }
 
             if (!this.contentNode)
