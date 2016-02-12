@@ -1556,6 +1556,10 @@ declare class MzModelDirective extends mz.AttributeDirective {
 declare namespace mz.widgets {
     class MzInput extends mz.Widget {
         value: any;
+        disabled: boolean;
+        visible: boolean;
+        focus(): void;
+        checkValid(formData: any): boolean;
     }
 }
 declare class MzRawDirective extends mz.AttributeDirective {
@@ -1714,6 +1718,24 @@ declare namespace mz {
      * Hyperscript for JSX or TSX
      */
     function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
+}
+declare namespace mz.widgets {
+    class MzForm<T> extends mz.Widget {
+        static EMPTY_TAG: boolean;
+        primaryButton: mz.Widget;
+        campos: Dictionary<MzInput>;
+        private camposArray;
+        defaults: T;
+        constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b: any, c: any, scope: any);
+        setValues(a: any): void;
+        private _findICampos(component);
+        fieldIsVisible(fieldName: string): boolean;
+        focus(field?: string): void;
+        checkAll(noEmitAlert?: boolean): boolean;
+        clearValues(): void;
+        getFormValues(): T;
+        set(key: string, value: any): void;
+    }
 }
 declare module mz.widgets {
     class MzRepeat extends mz.Widget {

@@ -25,6 +25,11 @@ namespace mz {
     export interface IWidget {
         DOM: JQuery;
     }
+    
+    export interface mzDataSet {
+        Cfg: mz.Dictionary<any>;
+        Data: Array<Array<any>>;
+    }
 
     export interface Dictionary<V> {
         [key: string]: V;

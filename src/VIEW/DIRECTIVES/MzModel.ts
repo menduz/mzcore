@@ -23,21 +23,21 @@ class MzModelDirective extends mz.AttributeDirective {
         this.componentBinding = null;
         this.delayedBinding = null;
     }
-    
+
     changed(value: string, prevVal: string) {
         this.teardown();
 
-        if(this.widget instanceof mz.widgets.MzInput){
+        if (this.widget instanceof mz.widgets.MzInput) {
             this.widgetValueBinding = this.widget.on("value_changed", newVal => {
                 if (newVal != this.component[value])
                     this.component[value] = newVal;
             });
-            
+
             this.componentBinding = this.component.on(value + "_changed", newVal => {
                 let actualVal = (this.widget as mz.widgets.MzInput).value;
 
                 if (actualVal != newVal && (!newVal || newVal.toString() != actualVal))
-                    (this.widget as mz.widgets.MzInput).value = newVal; 
+                    (this.widget as mz.widgets.MzInput).value = newVal;
             });
         } else if (value && (this.widget.rootNode.nodeName.toUpperCase() == 'INPUT' || this.widget.rootNode.nodeName.toUpperCase() == 'SELECT')) {
             this.delayedBinding = () => {
@@ -60,8 +60,26 @@ class MzModelDirective extends mz.AttributeDirective {
 }
 
 namespace mz.widgets {
+
+    @mz.Widget.RegisterComponent('input')
     export class MzInput extends mz.Widget {
-        @mz.MVCObject.proxy
-        value;
+        @mz.Widget.Attribute
+        value: any;
+
+        @mz.Widget.Attribute
+        disabled: boolean;
+
+        @mz.Widget.Attribute
+        visible: boolean;
+
+        focus() {
+            if (this.rootNode instanceof HTMLElement) {
+                (this.rootNode as HTMLElement).focus();
+            }
+        }
+
+        checkValid(formData: any): boolean {
+            return true;
+        }
     }
 }
