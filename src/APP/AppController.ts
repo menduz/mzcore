@@ -165,18 +165,12 @@ namespace mz.app {
                 })(routes[i]);
             };
 
-            mz.route.start(routerParam);
-
-            this.emit('loaded');
-            this.loaded();
+            mz.route.start(routerParam, () => {
+                this.emit('loaded');
+                this.loaded();                
+            });
         }
         
-        private gotBackbone(backbone){
-            
-        }
-
-        
-
         loaded() {
 
         }

@@ -497,7 +497,6 @@ declare namespace mz.app {
             pagesCollection?: mz.Collection<IAppPageModule>;
         });
         setPages(pages: Array<IAppPage>): void;
-        private gotBackbone(backbone);
         loaded(): void;
         show(page: Page): void;
         navigate(route: string, trigger?: boolean): void;
