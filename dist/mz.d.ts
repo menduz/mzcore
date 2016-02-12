@@ -226,7 +226,7 @@ declare module mz {
     class AttributeDirective {
         protected widget: Widget;
         protected component: Widget;
-        private _value;
+        protected _value: any;
         constructor(widget: Widget, component: Widget, value: any);
         mount(): void;
         unmount(): void;
@@ -314,6 +314,7 @@ declare module mz {
         static Template(template: string, contentSelector?: string): (target: Function) => void;
         static ConfigureUnwrapped(target: Function): void;
         static ConfigureTag(tagName: string): (target: Function) => void;
+        static Attribute(target: mz.Widget, propertyKey: string | symbol): void;
     }
     namespace Widget {
         interface HTMLAttributes {
@@ -487,6 +488,7 @@ declare namespace mz.app {
         pages: mz.Collection<IAppPageModule>;
         actualPage: Page;
         loadingPage: boolean;
+        routeHistory: string[];
         constructor(opc: {
             templateUrl?: string;
             templateHtml?: string;
@@ -495,7 +497,7 @@ declare namespace mz.app {
             pagesCollection?: mz.Collection<IAppPageModule>;
         });
         setPages(pages: Array<IAppPage>): void;
-        routeHistory: string[];
+        private gotBackbone(backbone);
         loaded(): void;
         show(page: Page): void;
         navigate(route: string, trigger?: boolean): void;
@@ -1068,9 +1070,9 @@ declare namespace mz {
         /**
          *	Devuelve una coleccion de elementos que cumplan con la condición. También se puede llamar usando dos argumentos
          *			.where('Campo', 3)
-         *	Y va a devolver una colección con totos los elementos de la primera que tengan Campo == 3
+         *	Y va a devolver una colección con todos los elementos de la primera que tengan Campo == 3
          *	@method where
-         *	@param {Function|MzDelegate} condicion
+         *	@param {Function} condicion
          */
         where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any): Collection<T>;
         /**

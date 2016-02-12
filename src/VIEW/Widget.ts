@@ -467,7 +467,7 @@ module mz {
                 } else if (boolAttr) {
                     if (value) {
                         if (!mz.dom.adapter.hasAttribute(this.rootNode, attrName))
-                            mz.dom.adapter.setAttribute(this.rootNode, attrName, true);
+                            mz.dom.adapter.setAttribute(this.rootNode, attrName, attrName);
                     } else {
                         if (mz.dom.adapter.hasAttribute(this.rootNode, attrName))
                             mz.dom.adapter.removeAttribute(this.rootNode, attrName);
