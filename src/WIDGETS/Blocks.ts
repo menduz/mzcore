@@ -10,6 +10,14 @@ namespace mz.widgets {
     
     flexStyles.disable();
 
+    flexStyles.set('.mz-fit', {
+        'position': 'absolute',
+        'top': '0',
+        'bottom': '0',
+        'left': '0',
+        'right': '0'
+    });
+
     flexStyles.set('.mz-flex-row', {
         'display': 'flex',
         '-webkit-flex-wrap': 'wrap',
