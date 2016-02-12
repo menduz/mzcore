@@ -94,7 +94,7 @@ QUnit.test("Basic html template, expression, value from attr", function(assert) 
     var result = new HelloWorld();
 
     result.attr('value', 'ABC');
-    assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>[${result.get('value')}]</div>`);
+    assert.equal((result.rootNode as HTMLElement).outerHTML, `<div value="${result.attr('value')}">[${result.attr('value')}]</div>`);
 })
 
 // TEST 7

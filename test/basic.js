@@ -126,7 +126,7 @@ QUnit.test("Basic html template, expression, value from attr", function (assert)
     HelloWorld.prototype.defaultTemplate = "<div>[{value}]</div>";
     var result = new HelloWorld();
     result.attr('value', 'ABC');
-    assert.equal(result.rootNode.outerHTML, "<div>[" + result.get('value') + "]</div>");
+    assert.equal(result.rootNode.outerHTML, "<div value=\"" + result.attr('value') + "\">[" + result.attr('value') + "]</div>");
 });
 // TEST 7
 QUnit.test("Basic html template, expression with js", function (assert) {
@@ -144,7 +144,7 @@ QUnit.test("Basic html template, expression with js", function (assert) {
     HelloWorld.prototype.defaultTemplate = "<div>[{value.toLowerCase()}]</div>";
     var result = new HelloWorld();
     result.set('value', 'ABC');
-    assert.equal(result.rootNode.outerHTML, "<div>[" + result.get('value').toLowerCase() + "]</div>");
+    assert.equal(result.rootNode.outerHTML, "<div>a[" + result.get('value').toLowerCase() + "]</div>");
 });
 // TEST 8
 QUnit.test("Basic html template, expression composed with js", function (assert) {
