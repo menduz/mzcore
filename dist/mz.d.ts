@@ -9,6 +9,10 @@ declare namespace mz {
     interface IWidget {
         DOM: JQuery;
     }
+    interface mzDataSet {
+        Cfg: mz.Dictionary<any>;
+        Data: Array<Array<any>>;
+    }
     interface Dictionary<V> {
         [key: string]: V;
     }
