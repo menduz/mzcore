@@ -60,6 +60,8 @@ namespace mz.app {
         
         @mz.MVCObject.proxy
         loadingPage: boolean = true;
+        
+        routeHistory: string[];
 
         constructor(opc: {
             templateUrl?: string;
@@ -143,9 +145,6 @@ namespace mz.app {
 
             var that = this;
             
-            if(!mz.globalContext.Backbone && !('backbone' in mz.modules && (Backbone = mz.require('backbone')) && Backbone.history))
-                throw new Error("AppController requires Backbone, please install it before creating this.");
-
             for (var i in routes) {
                 ((route: IAppControllerRouteModule) => {
                     routerParam[route.name] = function() {
@@ -171,8 +170,12 @@ namespace mz.app {
             this.emit('loaded');
             this.loaded();
         }
+        
+        private gotBackbone(backbone){
+            
+        }
 
-        routeHistory: string[];
+        
 
         loaded() {
 

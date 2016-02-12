@@ -46,16 +46,18 @@ module mz {
 
     export var route: mzBackboneRouter = <any>{
         start: (options: RouterOptions, cb?: (route: TheRouter) => void) => {
-            var b = mz.globalContext.Backbone || mz.require("backbone");
+            var gotBackbone = b => {
+                route = mz.route = new (b.Router.extend(options))();
+                b.history.start();
+                route.start = function(a, b) {
+                    b && b(route)
+                };
+                console.log("Backbone loaded! Route started!", mz.route);
 
-            route = mz.route = new (b.Router.extend(options))();
-            b.history.start();
-            route.start = function(a, b) {
-                b && b(route)
-            };
-            console.log("Backbone loaded! Route started!", mz.route);
+                cb && cb(route);
+            }
 
-            cb && cb(route);
+            mz.globalContext.Backbone && gotBackbone(mz.globalContext.Backbone) || mz.require("backbone", (b) => gotBackbone(b));
         }
     };
 }

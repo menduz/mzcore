@@ -8,7 +8,7 @@
 
 module mz {
     export class AttributeDirective {
-        private _value;
+        protected _value;
 
         constructor(protected widget: Widget, protected component: Widget, value) {
             this.value = value;
@@ -184,10 +184,10 @@ module mz {
 
         // text node, comment, etc
         
-        if(node instanceof CDATASection){
+        if (node instanceof CDATASection) {
             return <any>mz.dom.adapter.createTextNode(node.nodeValue);
         }
-        
+
         if (node.nodeValue) {
             var value = node.nodeValue;
 
@@ -402,9 +402,9 @@ module mz {
 
         constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], private _params: any = null, private _parentComponent: Widget = null, scope?) {
             super();
-            
+
             this.originalNode = originalNode;
-            
+
             this.contentFragment = document.createDocumentFragment();
             this.contentNode = this.rootNode = document.createElement(attr && attr["tag"] || originalNode && originalNode.nodeName || (<any>this["constructor"]).nodeName || (<any>this["constructor"]).name || 'div');
 
@@ -436,10 +436,12 @@ module mz {
         attr(attrName: string, value?: any) {
             let attrNameLower = attrName.toLowerCase();
 
-            if (value === undefined) {
-                return this.get(attrName) || this.DOM.attr(attrName);
-            } else {
+            if (arguments.length == 1) {
+                if (this.attrDirectives && attrNameLower in this.attrDirectives)
+                    return this.attrDirectives[attrNameLower].value;
 
+                return this.data[attrName];
+            } else {
                 var boolAttr = attrNameLower in boolAttrs;
                 var typeofValue = typeof value;
 
@@ -448,6 +450,8 @@ module mz {
                         value = value();
 
                     value = CBool(value);
+                    
+                    typeofValue = "boolean";
                 }
 
                 this.set(attrName, value);
@@ -462,9 +466,11 @@ module mz {
                         this.attrDirectives[attrNameLower] = new AttributeDirective.directives[attrNameLower](this, this._parentComponent, value);
                 } else if (boolAttr) {
                     if (value) {
-                        this.DOM.prop(attrName, value);
+                        if (!mz.dom.adapter.hasAttribute(this.rootNode, attrName))
+                            mz.dom.adapter.setAttribute(this.rootNode, attrName, true);
                     } else {
-                        this.DOM.removeProp(attrName);
+                        if (mz.dom.adapter.hasAttribute(this.rootNode, attrName))
+                            mz.dom.adapter.removeAttribute(this.rootNode, attrName);
                     }
                 } else if (regexpOn.test(attrName) && typeofValue === "function") {
                     var cbName = regexpOn.exec(attrName)[1];
@@ -474,10 +480,10 @@ module mz {
                     else
                         this.DOM.on(cbName, getJQueryEventWrapper(value, this));
                 } else {
-                    if (!(/^:/.test(attrName)) && (typeofValue === "string" || typeofValue === "number" || typeofValue === "boolean")) {
+                    if ((typeofValue === "string" || typeofValue === "number" || typeofValue === "boolean") && !(/^:/.test(attrName))) {
                         if (attrNameLower in ignoredAttrs) return;
 
-                        this.DOM.attr(attrName, value);
+                        mz.dom.adapter.setAttribute(this.rootNode, attrName, value);
                     }
                 }
             }
@@ -509,6 +515,9 @@ module mz {
         protected loadTemplate(url: string, forceSync: boolean = false) {
             if (url in widgetTemplateSource) {
                 this.startComponent(widgetTemplateSource[url]);
+                this.componentInitialized();
+                this.emit(Widget.EVENTS.ComponentMounted);
+                requestAnimationFrame(() => this.resize());
                 return;
             }
 
@@ -747,6 +756,21 @@ module mz {
         static ConfigureTag(tagName: string) {
             return function(target: Function) {
                 target.prototype.tagName = true;
+            }
+        }
+
+        static Attribute(target: mz.Widget, propertyKey: string | symbol) {
+            if (delete target[propertyKey]) {
+                let propertyKeyString = propertyKey.toString();
+                Object.defineProperty(target, propertyKey.toString(), {
+                    get: function() {
+                        return this.attr(propertyKey);
+                    },
+                    set: function(value) {
+                        this.attr(propertyKey, value);
+                    },
+                    enumerable: true
+                });
             }
         }
     }

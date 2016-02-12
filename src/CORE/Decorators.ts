@@ -46,7 +46,7 @@ module mz.core.decorators {
                 return (<any>theDelayer).apply(this, arguments);
             };
           */
-          let originalValue = descriptor.value;
+        let originalValue = descriptor.value;
         var delayerID = `[[delayer-${delayerCount++}]]`;
         console.error(propertyKey + ": !!ALERTA, LOS DECORADORES mz.core.decorators.delayer & screenDelayer NO FUNCIONAN AUN");
 

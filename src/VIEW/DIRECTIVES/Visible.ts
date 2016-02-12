@@ -17,15 +17,7 @@ class MzVisibleDirective extends mz.AttributeDirective {
     }
 
     changed(val) {
-        if (!CBool(val)) {
-            mz.dom.adapter.addClass(this.widget.rootNode, MzVisibleDirective.vendorHiddenClass);
-            try {
-                mz.dom.adapter.setAttribute(this.widget.rootNode, 'aria-hidden', 'true');
-            } catch (e) { }
-            try {
-                mz.dom.adapter.setAttribute(this.widget.rootNode, mz.HIDDEN_PROP, mz.HIDDEN_PROP);
-            } catch (e) { }
-        } else {
+        if (CBool(val)) {
             mz.dom.adapter.removeClass(this.widget.rootNode, MzVisibleDirective.vendorHiddenClass);
             try {
                 mz.dom.adapter.removeAttribute(this.widget.rootNode, 'aria-hidden');
@@ -33,6 +25,16 @@ class MzVisibleDirective extends mz.AttributeDirective {
             try {
                 mz.dom.adapter.removeAttribute(this.widget.rootNode, mz.HIDDEN_PROP);
             } catch (e) { }
+            this._value = true;
+        } else {
+            mz.dom.adapter.addClass(this.widget.rootNode, MzVisibleDirective.vendorHiddenClass);
+            try {
+                mz.dom.adapter.setAttribute(this.widget.rootNode, 'aria-hidden', 'true');
+            } catch (e) { }
+            try {
+                mz.dom.adapter.setAttribute(this.widget.rootNode, mz.HIDDEN_PROP, mz.HIDDEN_PROP);
+            } catch (e) { }
+            this._value = false;
         }
     }
 }

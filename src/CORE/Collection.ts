@@ -575,9 +575,9 @@ namespace mz {
         /**
 	     *	Devuelve una coleccion de elementos que cumplan con la condición. También se puede llamar usando dos argumentos
 	     *			.where('Campo', 3)
-	     *	Y va a devolver una colección con totos los elementos de la primera que tengan Campo == 3
+	     *	Y va a devolver una colección con todos los elementos de la primera que tengan Campo == 3
 	     *	@method where
-	     *	@param {Function|MzDelegate} condicion
+	     *	@param {Function} condicion
 	     */
 
         where(campoOCondicion: string | ((elemento: T) => boolean), valorCampo?: any) {
@@ -590,12 +590,6 @@ namespace mz {
 
                 return arr;
             } else {
-                if (this.array.length >= 10000) {
-                    let fn = mz.compileFilter(campoOCondicion);
-
-                    return new Collection<T>(fn(this.array));
-                }
-
                 if (this.array.filter)
                     return new Collection<T>(this.array.filter(campoOCondicion));
 

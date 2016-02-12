@@ -12,3 +12,5 @@ ALPHA v0.1.0
 - [ ] raml2mzcore generator
 - [*] avoid parse expressions on `<![CDATA[ everithing inside a cdata is plain text .. { this must not be parsed as expression } .. ]]>`
     - [ ] Test for CDATA content
+- [ ] `@mz.Widget.Attr` decorator for widget's properties
+- [ ] Include backbone and lodash on dist.
