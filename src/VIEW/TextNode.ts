@@ -33,7 +33,8 @@ module mz.widgets {
 
             if (typeof t === "undefined" || t === null) t = '';
 
-            this.rootNode.textContent = t;
+            //this.rootNode.textContent = t;
+            mz.dom.microqueue.setText(this.rootNode, t);
             
             (<any>this.rootNode).$tmpl = value;
             (<any>this.rootNode).$component = component;
@@ -57,9 +58,10 @@ module mz.widgets {
         refreshScope() {
             let t = view.tmpl(this.value, this.component, this.scope);
             if (typeof t === "undefined" || t === null) t = '';
-            if (this.rootNode.textContent != t) {
-                this.rootNode.textContent = t;
-            }
+            mz.dom.microqueue.setText(this.rootNode, t);
+            //if (this.rootNode.textContent != t) {
+            //    this.rootNode.textContent = t;
+            //}
         }
 
         private static pollObjects: TextNode[] = [];

@@ -179,6 +179,8 @@ module mz {
         [url: string]: any;
     } = {};
 
+    var tmpl_pointer = view.tmpl;
+
     function domToWidgets(node: Node, params, component: Widget, scope): Widget | IChildWidget {
         var match;
 
@@ -224,9 +226,10 @@ module mz {
                             if (a != b && value.indexOf(elem) != -1) {
                                 let t = view.tmpl(value, component, scope);
                                 if (typeof t === "undefined" || t === null) t = '';
-                                if (childWidget.rootNode.textContent != t) {
-                                    childWidget.rootNode.textContent = t;
-                                }
+                                //if (childWidget.rootNode.textContent != t) {
+                                //    childWidget.rootNode.textContent = t;
+                                //}
+                                mz.dom.microqueue.setText(childWidget.rootNode, t);
                             }
                         }));
                     }
@@ -255,12 +258,17 @@ module mz {
          * */
         var bindeableAttrs = {};
 
+        let listenersConLlaves = [];
+        
+        
+
         for (var i = node.attributes.length - 1; i >= 0; i--) {
             var attr = node.attributes[i];
 
             attrs[attr.name] = attr.value;
 
             match = attr.value.match(paramRegex);
+
 
             // __0, __1
             if (match) {
@@ -276,11 +284,14 @@ module mz {
                     else if (tieneLlaves.test(attr.value)) {
                         bindeableAttrs[attr.name] = attr.value;
 
-                        attrs[':' + attr.name + '_upd'] = (function(value, component, scope) {
-                            return function() {
-                                return view.tmpl(value, component, scope);
-                            }
-                        })(attr.value, component, scope);
+                        listenersConLlaves.push({
+                            name: attr.name,
+                            fn: (function(value, component, scope) {
+                                return function() {
+                                    return tmpl_pointer(value, component, scope);
+                                }
+                            })(attr.value, component, scope)
+                        });
                     }
                 }
             }
@@ -299,6 +310,9 @@ module mz {
         var hijos = widgetCtor.EMPTY_TAG ? [] : getChildNodes(node, params, component, scope);
 
         var ret: Widget = new widgetCtor(node, attrs, hijos, params, component, scope);
+
+        if (listenersConLlaves.length)
+            ret.mustUpdateOnScopeChange = listenersConLlaves;
 
         for (var at in bindeableAttrs) {
             if (typeof bindeableAttrs[at] == "string" && component)
@@ -378,6 +392,8 @@ module mz {
         listening: EventDispatcherBinding[] = [];
         innerWidget: mz.Widget = null;
 
+        mustUpdateOnScopeChange: any[];
+
         private contentFragment: DocumentFragment;
         private _contentSelector: string;
 
@@ -450,7 +466,7 @@ module mz {
                         value = value();
 
                     value = CBool(value);
-                    
+
                     typeofValue = "boolean";
                 }
 
@@ -492,14 +508,11 @@ module mz {
 
 
         refreshScope() {
-            let data = this.data;
-
             // the attrs who has the form ":(attName)_upd" (regexpAttrBinded) are attr generators for "attrName"
-            for (var i in data) {
-                let match = null;
-
-                if (typeof data[i] == "function" && (match = regexpAttrBinded.exec(i))) {
-                    this.attr(match[1], data[i]());
+            if (this.mustUpdateOnScopeChange) {
+                for (var i = 0; i < this.mustUpdateOnScopeChange.length; i++) {
+                    let e = this.mustUpdateOnScopeChange[i];
+                    this.attr(e.name, e.fn());
                 }
             }
 
