@@ -144,7 +144,24 @@ QUnit.test("Basic html template, expression with js", function (assert) {
     HelloWorld.prototype.defaultTemplate = "<div>[{value.toLowerCase()}]</div>";
     var result = new HelloWorld();
     result.set('value', 'ABC');
-    assert.equal(result.rootNode.outerHTML, "<div>a[" + result.get('value').toLowerCase() + "]</div>");
+    assert.equal(result.rootNode.outerHTML, "<div>[" + result.get('value').toLowerCase() + "]</div>");
+});
+QUnit.test("Basic html template, cdata should not be parsed as expression", function (assert) {
+    var HelloWorld = (function (_super) {
+        __extends(HelloWorld, _super);
+        function HelloWorld() {
+            _super.apply(this, arguments);
+        }
+        HelloWorld = __decorate([
+            mz.Widget.ConfigureUnwrapped, 
+            __metadata('design:paramtypes', [])
+        ], HelloWorld);
+        return HelloWorld;
+    })(mz.widgets.BasePagelet);
+    HelloWorld.prototype.defaultTemplate = "<div><![CDATA[{3}{value.toLowerCase()}]]></div>";
+    var result = new HelloWorld();
+    result.set('value', 'ABC');
+    assert.equal(result.rootNode.outerHTML, "<div>{3}{value.toLowerCase()}</div>");
 });
 // TEST 8
 QUnit.test("Basic html template, expression composed with js", function (assert) {

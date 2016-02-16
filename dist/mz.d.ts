@@ -6,6 +6,10 @@ declare var global: any;
 declare var CBool: (Cosa: any) => boolean;
 declare var Symbol: (name: string) => symbol | string;
 declare namespace mz {
+    interface IForEachable<T> {
+        forEach: (cb: ((elem: T, index: string | number) => void)) => void;
+        length: number;
+    }
     interface IWidget {
         DOM: JQuery;
     }
@@ -179,8 +183,8 @@ declare module mz {
         on(event: string, callback: Function, once?: boolean): any;
         once(event: string, callback: Function): any;
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
-        emit(event: string, ...params: any[]): any[];
-        trigger: (event: string, ...params: any[]) => any[];
+        emit(event: string, ...params: any[]): any;
+        trigger: (event: string, ...params: any[]) => any;
     }
 }
 declare namespace mz {
@@ -282,6 +286,7 @@ declare module mz {
         children: IChildWidget[];
         listening: EventDispatcherBinding[];
         innerWidget: mz.Widget;
+        mustUpdateOnScopeChange: any[];
         private contentFragment;
         private _contentSelector;
         protected attrDirectives: Dictionary<AttributeDirective>;
@@ -831,7 +836,7 @@ declare namespace mz.oauth2 {
     function login(username: string, password: string): Promise<xr.XrResponse>;
     function loggedIn(): boolean;
     var on: (event: string, callback: Function, once?: boolean) => any;
-    var emit: (event: string, ...params: any[]) => any[];
+    var emit: (event: string, ...params: any[]) => any;
     var off: (bindeo?: string | Function | EventDispatcherBinding, callback?: Function) => void;
 }
 declare module mz {
@@ -893,7 +898,7 @@ declare module mz.define {
     var currentModule: Module;
 }
 declare namespace mz {
-    class Collection<T> extends MVCObject {
+    class Collection<T> extends MVCObject implements IForEachable<T> {
         opciones: IMZCollectionOpc;
         protected array: T[];
         private __indice__;
@@ -1240,6 +1245,13 @@ declare namespace mz {
 declare namespace mz.dom {
     var adapter: mz.dom.AbstractDomAdapter;
     function setRootDomAdapter(theAdapter: mz.dom.AbstractDomAdapter): void;
+    namespace microqueue {
+        var enabled: boolean;
+        function appendChild(el: any, node: any): void;
+        function remove(el: any): void;
+        function setText(el: any, text: string): void;
+        function setAttribute(el: any, attr: string, value: string): void;
+    }
 }
 declare namespace mz.dom {
     /**
@@ -1741,31 +1753,35 @@ declare namespace mz.widgets {
     }
 }
 declare namespace mz.widgets {
-    class MzForm<T> extends mz.Widget {
+    class MzForm<T> extends mz.widgets.MzInput {
         static EMPTY_TAG: boolean;
-        primaryButton: mz.Widget;
+        static ERROR_CLASS: string;
+        private primaryButton;
         campos: Dictionary<MzInput>;
         private camposArray;
+        value: T;
         defaults: T;
+        private flagAvoidReUpdate;
         constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b: any, c: any, scope: any);
-        setValues(a: any): void;
+        value_changed(val: T, prevVal: T): T;
+        private adoptInput(fieldName, component);
         private _findICampos(component);
         fieldIsVisible(fieldName: string): boolean;
         focus(field?: string): void;
+        errors: string[];
+        checkValid(): boolean;
         checkAll(noEmitAlert?: boolean): boolean;
-        clearValues(): void;
-        getFormValues(): T;
-        set(key: string, value: any): void;
+        getDefaultValue(): T;
+        resetForm(): T;
     }
 }
 declare module mz.widgets {
     class MzRepeat extends mz.Widget {
-        list: mz.Collection<any>;
+        list: IForEachable<any>;
         afterAdd: (doms: mz.IChildWidget[], scope: any) => void;
         collectionKey: symbol | string;
-        private item;
         props: {
-            list: mz.Collection<any>;
+            list: IForEachable<any>;
             afterAdd?: (doms: mz.IChildWidget[], scope: any) => void;
         };
         listenersLista: mz.EventDispatcherBinding[];
@@ -1775,7 +1791,7 @@ declare module mz.widgets {
         ponerElem(itemDeLista: any): void;
         generateScopedContent(scope: any): IChildWidget[];
         private detachAllNodes();
-        private delegateUnmountElements(elementoLista);
+        private delegateUnmountElements(elementoLista, at?);
         redraw(tipo?: string, a?: any, b?: any): void;
     }
 }

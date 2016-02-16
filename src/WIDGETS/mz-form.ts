@@ -2,27 +2,27 @@
 
 namespace mz.widgets {
     @mz.Widget.RegisterComponent("mz-form")
-    
-    /**
-     * @attr: "error-class" determines the css class used when a field is required and is not set or does not validate data. Default: "has-error"
-     */
-    export class MzForm<T> extends mz.Widget {
+    export class MzForm<T> extends mz.widgets.MzInput {
         static EMPTY_TAG = true;
+        static ERROR_CLASS = 'has-error';
 
-        primaryButton: mz.Widget;
+        private primaryButton: mz.Widget;
 
         campos: Dictionary<MzInput>;
         private camposArray: MzInput[];
 
+        @MzForm.proxy
+        value: T;
+
         defaults: T;
 
-        constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b, c, scope) {
+        private flagAvoidReUpdate: string;
 
+        constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b, c, scope) {
             attr['tag'] = attr['tag'] || 'div';
+            this.flagAvoidReUpdate = null;
 
             super(rootNode, attr, children, b, c, scope);
-
-            this.children = this.generateScopedContent(this);
 
             this.primaryButton = null;
 
@@ -34,61 +34,71 @@ namespace mz.widgets {
 
             this._findICampos(<any>this);
 
-            if (this.primaryButton && this.primaryButton.attr("disabled") == undefined) {
-                this.on('valueChanged', delayer(() => {
-                    this.primaryButton.attr('disabled', !this.checkAll(true))
-                }, 50));
-                this.primaryButton.attr('disabled', !this.checkAll(true))
+            this.checkAll = mz.screenDelayer(this.checkAll, this);
+        }
+
+        value_changed(val: T, prevVal: T) {
+            if (!val || typeof val != "object") {
+                return this.getDefaultValue();
             }
+
+            if (val && typeof val === "object" && !this.flagAvoidReUpdate) {
+                for (var i in this.campos) {
+                    if (i !== this.flagAvoidReUpdate && this.campos[i].value !== val[i])
+                        this.campos[i].value = val[i];
+                }
+            }
+
+            this.checkAll(true);
         }
 
-        setValues(a) {
-            super.setValues(a);
-            this.primaryButton && this.primaryButton.attr('disabled', !this.checkAll(true))
+        private adoptInput(fieldName: string, component: MzInput) {
+            this.campos[fieldName] = component;
+
+            this.camposArray.push(component);
+
+            let defValue = component.attr('default-value');
+
+            if (typeof defValue != "undefined") {
+                this.defaults[fieldName] = defValue;
+            }
+
+            this.listening.push(component.on("value_changed", val => {
+                (this.value || (this.resetForm(), this.value))[fieldName] = val;
+                this.flagAvoidReUpdate = fieldName;
+                try {
+                    this.value = this.value;
+                } catch (e) {
+                    console.error(e);
+                }
+                this.flagAvoidReUpdate = null;
+            }))
         }
 
-        private _findICampos(component: MzInput) {
-            if (component) {
-                if (typeof (<any>component) == "object") {
-                    if (component instanceof MzInput) {
-                        let fieldName = component.attr('field-name');
-                        if (!fieldName) {
-                            console.warn("all mz-icampo tags should have the attr 'field-name'", component);
-                        } else {
-                            ((campo) => {
-                                var iCampoWidget = component;
-
-                                this.campos[campo] = iCampoWidget;
-
-                                this.camposArray.push(iCampoWidget);
-
-                                let defValue = component.attr('default-value');
-
-                                if (typeof defValue != "undefined") {
-                                    this.defaults[campo] = defValue;
-                                    this.set(campo, defValue);
-                                }
-
-                                if (isDef(this.get(campo))) iCampoWidget.value = this.get(campo);
-                            })(fieldName);
-                        }
-                    } else {
-                        if (component.rootNode && component.rootNode.nodeName.toLowerCase() == "button" && component.attr('mz-form-primary')) {
-                            this.primaryButton = component;
-                        }
+        private _findICampos(component: mz.Widget) {
+            if (component != this) {
+                if (component instanceof MzInput && component !== this) {
+                    let fieldName = component.attr('field-name');
+                    if (fieldName) {
+                        this.adoptInput(fieldName, component);
+                    }
+                } else {
+                    if (component.rootNode && component.rootNode.nodeName.toLowerCase() == "button" && (component.attr('mz-form-primary') || component.attr('type') === "submit")) {
+                        this.primaryButton = component;
                     }
                 }
-
-                component && component.children && component.children.forEach(c => {
-                    if (!(c instanceof MzForm))
-                        this._findICampos(<any>c);
-                });
             }
+
+
+            component && component.children && component.children.forEach(c => {
+                if (!(c instanceof MzForm) && c instanceof mz.Widget)
+                    this._findICampos(c);
+            });
         }
 
         fieldIsVisible(fieldName: string): boolean {
             if (fieldName in this.campos) {
-                return this.campos[fieldName].DOM.is(':visible');
+                return this.campos[fieldName].visible;
             }
             return false;
         }
@@ -100,63 +110,72 @@ namespace mz.widgets {
                 this.campos[field].focus && this.campos[field].focus();
         }
 
-        checkAll(noEmitAlert?: boolean): boolean {
-            var errores = [];
+        errors: string[];
+
+        checkValid(): boolean {
+            this.errors = [];
+
             var cumple = true;
 
-            var clase = 'has-error';
+            var clase = MzForm.ERROR_CLASS;
 
             try {
-                clase = this.attr['error-class'] || clase;
+                clase = this.data['error-class'] || clase;
             } catch (e) {
 
             }
 
             for (var i in this.campos) {
                 if (this.campos[i] instanceof MzInput) {
-                    var err = this.campos[i].checkValid(this.data);
+                    var err = null;
+
+                    try {
+                        err = this.campos[i].checkValid(this.data);
+                    } catch (e) {
+                        err = e;
+                    }
 
                     if (err === true) {
                         mz.dom.adapter.removeClass(this.campos[i].rootNode, clase);
-                    } else if (!noEmitAlert) {
+                    } else {
                         cumple = false;
                         mz.dom.adapter.addClass(this.campos[i].rootNode, clase);
+
                         if (typeof err === "string" || (<any>err) instanceof Error) {
-                            errores.push(err);
+                            console.error(err, this);
+                            this.errors.push(err);
                         }
-                    } else cumple = false;
+                    }
                 }
             }
 
-            if (errores.length) {
-                alert(errores.join('\n'));
+            this.primaryButton && this.primaryButton.attr('disabled', !cumple);
+
+            return cumple;
+        }
+
+        checkAll(noEmitAlert?: boolean): boolean {
+            let cumple = this.checkValid();
+
+            if (this.errors.length) {
+                this.emit('error', this.errors);
                 return false;
             }
 
             return cumple;
-
         }
 
-        clearValues() {
-            for (var c in this.campos)
-                this.set(c, this.campos[c].attr('default-value') || null);
-        }
-
-        getFormValues(): T {
-            var t = {};
-
+        getDefaultValue(): T {
+            let obj = {};
             for (var i in this.campos) {
-                t[i] = this.data[i];
+                obj[i] = this.defaults[i];
+                this.campos[i].value = this.defaults[i];
             }
-
-            return <T>t;
+            return obj as T;
         }
 
-        set(key: string, value: any) {
-            super.set(key, value);
-            if (this.campos && key in this.campos) {
-                this.campos[key].value = value;
-            }
+        resetForm() {
+            return this.value = this.getDefaultValue();
         }
     }
 }
