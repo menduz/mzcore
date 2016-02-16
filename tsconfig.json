@@ -11,6 +11,7 @@
     "src/CORE/DOM.ts",
     "src/CORE/DOM/DOM.ts",
     "src/CORE/DOM/DOM_BrowserImpl.ts",
+    "src/CORE/DOM/MicroQueue.ts",
     "src/CORE/Date.ts",
     "src/CORE/Decorators.ts",
     "src/CORE/EventDispatcher.ts",

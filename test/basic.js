@@ -30,6 +30,7 @@ QUnit.test("Basic html template, content", function (assert) {
         return HelloWorld;
     })(mz.widgets.BasePagelet);
     var result = new HelloWorld();
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.innerHTML, HelloWorld.prototype.defaultTemplate, 'Basic rendering');
 });
 // TEST 2
@@ -46,6 +47,7 @@ QUnit.test("Basic html template, outer html", function (assert) {
         return HelloWorld;
     })(mz.widgets.BasePagelet);
     var result = new HelloWorld();
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, '<helloworld>' + HelloWorld.prototype.defaultTemplate + '</helloworld>');
 });
 // TEST 3
@@ -63,6 +65,7 @@ QUnit.test("Basic html template, unwrapped", function (assert) {
     })(mz.widgets.BasePagelet);
     HelloWorld.prototype.defaultTemplate = "<div>Hello world! OuterHTML</div>";
     var result = new HelloWorld();
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, HelloWorld.prototype.defaultTemplate);
 });
 // TEST 4
@@ -85,6 +88,7 @@ QUnit.test("Basic html template, expression value", function (assert) {
     })(mz.widgets.BasePagelet);
     HelloWorld.prototype.defaultTemplate = "<div>{this.value}</div>";
     var result = new HelloWorld();
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div>" + result.value + "</div>");
 });
 // TEST 5
@@ -108,6 +112,7 @@ QUnit.test("Basic html template, expression, change value on the fly", function 
     HelloWorld.prototype.defaultTemplate = "<div>{this.value}</div>";
     var result = new HelloWorld();
     result.set('value', 'ABC');
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div>" + result.get('value') + "</div>");
 });
 // TEST 6
@@ -126,6 +131,7 @@ QUnit.test("Basic html template, expression, value from attr", function (assert)
     HelloWorld.prototype.defaultTemplate = "<div>[{value}]</div>";
     var result = new HelloWorld();
     result.attr('value', 'ABC');
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div value=\"" + result.attr('value') + "\">[" + result.attr('value') + "]</div>");
 });
 // TEST 7
@@ -144,6 +150,7 @@ QUnit.test("Basic html template, expression with js", function (assert) {
     HelloWorld.prototype.defaultTemplate = "<div>[{value.toLowerCase()}]</div>";
     var result = new HelloWorld();
     result.set('value', 'ABC');
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div>[" + result.get('value').toLowerCase() + "]</div>");
 });
 QUnit.test("Basic html template, cdata should not be parsed as expression", function (assert) {
@@ -161,6 +168,7 @@ QUnit.test("Basic html template, cdata should not be parsed as expression", func
     HelloWorld.prototype.defaultTemplate = "<div><![CDATA[{3}{value.toLowerCase()}]]></div>";
     var result = new HelloWorld();
     result.set('value', 'ABC');
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div>{3}{value.toLowerCase()}</div>");
 });
 // TEST 8
@@ -183,6 +191,7 @@ QUnit.test("Basic html template, expression composed with js", function (assert)
     HelloWorld.prototype.defaultTemplate = "<div>{value} a<span>[{this.value.toLowerCase()}]</span></div>";
     var result = new HelloWorld();
     result.value = 'ABC';
+    mz.dom.microqueue.flush();
     assert.equal(result.rootNode.outerHTML, "<div>" + result.get('value') + " a<span>[" + result.value.toLowerCase() + "]</span></div>");
 });
 // TEST 10
@@ -202,6 +211,7 @@ QUnit.test("Basic html template, expression with class selectors", function (ass
     var result = new HelloWorld();
     result.on('value_changed', function (a) { this.value = a; });
     result.set('value', true);
+    mz.dom.microqueue.flush();
     assert.equal($(result.rootNode).attr('style'), "color: red");
 });
 function exprTests(assrt) {

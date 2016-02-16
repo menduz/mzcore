@@ -55,7 +55,7 @@ gulp.task('test_full', ['default'], function () {
 
 
 gulp.task('test', function () {
-    qunit('./test/index.html', { 'verbose': true });
+    qunit('./test/index.html', { 'verbose': false });
 })
 
 gulp.task('tsconfig_files', function () {

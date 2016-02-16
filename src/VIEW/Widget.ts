@@ -4,6 +4,7 @@
 /// <reference path="../CORE/MVCObject.ts" />
 /// <reference path="../CORE/Decorators.ts" />
 /// <reference path="TextNode.ts" />
+/// <reference path="../CORE/DOM/MicroQueue.ts" />
 
 
 module mz {
@@ -66,24 +67,16 @@ module mz {
     export interface IMZComponentEvent {
         event: Event;
         data: any;
-        element: Element;
-        $element: JQuery;
-        jQueryEvent?: JQueryEventObject;
+        element: HTMLElement;
     }
 
     export interface IMZComponentDirectiveCollection {
         [attributte: string]: typeof AttributeDirective;
     }
 
-    function delegateRefreshScope(e) {
-        if (e && typeof e == "object") {
-            'refreshScope' in e && e.refreshScope();
-        }
-    }
-
     var templateCache: Dictionary<Document> = {};
 
-    var paramRegex = /^__(\d)+$/;
+    var paramRegex = /^__(\d+)$/;
     var tieneLlaves = /\{|\}/;
 
     var testScope = /^{scope\./;
@@ -216,8 +209,9 @@ module mz {
                         childWidget.listening.push(component.on(match[1] + '_changed', function(a, b) {
                             if (a != b) {
                                 if (typeof a === "undefined" || a === null) a = '';
-                                if (childWidget.rootNode.textContent != a)
-                                    childWidget.rootNode.textContent = a;
+                                //if (childWidget.rootNode.textContent != a)
+                                //    childWidget.rootNode.textContent = a;
+                                mz.dom.microqueue.setText(childWidget.rootNode, a);
                             }
                         }));
                     } else {
@@ -348,9 +342,7 @@ module mz {
             var eventObject = {
                 event: event.originalEvent,
                 data: widget.scope,
-                element: widget.rootNode,
-                $element: widget.DOM,
-                jQueryEvent: event
+                element: widget.rootNode
             };
 
             return originalCallback.call(widget, eventObject);
@@ -425,7 +417,7 @@ module mz {
             this.contentNode = this.rootNode = document.createElement(attr && attr["tag"] || originalNode && originalNode.nodeName || (<any>this["constructor"]).nodeName || (<any>this["constructor"]).name || 'div');
 
             (<any>this.rootNode).$widget = this;
-            (<any>this.rootNode).$component = _parentComponent || this;
+            (<any>this.rootNode).$component = _parentComponent;
 
             this.scope = scope || null;
 
@@ -433,7 +425,8 @@ module mz {
 
             if (this.defaultTemplate) {
                 this.startComponent([this.defaultTemplate]);
-                this.emit(Widget.EVENTS.ComponentMounted);
+                mz.dom.microqueue.callback(() => this.emit(Widget.EVENTS.ComponentMounted));
+                
             }
 
             if (attr) {
@@ -499,7 +492,8 @@ module mz {
                     if ((typeofValue === "string" || typeofValue === "number" || typeofValue === "boolean") && !(/^:/.test(attrName))) {
                         if (attrNameLower in ignoredAttrs) return;
 
-                        mz.dom.adapter.setAttribute(this.rootNode, attrName, value);
+                        mz.dom.microqueue.setAttribute(this.rootNode, attrName, value);
+                        //mz.dom.adapter.setAttribute(this.rootNode, attrName, value);
                     }
                 }
             }
@@ -515,22 +509,31 @@ module mz {
                     this.attr(e.name, e.fn());
                 }
             }
-
-            this.children.forEach(delegateRefreshScope);
+   
+            for (let index = 0; index < this.children.length; index++) {
+                let e = this.children[index] as any;
+                if (e && typeof e == "object") {
+                    e.refreshScope && e.refreshScope();
+                }
+            }
         }
 
-
         // Finds an element within this component
-        find(selector: string | Element | JQuery): JQuery {
-            return this.DOM.find(<any>selector);
+        find(selector: string): Element[] {
+            mz.dom.microqueue.flush();
+            return mz.dom.adapter.querySelectorAll(this.rootNode, selector);
         }
 
         protected loadTemplate(url: string, forceSync: boolean = false) {
             if (url in widgetTemplateSource) {
                 this.startComponent(widgetTemplateSource[url]);
                 this.componentInitialized();
-                this.emit(Widget.EVENTS.ComponentMounted);
-                requestAnimationFrame(() => this.resize());
+                //this.emit(Widget.EVENTS.ComponentMounted);
+                //requestAnimationFrame(() => this.resize());
+                mz.dom.microqueue.callback(() => {
+                    this.resize();
+                    this.emit(Widget.EVENTS.ComponentMounted);
+                });
                 return;
             }
 
@@ -543,14 +546,22 @@ module mz {
                     widgetTemplateSource[url] = xhr.responseXML;
                     this.startComponent(xhr.responseXML);
                     this.componentInitialized();
-                    this.emit(Widget.EVENTS.ComponentMounted);
-                    requestAnimationFrame(() => this.resize());
+                    //this.emit(Widget.EVENTS.ComponentMounted);
+                    mz.dom.microqueue.callback(() => {
+                        this.resize();
+                        this.emit(Widget.EVENTS.ComponentMounted);
+                    });
+                    //requestAnimationFrame(() => this.resize());
                 } else if (xhr.responseText && xhr.responseText.length) {
                     widgetTemplateSource[url] = [xhr.responseText];
                     this.startComponent([xhr.responseText], []);
                     this.componentInitialized();
-                    this.emit(Widget.EVENTS.ComponentMounted);
-                    requestAnimationFrame(() => this.resize());
+                    //this.emit(Widget.EVENTS.ComponentMounted);
+                    mz.dom.microqueue.callback(() => {
+                        this.resize();
+                        this.emit(Widget.EVENTS.ComponentMounted);
+                    });
+                    //requestAnimationFrame(() => this.resize());
                 } else {
                     throw new TypeError("Unexpected response for mz.Widget.loadTemplate. Url: " + transformedUrl + ' (' + url + ')');
                 }
@@ -584,7 +595,7 @@ module mz {
             }
 
             if (this._unwrapedComponent) {
-                let originalNode = this.rootNode, originalNode$ = this.DOM;
+                let originalNode = this.rootNode;
 
                 if (this.innerWidget) {
                     this.rootNode = this.innerWidget.rootNode;
@@ -598,7 +609,6 @@ module mz {
                                     mz.dom.adapter.addClass(this.rootNode, attrib.value);
                                 else
                                     mz.dom.adapter.setAttribute(this.rootNode, attrib.name, attrib.value);
-
                             }
                         }
 

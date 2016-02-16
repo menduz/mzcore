@@ -230,6 +230,265 @@ declare module mz.widgets {
         static getFromPoll(value: string, component: Widget, scope: any): TextNode;
     }
 }
+declare namespace mz.dom {
+    var adapter: mz.dom.AbstractDomAdapter;
+    function setRootDomAdapter(theAdapter: mz.dom.AbstractDomAdapter): void;
+}
+declare namespace mz.dom {
+    /**
+     * Provides DOM operations in an environment-agnostic way.
+     */
+    abstract class AbstractDomAdapter {
+        abstract hasProperty(element: any, name: string): boolean;
+        abstract setProperty(el: Element, name: string, value: any): any;
+        abstract getProperty(el: Element, name: string): any;
+        abstract invoke(el: Element, methodName: string, args: any[]): any;
+        abstract logError(error: any): any;
+        abstract log(error: any): any;
+        abstract logGroup(error: any): any;
+        abstract logGroupEnd(): any;
+        abstract getXHR(): XMLHttpRequest;
+        /**
+         * Maps attribute names to their corresponding property names for cases
+         * where attribute name doesn't match property name.
+         */
+        attrToPropMap: {
+            [key: string]: string;
+        };
+        abstract parse(templateHtml: string): any;
+        abstract query(selector: string): any;
+        abstract querySelector(el: any, selector: string): HTMLElement;
+        abstract querySelectorAll(el: any, selector: string): any[];
+        abstract on(el: any, evt: any, listener: any): any;
+        abstract onAndCancel(el: any, evt: any, listener: any): Function;
+        abstract dispatchEvent(el: any, evt: any): any;
+        abstract createMouseEvent(eventType: any): any;
+        abstract createEvent(eventType: string): any;
+        abstract preventDefault(evt: any): any;
+        abstract isPrevented(evt: any): boolean;
+        abstract getInnerHTML(el: any): string;
+        abstract getOuterHTML(el: any): string;
+        abstract nodeName(node: any): string;
+        abstract nodeValue(node: any): string;
+        abstract type(node: any): string;
+        abstract content(node: any): any;
+        abstract firstChild(el: any): Node;
+        abstract nextSibling(el: any): Node;
+        abstract parentElement(el: any): Node;
+        abstract childNodes(el: any): Node[];
+        abstract childNodesAsList(el: any): Node[];
+        abstract clearNodes(el: any): any;
+        abstract appendChild(el: any, node: any): any;
+        abstract removeChild(el: any, node: any): any;
+        abstract replaceChild(el: any, newNode: any, oldNode: any): any;
+        abstract remove(el: any): Node;
+        abstract insertBefore(el: any, node: any): any;
+        abstract insertAllBefore(el: any, nodes: any): any;
+        abstract insertAfter(el: any, node: any): any;
+        abstract setInnerHTML(el: any, value: any): any;
+        abstract getText(el: any): string;
+        abstract setText(el: any, value: string): any;
+        abstract getValue(el: any): string;
+        abstract setValue(el: any, value: string): any;
+        abstract getChecked(el: any): boolean;
+        abstract setChecked(el: any, value: boolean): any;
+        abstract createComment(text: string): any;
+        abstract createTemplate(html: any): HTMLElement;
+        abstract createElement(tagName: any, doc?: any): HTMLElement;
+        abstract createElementNS(ns: string, tagName: string, doc?: any): Element;
+        abstract createTextNode(text: string, doc?: any): Text;
+        abstract createScriptTag(attrName: string, attrValue: string, doc?: any): HTMLElement;
+        abstract createStyleElement(css: string, doc?: any): HTMLStyleElement;
+        abstract createShadowRoot(el: any): any;
+        abstract getShadowRoot(el: any): any;
+        abstract getHost(el: any): any;
+        abstract getDistributedNodes(el: any): Node[];
+        abstract clone(node: Node): Node;
+        abstract getElementsByClassName(element: any, name: string): HTMLElement[];
+        abstract getElementsByTagName(element: any, name: string): HTMLElement[];
+        abstract classList(element: any): any[];
+        abstract addClass(element: any, classname: string): any;
+        abstract removeClass(element: any, classname: string): any;
+        abstract hasClass(element: any, classname: string): boolean;
+        abstract setStyle(element: any, stylename: string, stylevalue: string): any;
+        abstract removeStyle(element: any, stylename: string): any;
+        abstract getStyle(element: any, stylename: string): string;
+        abstract tagName(element: any): string;
+        abstract attributeMap(element: any): Dictionary<string>;
+        abstract hasAttribute(element: any, attribute: string): boolean;
+        abstract getAttribute(element: any, attribute: string): string;
+        abstract setAttribute(element: any, name: string, value: string): any;
+        abstract setAttributeNS(element: any, ns: string, name: string, value: string): any;
+        abstract removeAttribute(element: any, attribute: string): any;
+        abstract templateAwareRoot(el: any): any;
+        abstract createHtmlDocument(): HTMLDocument;
+        abstract defaultDoc(): HTMLDocument;
+        abstract getBoundingClientRect(el: any): any;
+        abstract getTitle(): string;
+        abstract setTitle(newTitle: string): any;
+        abstract elementMatches(n: any, selector: string): boolean;
+        abstract isTemplateElement(el: any): boolean;
+        abstract isTextNode(node: any): boolean;
+        abstract isCommentNode(node: any): boolean;
+        abstract isElementNode(node: any): boolean;
+        abstract hasShadowRoot(node: any): boolean;
+        abstract isShadowRoot(node: any): boolean;
+        abstract importIntoDoc(node: Node): Node;
+        abstract adoptNode(node: Node): Node;
+        abstract getHref(element: any): string;
+        abstract getEventKey(event: any): string;
+        abstract resolveAndSetHref(element: any, baseUrl: string, href: string): any;
+        abstract supportsDOMEvents(): boolean;
+        abstract supportsNativeShadowDOM(): boolean;
+        abstract getGlobalEventTarget(target: string): any;
+        abstract getHistory(): History;
+        abstract getLocation(): Location;
+        abstract getBaseHref(): string;
+        abstract resetBaseElement(): void;
+        abstract getUserAgent(): string;
+        abstract setData(element: any, name: string, value: string): any;
+        abstract getComputedStyle(element: any): any;
+        abstract getData(element: any, name: string): string;
+        abstract requestAnimationFrame(callback: any): number;
+        abstract cancelAnimationFrame(id: any): any;
+        abstract performanceNow(): number;
+        abstract getAnimationPrefix(): string;
+        abstract getTransitionEnd(): string;
+        abstract supportsAnimation(): boolean;
+    }
+}
+declare namespace mz.dom {
+    /**
+     * Provides DOM operations in any browser environment.
+     */
+    abstract class GenericBrowserDomAdapter extends AbstractDomAdapter {
+        private _animationPrefix;
+        private _transitionEnd;
+        constructor();
+        getDistributedNodes(el: HTMLElement): Node[];
+        resolveAndSetHref(el: HTMLAnchorElement, baseUrl: string, href: string): void;
+        supportsDOMEvents(): boolean;
+        supportsNativeShadowDOM(): boolean;
+        getAnimationPrefix(): string;
+        getTransitionEnd(): string;
+        supportsAnimation(): boolean;
+        getXHR(): XMLHttpRequest;
+    }
+    class BrowserDomAdapter extends GenericBrowserDomAdapter {
+        parse(templateHtml: string): void;
+        static makeCurrent(): void;
+        hasProperty(element: any, name: string): boolean;
+        setProperty(el: any, name: string, value: any): void;
+        getProperty(el: any, name: string): any;
+        invoke(el: any, methodName: string, args: any[]): any;
+        logError(error: any): void;
+        log(error: any): void;
+        logGroup(error: any): void;
+        logGroupEnd(): void;
+        attrToPropMap: any;
+        query(selector: string): any;
+        querySelector(el: any, selector: string): HTMLElement;
+        querySelectorAll(el: any, selector: string): any[];
+        on(el: any, evt: any, listener: any): void;
+        onAndCancel(el: any, evt: any, listener: any): Function;
+        dispatchEvent(el: any, evt: any): void;
+        createMouseEvent(eventType: string): MouseEvent;
+        createEvent(eventType: any): Event;
+        preventDefault(evt: Event): void;
+        isPrevented(evt: Event): boolean;
+        getInnerHTML(el: any): string;
+        getOuterHTML(el: any): string;
+        nodeName(node: Node): string;
+        nodeValue(node: Node): string;
+        type(node: HTMLInputElement): string;
+        content(node: Node): Node;
+        firstChild(el: any): Node;
+        nextSibling(el: any): Node;
+        parentElement(el: any): Node;
+        childNodes(el: any): Node[];
+        childNodesAsList(el: any): any[];
+        clearNodes(el: any): void;
+        appendChild(el: any, node: any): void;
+        removeChild(el: any, node: any): void;
+        replaceChild(el: Node, newChild: any, oldChild: any): void;
+        remove(node: any): Node;
+        insertBefore(el: any, node: any): void;
+        insertAllBefore(el: any, nodes: any): void;
+        insertAfter(el: any, node: any): void;
+        setInnerHTML(el: any, value: any): void;
+        getText(el: any): string;
+        setText(el: any, value: string): void;
+        getValue(el: any): string;
+        setValue(el: any, value: string): void;
+        getChecked(el: any): boolean;
+        setChecked(el: any, value: boolean): void;
+        createComment(text: string): Comment;
+        createTemplate(html: any): HTMLElement;
+        createElement(tagName: any, doc?: Document): HTMLElement;
+        createElementNS(ns: any, tagName: any, doc?: Document): Element;
+        createTextNode(text: string, doc?: Document): Text;
+        createScriptTag(attrName: string, attrValue: string, doc?: Document): HTMLScriptElement;
+        createStyleElement(css: string, doc?: Document): HTMLStyleElement;
+        createShadowRoot(el: HTMLElement): DocumentFragment;
+        getShadowRoot(el: HTMLElement): DocumentFragment;
+        getHost(el: HTMLElement): HTMLElement;
+        clone(node: Node): Node;
+        getElementsByClassName(element: any, name: string): HTMLElement[];
+        getElementsByTagName(element: any, name: string): HTMLElement[];
+        classList(element: any): any[];
+        addClass(element: any, classname: string): void;
+        removeClass(element: any, classname: string): void;
+        hasClass(element: any, classname: string): boolean;
+        setStyle(element: any, stylename: string, stylevalue: string): void;
+        removeStyle(element: any, stylename: string): void;
+        getStyle(element: any, stylename: string): string;
+        tagName(element: any): string;
+        attributeMap(element: any): Dictionary<string>;
+        hasAttribute(element: any, attribute: string): boolean;
+        getAttribute(element: any, attribute: string): string;
+        setAttribute(element: any, name: string, value: string): void;
+        setAttributeNS(element: any, ns: string, name: string, value: string): void;
+        removeAttribute(element: any, attribute: string): void;
+        templateAwareRoot(el: any): any;
+        createHtmlDocument(): HTMLDocument;
+        defaultDoc(): HTMLDocument;
+        getBoundingClientRect(el: any): any;
+        getTitle(): string;
+        setTitle(newTitle: string): void;
+        elementMatches(n: any, selector: string): boolean;
+        isTemplateElement(el: any): boolean;
+        isTextNode(node: Node): boolean;
+        isCommentNode(node: Node): boolean;
+        isElementNode(node: Node): boolean;
+        hasShadowRoot(node: any): boolean;
+        isShadowRoot(node: any): boolean;
+        importIntoDoc(node: Node): any;
+        adoptNode(node: Node): any;
+        getHref(el: Element): string;
+        getEventKey(event: any): string;
+        getGlobalEventTarget(target: string): EventTarget;
+        getHistory(): History;
+        getLocation(): Location;
+        getBaseHref(): string;
+        resetBaseElement(): void;
+        getUserAgent(): string;
+        setData(element: any, name: string, value: string): void;
+        getData(element: any, name: string): string;
+        getComputedStyle(element: any): any;
+        requestAnimationFrame(callback: any): number;
+        cancelAnimationFrame(id: number): void;
+        performanceNow(): number;
+    }
+}
+declare namespace mz.dom.microqueue {
+    var enabled: boolean;
+    function flush(): void;
+    function appendChild(el: any, node: any): void;
+    function callback(cb: any): void;
+    function remove(el: any): void;
+    function setText(el: any, text: string): void;
+    function setAttribute(el: any, attr: string, value: string): void;
+}
 declare module mz {
     class AttributeDirective {
         protected widget: Widget;
@@ -253,9 +512,7 @@ declare module mz {
     interface IMZComponentEvent {
         event: Event;
         data: any;
-        element: Element;
-        $element: JQuery;
-        jQueryEvent?: JQueryEventObject;
+        element: HTMLElement;
     }
     interface IMZComponentDirectiveCollection {
         [attributte: string]: typeof AttributeDirective;
@@ -300,7 +557,7 @@ declare module mz {
         protected generateScopedContent(scope?: any): IChildWidget[];
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
-        find(selector: string | Element | JQuery): JQuery;
+        find(selector: string): Element[];
         protected loadTemplate(url: string, forceSync?: boolean): void;
         protected componentInitialized(): void;
         protected startComponent(xml: Document): any;
@@ -1240,263 +1497,6 @@ declare namespace mz {
     interface IMZCollectionOpc {
         key?: string;
         initialSize?: number;
-    }
-}
-declare namespace mz.dom {
-    var adapter: mz.dom.AbstractDomAdapter;
-    function setRootDomAdapter(theAdapter: mz.dom.AbstractDomAdapter): void;
-    namespace microqueue {
-        var enabled: boolean;
-        function appendChild(el: any, node: any): void;
-        function remove(el: any): void;
-        function setText(el: any, text: string): void;
-        function setAttribute(el: any, attr: string, value: string): void;
-    }
-}
-declare namespace mz.dom {
-    /**
-     * Provides DOM operations in an environment-agnostic way.
-     */
-    abstract class AbstractDomAdapter {
-        abstract hasProperty(element: any, name: string): boolean;
-        abstract setProperty(el: Element, name: string, value: any): any;
-        abstract getProperty(el: Element, name: string): any;
-        abstract invoke(el: Element, methodName: string, args: any[]): any;
-        abstract logError(error: any): any;
-        abstract log(error: any): any;
-        abstract logGroup(error: any): any;
-        abstract logGroupEnd(): any;
-        abstract getXHR(): XMLHttpRequest;
-        /**
-         * Maps attribute names to their corresponding property names for cases
-         * where attribute name doesn't match property name.
-         */
-        attrToPropMap: {
-            [key: string]: string;
-        };
-        abstract parse(templateHtml: string): any;
-        abstract query(selector: string): any;
-        abstract querySelector(el: any, selector: string): HTMLElement;
-        abstract querySelectorAll(el: any, selector: string): any[];
-        abstract on(el: any, evt: any, listener: any): any;
-        abstract onAndCancel(el: any, evt: any, listener: any): Function;
-        abstract dispatchEvent(el: any, evt: any): any;
-        abstract createMouseEvent(eventType: any): any;
-        abstract createEvent(eventType: string): any;
-        abstract preventDefault(evt: any): any;
-        abstract isPrevented(evt: any): boolean;
-        abstract getInnerHTML(el: any): string;
-        abstract getOuterHTML(el: any): string;
-        abstract nodeName(node: any): string;
-        abstract nodeValue(node: any): string;
-        abstract type(node: any): string;
-        abstract content(node: any): any;
-        abstract firstChild(el: any): Node;
-        abstract nextSibling(el: any): Node;
-        abstract parentElement(el: any): Node;
-        abstract childNodes(el: any): Node[];
-        abstract childNodesAsList(el: any): Node[];
-        abstract clearNodes(el: any): any;
-        abstract appendChild(el: any, node: any): any;
-        abstract removeChild(el: any, node: any): any;
-        abstract replaceChild(el: any, newNode: any, oldNode: any): any;
-        abstract remove(el: any): Node;
-        abstract insertBefore(el: any, node: any): any;
-        abstract insertAllBefore(el: any, nodes: any): any;
-        abstract insertAfter(el: any, node: any): any;
-        abstract setInnerHTML(el: any, value: any): any;
-        abstract getText(el: any): string;
-        abstract setText(el: any, value: string): any;
-        abstract getValue(el: any): string;
-        abstract setValue(el: any, value: string): any;
-        abstract getChecked(el: any): boolean;
-        abstract setChecked(el: any, value: boolean): any;
-        abstract createComment(text: string): any;
-        abstract createTemplate(html: any): HTMLElement;
-        abstract createElement(tagName: any, doc?: any): HTMLElement;
-        abstract createElementNS(ns: string, tagName: string, doc?: any): Element;
-        abstract createTextNode(text: string, doc?: any): Text;
-        abstract createScriptTag(attrName: string, attrValue: string, doc?: any): HTMLElement;
-        abstract createStyleElement(css: string, doc?: any): HTMLStyleElement;
-        abstract createShadowRoot(el: any): any;
-        abstract getShadowRoot(el: any): any;
-        abstract getHost(el: any): any;
-        abstract getDistributedNodes(el: any): Node[];
-        abstract clone(node: Node): Node;
-        abstract getElementsByClassName(element: any, name: string): HTMLElement[];
-        abstract getElementsByTagName(element: any, name: string): HTMLElement[];
-        abstract classList(element: any): any[];
-        abstract addClass(element: any, classname: string): any;
-        abstract removeClass(element: any, classname: string): any;
-        abstract hasClass(element: any, classname: string): boolean;
-        abstract setStyle(element: any, stylename: string, stylevalue: string): any;
-        abstract removeStyle(element: any, stylename: string): any;
-        abstract getStyle(element: any, stylename: string): string;
-        abstract tagName(element: any): string;
-        abstract attributeMap(element: any): Dictionary<string>;
-        abstract hasAttribute(element: any, attribute: string): boolean;
-        abstract getAttribute(element: any, attribute: string): string;
-        abstract setAttribute(element: any, name: string, value: string): any;
-        abstract setAttributeNS(element: any, ns: string, name: string, value: string): any;
-        abstract removeAttribute(element: any, attribute: string): any;
-        abstract templateAwareRoot(el: any): any;
-        abstract createHtmlDocument(): HTMLDocument;
-        abstract defaultDoc(): HTMLDocument;
-        abstract getBoundingClientRect(el: any): any;
-        abstract getTitle(): string;
-        abstract setTitle(newTitle: string): any;
-        abstract elementMatches(n: any, selector: string): boolean;
-        abstract isTemplateElement(el: any): boolean;
-        abstract isTextNode(node: any): boolean;
-        abstract isCommentNode(node: any): boolean;
-        abstract isElementNode(node: any): boolean;
-        abstract hasShadowRoot(node: any): boolean;
-        abstract isShadowRoot(node: any): boolean;
-        abstract importIntoDoc(node: Node): Node;
-        abstract adoptNode(node: Node): Node;
-        abstract getHref(element: any): string;
-        abstract getEventKey(event: any): string;
-        abstract resolveAndSetHref(element: any, baseUrl: string, href: string): any;
-        abstract supportsDOMEvents(): boolean;
-        abstract supportsNativeShadowDOM(): boolean;
-        abstract getGlobalEventTarget(target: string): any;
-        abstract getHistory(): History;
-        abstract getLocation(): Location;
-        abstract getBaseHref(): string;
-        abstract resetBaseElement(): void;
-        abstract getUserAgent(): string;
-        abstract setData(element: any, name: string, value: string): any;
-        abstract getComputedStyle(element: any): any;
-        abstract getData(element: any, name: string): string;
-        abstract requestAnimationFrame(callback: any): number;
-        abstract cancelAnimationFrame(id: any): any;
-        abstract performanceNow(): number;
-        abstract getAnimationPrefix(): string;
-        abstract getTransitionEnd(): string;
-        abstract supportsAnimation(): boolean;
-    }
-}
-declare namespace mz.dom {
-    /**
-     * Provides DOM operations in any browser environment.
-     */
-    abstract class GenericBrowserDomAdapter extends AbstractDomAdapter {
-        private _animationPrefix;
-        private _transitionEnd;
-        constructor();
-        getDistributedNodes(el: HTMLElement): Node[];
-        resolveAndSetHref(el: HTMLAnchorElement, baseUrl: string, href: string): void;
-        supportsDOMEvents(): boolean;
-        supportsNativeShadowDOM(): boolean;
-        getAnimationPrefix(): string;
-        getTransitionEnd(): string;
-        supportsAnimation(): boolean;
-        getXHR(): XMLHttpRequest;
-    }
-    class BrowserDomAdapter extends GenericBrowserDomAdapter {
-        parse(templateHtml: string): void;
-        static makeCurrent(): void;
-        hasProperty(element: any, name: string): boolean;
-        setProperty(el: any, name: string, value: any): void;
-        getProperty(el: any, name: string): any;
-        invoke(el: any, methodName: string, args: any[]): any;
-        logError(error: any): void;
-        log(error: any): void;
-        logGroup(error: any): void;
-        logGroupEnd(): void;
-        attrToPropMap: any;
-        query(selector: string): any;
-        querySelector(el: any, selector: string): HTMLElement;
-        querySelectorAll(el: any, selector: string): any[];
-        on(el: any, evt: any, listener: any): void;
-        onAndCancel(el: any, evt: any, listener: any): Function;
-        dispatchEvent(el: any, evt: any): void;
-        createMouseEvent(eventType: string): MouseEvent;
-        createEvent(eventType: any): Event;
-        preventDefault(evt: Event): void;
-        isPrevented(evt: Event): boolean;
-        getInnerHTML(el: any): string;
-        getOuterHTML(el: any): string;
-        nodeName(node: Node): string;
-        nodeValue(node: Node): string;
-        type(node: HTMLInputElement): string;
-        content(node: Node): Node;
-        firstChild(el: any): Node;
-        nextSibling(el: any): Node;
-        parentElement(el: any): Node;
-        childNodes(el: any): Node[];
-        childNodesAsList(el: any): any[];
-        clearNodes(el: any): void;
-        appendChild(el: any, node: any): void;
-        removeChild(el: any, node: any): void;
-        replaceChild(el: Node, newChild: any, oldChild: any): void;
-        remove(node: any): Node;
-        insertBefore(el: any, node: any): void;
-        insertAllBefore(el: any, nodes: any): void;
-        insertAfter(el: any, node: any): void;
-        setInnerHTML(el: any, value: any): void;
-        getText(el: any): string;
-        setText(el: any, value: string): void;
-        getValue(el: any): string;
-        setValue(el: any, value: string): void;
-        getChecked(el: any): boolean;
-        setChecked(el: any, value: boolean): void;
-        createComment(text: string): Comment;
-        createTemplate(html: any): HTMLElement;
-        createElement(tagName: any, doc?: Document): HTMLElement;
-        createElementNS(ns: any, tagName: any, doc?: Document): Element;
-        createTextNode(text: string, doc?: Document): Text;
-        createScriptTag(attrName: string, attrValue: string, doc?: Document): HTMLScriptElement;
-        createStyleElement(css: string, doc?: Document): HTMLStyleElement;
-        createShadowRoot(el: HTMLElement): DocumentFragment;
-        getShadowRoot(el: HTMLElement): DocumentFragment;
-        getHost(el: HTMLElement): HTMLElement;
-        clone(node: Node): Node;
-        getElementsByClassName(element: any, name: string): HTMLElement[];
-        getElementsByTagName(element: any, name: string): HTMLElement[];
-        classList(element: any): any[];
-        addClass(element: any, classname: string): void;
-        removeClass(element: any, classname: string): void;
-        hasClass(element: any, classname: string): boolean;
-        setStyle(element: any, stylename: string, stylevalue: string): void;
-        removeStyle(element: any, stylename: string): void;
-        getStyle(element: any, stylename: string): string;
-        tagName(element: any): string;
-        attributeMap(element: any): Dictionary<string>;
-        hasAttribute(element: any, attribute: string): boolean;
-        getAttribute(element: any, attribute: string): string;
-        setAttribute(element: any, name: string, value: string): void;
-        setAttributeNS(element: any, ns: string, name: string, value: string): void;
-        removeAttribute(element: any, attribute: string): void;
-        templateAwareRoot(el: any): any;
-        createHtmlDocument(): HTMLDocument;
-        defaultDoc(): HTMLDocument;
-        getBoundingClientRect(el: any): any;
-        getTitle(): string;
-        setTitle(newTitle: string): void;
-        elementMatches(n: any, selector: string): boolean;
-        isTemplateElement(el: any): boolean;
-        isTextNode(node: Node): boolean;
-        isCommentNode(node: Node): boolean;
-        isElementNode(node: Node): boolean;
-        hasShadowRoot(node: any): boolean;
-        isShadowRoot(node: any): boolean;
-        importIntoDoc(node: Node): any;
-        adoptNode(node: Node): any;
-        getHref(el: Element): string;
-        getEventKey(event: any): string;
-        getGlobalEventTarget(target: string): EventTarget;
-        getHistory(): History;
-        getLocation(): Location;
-        getBaseHref(): string;
-        resetBaseElement(): void;
-        getUserAgent(): string;
-        setData(element: any, name: string, value: string): void;
-        getData(element: any, name: string): string;
-        getComputedStyle(element: any): any;
-        requestAnimationFrame(callback: any): number;
-        cancelAnimationFrame(id: number): void;
-        performanceNow(): number;
     }
 }
 declare namespace Reflect {
