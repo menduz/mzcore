@@ -57,10 +57,10 @@ namespace mz.app {
 
         @mz.MVCObject.proxy
         actualPage: Page;
-        
+
         @mz.MVCObject.proxy
-        loadingPage: boolean = true;
-        
+        loadingPage: boolean;
+
         routeHistory: string[];
 
         constructor(opc: {
@@ -72,9 +72,11 @@ namespace mz.app {
         }) {
             super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, undefined);
 
+            this.loadingPage = true;
+
             this.pages = opc.pagesCollection || new mz.Collection<IAppPageModule>(null, { key: "name" });
 
-            
+
 
             if (opc.templateHtml && opc.templateUrl) {
                 throw new Error("You must set only templateUrl or templateHtml, not both.")
@@ -144,7 +146,7 @@ namespace mz.app {
             this.routeHistory = [];
 
             var that = this;
-            
+
             for (var i in routes) {
                 ((route: IAppControllerRouteModule) => {
                     routerParam[route.name] = function() {
@@ -167,10 +169,10 @@ namespace mz.app {
 
             mz.route.start(routerParam, () => {
                 this.emit('loaded');
-                this.loaded();                
+                this.loaded();
             });
         }
-        
+
         loaded() {
 
         }
