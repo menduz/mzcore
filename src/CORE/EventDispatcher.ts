@@ -16,13 +16,13 @@ module mz {
             }
         }
     }
-    
-    export class EventDispatcher {       
-        
+
+    export class EventDispatcher {
+
         static EVENTS = {
-            
+
         }
-         
+
         private ed_bindeos: any = {};
         private ed_bindeosTotales: any = [];
         private ed_bindCount = 0;
@@ -54,6 +54,8 @@ module mz {
                     tmp.cb = callback;
                 }
 
+                tmp.cb = tmp.cb.bind(this);
+
                 this.ed_bindeosTotales[tmp.id] = tmp;
 
                 this.ed_bindeos[evt] = this.ed_bindeos[evt] || [];
@@ -68,7 +70,12 @@ module mz {
         }
 
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function) {
-            if (bindeo instanceof EventDispatcherBinding) {
+            if (arguments.length == 0) {
+                for (var i in this.ed_bindeos) {
+                    delete this.ed_bindeos[i].cb;
+                }
+                this.ed_bindeos.length = 0;
+            } else if (bindeo instanceof EventDispatcherBinding) {
                 bindeo.cb = null;
                 bindeo.sharedList && bindeo.sharedList.length && bindeo.sharedList.forEach(function(f) { f.cb = null; });
             } else if (typeof bindeo == 'string') {
@@ -87,55 +94,55 @@ module mz {
                         this.ed_bindeos[i].cb = null;
                     }
                 }
-            } else if (bindeo === undefined && callback === undefined) {
-                for (var i in this.ed_bindeos) {
-                    delete this.ed_bindeos[i].cb;
-                }
-            }
-        }
-
-        emit(event: string, ...params: any[]) {
-            if (event in this.ed_bindeos) {
-
-                if (arguments.length == 1) {
-                    var ValorReturn = [];
-
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            var res = this.ed_bindeos[event][i].cb.call(this);
-                            res !== undefined && ValorReturn.push(res);
-                        }
-                    }
-
-                    return ValorReturn;
-                } else if (arguments.length == 2) {
-                    var ValorReturn = [];
-
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            var res = this.ed_bindeos[event][i].cb.call(this, arguments[1]);
-                            res !== undefined && ValorReturn.push(res);
-                        }
-                    }
-
-                    return ValorReturn;
-                } else if (arguments.length > 2) {
-                    var args = Array.prototype.slice.call(arguments, 1);
-
-                    var ValorReturn = [];
-
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            var res = this.ed_bindeos[event][i].cb.apply(this, args);
-                            res !== undefined && ValorReturn.push(res);
-                        }
-                    }
-
-                    return ValorReturn;
-                }
             }
         }
         
+        emit(event: string, ...params: any[]);
+        emit(event: string) {
+            if (event in this.ed_bindeos) {
+
+                if (arguments.length == 1) {
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb();
+                        }
+                    }
+                } else if (arguments.length == 2) {
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb(arguments[1]);
+                        }
+                    }
+                } else if (arguments.length == 3) {
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2]);
+                        }
+                    }
+                } else if (arguments.length == 4) {
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2], arguments[3]);
+                        }
+                    }
+                } else if (arguments.length == 5) {
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2], arguments[3], arguments[4]);
+                        }
+                    }
+                } else if (arguments.length > 4) {
+                    var args = Array.prototype.slice.call(arguments, 1);
+
+                    for (var i in this.ed_bindeos[event]) {
+                        if (this.ed_bindeos[event][i].cb) {
+                            this.ed_bindeos[event][i].cb.call(this, args);
+                        }
+                    }
+                }
+            }
+        }
+
         trigger = this.emit;
     }
 

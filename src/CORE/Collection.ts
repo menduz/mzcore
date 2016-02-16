@@ -3,7 +3,7 @@
 
 namespace mz {
 
-    export class Collection<T> extends MVCObject {
+    export class Collection<T> extends MVCObject implements IForEachable<T> {
         opciones: IMZCollectionOpc = {};
 
         protected array: T[];

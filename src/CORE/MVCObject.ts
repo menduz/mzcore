@@ -43,7 +43,11 @@ namespace mz {
             var ch = field + '_changed';
 
             if (ch in this && typeof this[ch] === 'function')
-                this[ch](value, viejo);
+                var result = this[ch](value, viejo);
+
+            if(typeof result !== "undefined"){
+                value = this.data[field] = result;
+            }
 
             this.emit(ch, this.data[field], viejo);
 
