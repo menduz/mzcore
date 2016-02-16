@@ -45,7 +45,7 @@
 
     // build a template (or get it from cache), render with data
     export function tmpl(str: string, context: any, scope?: any) {
-        return str && (cache[str] = cache[str] || tmpl.internalTmpl(str)).call(context, scope || context)
+        return str && (cache[str] = cache[str] || tmpl.internalTmpl(str)).call(context, scope)
     }
 
     export module tmpl {

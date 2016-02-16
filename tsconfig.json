@@ -1,6 +1,7 @@
 {
   "files": [
     "src/APP/AppController.ts",
+    "src/APP/Redux.ts",
     "src/AUTH/JWT.ts",
     "src/AUTH/OAuth2.ts",
     "src/CORE/AMD/Define.ts",

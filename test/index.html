@@ -24,6 +24,14 @@
             });
         });
         
+        QUnit.test("Module loading2", function(assert){
+            var done = assert.async();
+            require('redux', function() {
+                assert.ok(true, 'Module 2 loaded');
+                done();
+            });
+        });
+        
     </script>
 </body>
 

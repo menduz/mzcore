@@ -174,7 +174,7 @@ module mz {
 
     var tmpl_pointer = view.tmpl;
 
-    function domToWidgets(node: Node, params, component: Widget, scope): Widget | IChildWidget {
+    function domToWidgets(node: Node, params, component: Widget, scope?: any): Widget | IChildWidget {
         var match;
 
         // text node, comment, etc
@@ -218,7 +218,7 @@ module mz {
                         // catch other samples, ex: "$ {this.value + scope.value} {currency}"
                         childWidget.listening.push(component.on('valueChanged', function(data, elem, a, b) {
                             if (a != b && value.indexOf(elem) != -1) {
-                                let t = view.tmpl(value, component, scope);
+                                let t = view.tmpl(value, component, scope || undefined);
                                 if (typeof t === "undefined" || t === null) t = '';
                                 //if (childWidget.rootNode.textContent != t) {
                                 //    childWidget.rootNode.textContent = t;
@@ -253,8 +253,8 @@ module mz {
         var bindeableAttrs = {};
 
         let listenersConLlaves = [];
-        
-        
+
+
 
         for (var i = node.attributes.length - 1; i >= 0; i--) {
             var attr = node.attributes[i];
@@ -269,7 +269,7 @@ module mz {
                 attrs[attr.name] = params[parseInt(match[1])];
             } else {
                 if (typeof attr.value === "string") {
-                    attrs[attr.name] = view.tmpl(attr.value, component, scope);
+                    attrs[attr.name] = view.tmpl(attr.value, component);
 
                     if (typeof attrs[attr.name] === "function") {
                         attrs[attr.name] = attrs[attr.name].bind(component);
@@ -280,11 +280,11 @@ module mz {
 
                         listenersConLlaves.push({
                             name: attr.name,
-                            fn: (function(value, component, scope) {
+                            fn: (function(value, component) {
                                 return function() {
-                                    return tmpl_pointer(value, component, scope);
+                                    return tmpl_pointer(value, component, scope || undefined);
                                 }
-                            })(attr.value, component, scope)
+                            })(attr.value, component)
                         });
                     }
                 }
@@ -425,8 +425,11 @@ module mz {
 
             if (this.defaultTemplate) {
                 this.startComponent([this.defaultTemplate]);
-                mz.dom.microqueue.callback(() => this.emit(Widget.EVENTS.ComponentMounted));
-                
+                mz.dom.microqueue.callback(() => {
+                    this.componentInitialized();
+                    this.emit(Widget.EVENTS.ComponentMounted)
+                });
+
             }
 
             if (attr) {
@@ -509,7 +512,7 @@ module mz {
                     this.attr(e.name, e.fn());
                 }
             }
-   
+
             for (let index = 0; index < this.children.length; index++) {
                 let e = this.children[index] as any;
                 if (e && typeof e == "object") {
@@ -591,7 +594,7 @@ module mz {
 
                 if (doc.childNodes.length > 1) console.warn("Only one child node is allowed per widget.", doc, this);
 
-                this.innerWidget = <Widget>domToWidgets(doc.firstChild, params, this, this.scope);
+                this.innerWidget = <Widget>domToWidgets(doc.firstChild, params, this);
             }
 
             if (this._unwrapedComponent) {

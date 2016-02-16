@@ -769,6 +769,111 @@ declare namespace mz.app {
         getPage(pageName: string): Promise<Page>;
     }
 }
+declare namespace mz.redux {
+    interface IAppState {
+    }
+    namespace ActionTypes {
+        var INIT: string;
+    }
+    interface ActionCreator extends Function {
+        (...args: any[]): any;
+    }
+    interface Reducer extends Function {
+        (state: any, action: any): any;
+    }
+    interface Dispatch extends Function {
+        (action: any): any;
+    }
+    interface StoreMethods {
+        dispatch: Dispatch;
+        getState(): any;
+    }
+    interface MiddlewareArg {
+        dispatch: Dispatch;
+        getState: Function;
+    }
+    interface Middleware extends Function {
+        (obj: MiddlewareArg): Function;
+    }
+    interface IStore {
+        replaceReducer(nextReducer: Reducer): void;
+        dispatch(action: any): any;
+        getState(): IAppState;
+        subscribe(listener: Function): Function;
+    }
+    var defaultStore: any;
+    function connectWidget(selector: (state) => any, store: IStore): (target: Function) => void;
+    function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
+    function shallowEqual(objA: any, objB: any): boolean;
+    /**
+     * Turns an object whose values are action creators, into an object with the
+     * same keys, but with every function wrapped into a `dispatch` call so they
+     * may be invoked directly. This is just a convenience method, as you can call
+     * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+     *
+     * For convenience, you can also pass a single function as the first argument,
+     * and get a function in return.
+     *
+     * @param {Function|Object} actionCreators An object whose values are action
+     * creator functions. One handy way to obtain it is to use ES6 `import * as`
+     * syntax. You may also pass a single function.
+     *
+     * @param {Function} dispatch The `dispatch` function available on your Redux
+     * store.
+     *
+     * @returns {Function|Object} The object mimicking the original object, but with
+     * every action creator wrapped into the `dispatch` call. If you passed a
+     * function as `actionCreators`, the return value will also be a single
+     * function.
+     */
+    function bindActionCreators<T>(actionCreators: T, dispatch: Dispatch): T;
+    /**
+     * Creates a store enhancer that applies middleware to the dispatch method
+     * of the Redux store. This is handy for a variety of tasks, such as expressing
+     * asynchronous actions in a concise manner, or logging every action payload.
+     *
+     * See `redux-thunk` package as an example of the Redux middleware.
+     *
+     * Because middleware is potentially asynchronous, this should be the first
+     * store enhancer in the composition chain.
+     *
+     * Note that each middleware will be given the `dispatch` and `getState` functions
+     * as named arguments.
+     *
+     * @param {...Function} middlewares The middleware chain to be applied.
+     * @returns {Function} A store enhancer applying the middleware.
+     */
+    function applyMiddleware(...middlewares: Middleware[]): Function;
+    /**
+     * Composes single-argument functions from right to left. The rightmost
+     * function can take multiple arguments as it provides the signature for
+     * the resulting composite function.
+     *
+     * @param {...Function} funcs The functions to compose.
+     * @returns {Function} A function obtained by composing the argument functions
+     * from right to left. For example, compose(f, g, h) is identical to doing
+     * (...args) => f(g(h(...args))).
+     */
+    function compose<T extends Function>(...funcs: Function[]): T;
+    function createStore(reducer: Reducer, initialState?: any, enhancer?: (store: typeof createStore) => any): IStore;
+    /**
+     * Turns an object whose values are different reducer functions, into a single
+     * reducer function. It will call every child reducer, and gather their results
+     * into a single state object, whose keys correspond to the keys of the passed
+     * reducer functions.
+     *
+     * @param {Object} reducers An object whose values correspond to different
+     * reducer functions that need to be combined into one. One handy way to obtain
+     * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+     * undefined for any action. Instead, they should return their initial state
+     * if the state passed to them was undefined, and the current state for any
+     * unrecognized action.
+     *
+     * @returns {Function} A reducer function that invokes every reducer inside the
+     * passed object, and builds a state object with the same shape.
+     */
+    function combineReducers(reducers: any): Reducer;
+}
 declare namespace mz.auth.jwt {
     function urlBase64Decode(str: any): any;
     function decodeToken(token: any): any;
