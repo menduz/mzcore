@@ -697,7 +697,7 @@ module mz {
 
         appendTo(element: JQuery | mz.IWidget | string | Element) {
             if (element && element instanceof Widget) {
-                return (<mz.Widget>element).append(this);
+                return element.append(this);
             } else if (element && typeof element == "object" && 'DOM' in (<any>element) && (<any>element).DOM instanceof $) {
                 return (<mz.IWidget>element).DOM.append(this.rootNode);
             } else if (element && element instanceof $) {
