@@ -9,10 +9,11 @@ Dev
 - [*] avoid parse expressions on `<![CDATA[ everithing inside a cdata is plain text .. { this must not be parsed as expression } .. ]]>`
 - [*] `@mz.Widget.Attr` decorator for widget's properties
 - [*] Include backbone and lodash on dist
-- [ ] `@mz.app.AppController.RouteName` decorator
+- [*] `@mz.app.AppController.RouteName` decorator
 - [*] Allow `<mz-repeat>` to use anything IForEachable as list
 - [ ] Register template from `<template id="my_custom_view">` using `@mz.Widget.Template("#my_custom_view")`
 - [ ] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
+- [ ] !!!Redux state tree bindings with immutable.js, WIP!!!
 
 Tests
 -----
@@ -33,6 +34,6 @@ UIKit
 
 Backlog
 ======
-- [ ] Redux state tree bindings with immutable.js
+
 - [ ] raml2mzcore generator
 - [ ] add `{ $index }` to scoped vars 

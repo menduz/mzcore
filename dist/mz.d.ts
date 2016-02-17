@@ -742,6 +742,20 @@ declare namespace mz.app {
     }
     interface IAppPageModule extends IAppPage {
     }
+    /**
+     * Binds a ROUTE_NAME to this method.
+     * pages.json#
+     * [{
+     *   name: "index",
+     *   routes: [{
+     *     name: "ROUTE_NAME",
+     *     route: "index/:id"
+     *   }]
+     * },
+     * ...]
+     *
+     */
+    function RouteName(route_name: string): (target: typeof Page, propertyKey: string | symbol) => void;
     class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
@@ -801,7 +815,6 @@ declare namespace mz.redux {
         getState(): IAppState;
         subscribe(listener: Function): Function;
     }
-    var defaultStore: any;
     function connectWidget(selector: (state) => any, store: IStore): (target: Function) => void;
     function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
     function shallowEqual(objA: any, objB: any): boolean;
@@ -873,6 +886,12 @@ declare namespace mz.redux {
      * passed object, and builds a state object with the same shape.
      */
     function combineReducers(reducers: any): Reducer;
+    interface Manager {
+        when: (filter: Object | Function | String, fn: Reducer) => Manager;
+        otherwise: (fn: Reducer) => Manager;
+        use: (fn: Reducer) => Manager;
+    }
+    function createManager(): Reducer & Manager;
 }
 declare namespace mz.auth.jwt {
     function urlBase64Decode(str: any): any;
@@ -1644,6 +1663,27 @@ declare module mz {
     }
     var route: mzBackboneRouter;
 }
+declare namespace uikit {
+    class Fit extends mz.Widget {
+        class_changed(): void;
+    }
+    class Clear extends mz.Widget {
+        constructor(n: any, attr: mz.Dictionary<any>, a: any, b: any, c: any);
+    }
+    class FlexCol extends mz.Widget {
+        style_changed(): void;
+        class_changed(): void;
+    }
+    class FlexContainer extends mz.Widget {
+        class_changed(): void;
+    }
+    class FlexRow extends mz.Widget {
+        class_changed(): void;
+    }
+    class FlexCell extends mz.Widget {
+        class_changed(): void;
+    }
+}
 declare namespace mz.css {
     function set(selectorOrValues: any, selectorValues?: Dictionary<string | number>): string;
     class Stylesheet {
@@ -1835,27 +1875,6 @@ declare namespace mz {
      * Hyperscript for JSX or TSX
      */
     function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
-}
-declare namespace mz.widgets {
-    class Fit extends mz.Widget {
-        class_changed(): void;
-    }
-    class Clear extends mz.Widget {
-        constructor(n: any, attr: mz.Dictionary<any>, a: any, b: any, c: any);
-    }
-    class FlexCol extends mz.Widget {
-        style_changed(): void;
-        class_changed(): void;
-    }
-    class FlexContainer extends mz.Widget {
-        class_changed(): void;
-    }
-    class FlexRow extends mz.Widget {
-        class_changed(): void;
-    }
-    class FlexCell extends mz.Widget {
-        class_changed(): void;
-    }
 }
 declare namespace mz.widgets {
     class MzForm<T> extends mz.widgets.MzInput {
