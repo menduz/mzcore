@@ -43,36 +43,49 @@ namespace mz.redux {
         subscribe(listener: Function): Function;
     }
 
-    export var defaultStore;
-
     export function connectWidget(selector: (state) => any, store: IStore) {
-        return function(target: Function) {
+        return function(target: Function) : void {
+
+            if (!store)
+                return console.error("redux store not fund");
 
             target.prototype.redux_selector = selector;
-            target.prototype.redux_store = store || defaultStore;
+            target.prototype.redux_store = store;
+            target.prototype.unsubscribe_redux = function() { }
 
-            if (!target.prototype.redux_store)
-                console.error("redux store not fund");
+            
 
             var componentInitialized = target.prototype.componentInitialized;
-            var unsubscribe = null;
+            
             target.prototype.componentInitialized = function() {
                 var that = this;
-                unsubscribe = store.subscribe(function() {
+            
+                this.unsubscribe_redux = store.subscribe(function() {
                     try {
-                        that.scope = selector(target.prototype.redux_store.getState());
+                        let newScope = selector(store.getState());
+                        let oldScope = that.scope;
+
+                        if (!oldScope || !newScope || oldScope != newScope || !shallowEqual(oldScope, newScope))
+                            that.scope = newScope;
                     } catch (e) {
                         console.error(e);
                     }
                 });
-                this.scope = selector(target.prototype.redux_store.getState());
+            
+                try {
+                    this.scope = selector(store.getState());
+                } catch (e) {
+                    console.error(e);
+                }
+            
                 componentInitialized && componentInitialized.apply(this, arguments);
             }
 
             var unm = target.prototype.unmount;
 
             target.prototype.unmount = function() {
-                unsubscribe();
+                this.unsubscribe_redux();
+                unm && unm.apply(this, arguments);
             }
         }
     }
@@ -505,4 +518,89 @@ namespace mz.redux {
         }
     }
 
+    function makeFilter(filter) {
+        // function filter
+        if (typeof filter === 'function')
+            return filter;
+            
+        // object filter, match properties
+        if (typeof filter === 'object')
+            return function (data) {
+                if (typeof data !== 'object')
+                    return false;
+                    
+                for (var n in filter)
+                    if (filter[n] !== data[n])
+                        return false;
+                        
+                return true;
+            }
+        
+        // value filter, equal data or equal type property
+        return function (data) { 
+            if (data && typeof data === 'object')
+                return data.type === filter;
+                
+            return data === filter; 
+        };
+    }
+    
+    export interface Manager {
+        when: (filter: Object | Function | String, fn: Reducer) => Manager,
+        otherwise: (fn: Reducer) => Manager,
+        use: (fn: Reducer) => Manager,
+    }
+    
+    // https://github.com/ajlopez/ReduMan
+    export function createManager(): Reducer & Manager {
+        var steps = [];
+        var owfn = null;
+
+        let when = function (filter: Object | Function | String, fn: Reducer) {
+            steps.push({ filter: makeFilter(filter), fn: fn });
+            return reducer;
+        }
+        
+        let otherwise = function (fn: Reducer) {
+            owfn = fn;
+            return reducer;
+        }
+        
+        let use = function (fn: Reducer) {
+            steps.push({ fn: fn });
+            return reducer;
+        }
+
+        var reducer : Reducer & Manager = function (state: any, data: any) {
+            var l = steps.length;
+            var currentState = state;
+            var processed = false;
+            
+            for (var k = 0; k < l; k++) {
+                var step = steps[k];
+                
+                if (!step.filter || step.filter(data)) {
+                    var newState = step.fn(currentState, data);
+                    
+                    if (newState !== currentState)
+                        processed = true;
+                        
+                    currentState = newState;
+                }
+            }
+            
+            if (owfn && !processed)
+                return owfn(currentState, data);
+            
+            return currentState;
+        } as any;
+
+        reducer.when = when;
+        
+        reducer.otherwise = otherwise;
+        
+        reducer.use = use;
+        
+        return reducer;
+    }
 }
