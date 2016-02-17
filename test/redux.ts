@@ -1,6 +1,6 @@
 /// <reference path="../dist/mz.d.ts" />
 
-var kreate_store = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
+var kreate_store : typeof mz.redux.createStore = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
 
 
 export var store = kreate_store(function(state, action) {
@@ -36,7 +36,7 @@ export var store = kreate_store(function(state, action) {
 @mz.Widget.Template(`
 <div>
     <button onclick="{this.inc}">+</button>
-    <button onclick="{this.dec}">+</button>
+    <button onclick="{this.dec}">-</button>
     {scope.valor}
     <mz-repeat list="{scope.list}" tag="ul">
         <li>{scope.val}</li>
