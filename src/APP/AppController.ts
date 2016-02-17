@@ -56,8 +56,8 @@ namespace mz.app {
 
             if (componentProps) {
                 for (var i in componentProps) {
-                    if (typeof componentProps[i] == "function" && componentProps[i].isRouteHandler) {
-                        this.routeHandler[componentProps[i].isRouteHandler] = componentProps[i];
+                    if (typeof this[i] == "function" && this[i].isRouteHandler) {
+                        this.routeHandler[this[i].isRouteHandler] = this[i];
                     }
                 }
             }
