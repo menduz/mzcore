@@ -22,6 +22,28 @@ namespace mz.app {
 
     }
 
+    /**
+     * Binds a ROUTE_NAME to this method.
+     * pages.json#
+     * [{ 
+     *   name: "index", 
+     *   routes: [{ 
+     *     name: "ROUTE_NAME", 
+     *     route: "index/:id" 
+     *   }] 
+     * }, 
+     * ...]
+     * 
+     */
+    export function RouteName(route_name: string) {
+        return function(target: typeof Page, propertyKey: string | symbol) {
+            if (target.prototype[propertyKey] && typeof target.prototype[propertyKey] === "function") {
+                target.prototype[propertyKey].isRouteHandler = route_name;
+            }
+        }
+    }
+
+
     export class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
@@ -29,6 +51,17 @@ namespace mz.app {
         constructor(appController: PageCoordinator) {
             super(null, { tag: 'div', }, [], this, this, this);
             this.routeHandler = {};
+
+            var componentProps = Object.getPrototypeOf ? Object.getPrototypeOf(this) : (this['__proto__']);
+
+            if (componentProps) {
+                for (var i in componentProps) {
+                    if (typeof componentProps == "function" && componentProps[i].isRouteHandler) {
+                        this.routeHandler[componentProps[i].isRouteHandler] = componentProps[i];
+                    }
+                }
+            }
+
             this.parent = appController;
         }
 
@@ -153,7 +186,7 @@ namespace mz.app {
                         var t = <any>arguments;
                         that.loadingPage = true;
                         that.getPage(route.page.name).then((modulo: Page) => {
-                            if (route.name in modulo.routeHandler) {
+                            if (modulo.routeHandler && route.name in modulo.routeHandler) {
                                 modulo.routeHandler[route.name].apply(modulo, t);
                             }
 
