@@ -36,9 +36,9 @@ namespace mz.app {
      * 
      */
     export function RouteName(route_name: string) {
-        return function(target: typeof Page, propertyKey: string | symbol) {
-            if (target.prototype[propertyKey] && typeof target.prototype[propertyKey] === "function") {
-                target.prototype[propertyKey].isRouteHandler = route_name;
+        return function(target: Page, propertyKey: string | symbol) {
+            if (target[propertyKey] && typeof target[propertyKey] === "function") {
+                target[propertyKey].isRouteHandler = route_name;
             }
         }
     }
