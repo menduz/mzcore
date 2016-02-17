@@ -65,7 +65,7 @@ namespace mz.redux {
                         let newScope = selector(store.getState());
                         let oldScope = that.scope;
 
-                        if (!oldScope || !newScope || oldScope != newScope || !shallowEqual(oldScope, newScope))
+                        if ((!oldScope || !newScope) && oldScope != newScope || !shallowEqual(oldScope, newScope))
                             that.scope = newScope;
                     } catch (e) {
                         console.error(e);

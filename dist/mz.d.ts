@@ -1663,6 +1663,21 @@ declare module mz {
     }
     var route: mzBackboneRouter;
 }
+declare namespace mz.css {
+    function set(selectorOrValues: any, selectorValues?: Dictionary<string | number>): string;
+    class Stylesheet {
+        prefix: string;
+        elem: JQuery;
+        estilo: Dictionary<Dictionary<string | number>>;
+        destino: JQuery | string;
+        constructor(prefix?: string | JQuery);
+        enable(): void;
+        disable(): void;
+        private remake;
+        refresh(): void;
+        set(property: string, val: Dictionary<string | number>): void;
+    }
+}
 declare namespace uikit {
     class Fit extends mz.Widget {
         class_changed(): void;
@@ -1682,21 +1697,6 @@ declare namespace uikit {
     }
     class FlexCell extends mz.Widget {
         class_changed(): void;
-    }
-}
-declare namespace mz.css {
-    function set(selectorOrValues: any, selectorValues?: Dictionary<string | number>): string;
-    class Stylesheet {
-        prefix: string;
-        elem: JQuery;
-        estilo: Dictionary<Dictionary<string | number>>;
-        destino: JQuery | string;
-        constructor(prefix?: string | JQuery);
-        enable(): void;
-        disable(): void;
-        private remake;
-        refresh(): void;
-        set(property: string, val: Dictionary<string | number>): void;
     }
 }
 declare class MzModelDirective extends mz.AttributeDirective {

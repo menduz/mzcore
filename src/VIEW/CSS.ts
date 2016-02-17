@@ -81,7 +81,7 @@ namespace mz.css {
         
         constructor(prefix?: string | JQuery){
             
-            this.destino = 'body';
+            this.destino = 'head';
 
             if (prefix instanceof jQuery) {
                 this.destino = prefix;

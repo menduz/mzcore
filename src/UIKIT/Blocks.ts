@@ -1,4 +1,6 @@
 /// <reference path="../VIEW/Widget.ts" />
+/// <reference path="../VIEW/CSS.ts" />
+
 
 namespace uikit {
     var flexStyles = new mz.css.Stylesheet();
@@ -51,8 +53,6 @@ namespace uikit {
     
     flexStyles.enable();
 
-
-
     @mz.Widget.RegisterComponent("fit")
     @mz.Widget.Template(`<div class="mz-fit" />`, ':root')
     @mz.Widget.ConfigureUnwrapped
@@ -82,7 +82,7 @@ namespace uikit {
 
         @mz.core.decorators.screenDelayer
         class_changed() {
-            this.DOM.addClass('mz-flex-col');
+            this.rootNode.classList.add('mz-flex-col');
         }
 
         ['col-width_changed'](width) {
@@ -105,7 +105,7 @@ namespace uikit {
     export class FlexContainer extends mz.Widget {
         @mz.core.decorators.screenDelayer
         class_changed() {
-            this.DOM.addClass('mz-flex-row');
+            this.rootNode.classList.add('mz-flex-row');
         }
     }
 
@@ -115,7 +115,7 @@ namespace uikit {
     export class FlexRow extends mz.Widget {
         @mz.core.decorators.screenDelayer
         class_changed() {
-            this.DOM.addClass('mz-flex-row');
+            this.rootNode.classList.add('mz-flex-row');
         }
     }
 
@@ -125,7 +125,7 @@ namespace uikit {
     export class FlexCell extends mz.Widget {
         @mz.core.decorators.screenDelayer
         class_changed() {
-            this.DOM.addClass('mz-flex-cell');
+            this.rootNode.classList.add('mz-flex-cell');
         }
     }
 }
