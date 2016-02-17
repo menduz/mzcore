@@ -753,9 +753,9 @@ declare namespace mz.app {
      *   }]
      * },
      * ...]
-     *
+     * By default, the method's name is used
      */
-    function RouteName(route_name: string): (target: Page, propertyKey: string | symbol) => void;
+    function RouteName(route_name?: string): (target: Page, propertyKey: string | symbol) => void;
     class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;

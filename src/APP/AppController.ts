@@ -33,12 +33,12 @@ namespace mz.app {
      *   }] 
      * }, 
      * ...]
-     * 
+     * By default, the method's name is used
      */
-    export function RouteName(route_name: string) {
+    export function RouteName(route_name?: string) {
         return function(target: Page, propertyKey: string | symbol) {
             if (target[propertyKey] && typeof target[propertyKey] === "function") {
-                target[propertyKey].isRouteHandler = route_name;
+                target[propertyKey].isRouteHandler = route_name || propertyKey;
             }
         }
     }
