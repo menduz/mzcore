@@ -2,7 +2,7 @@ ALPHA v0.1.0a
 =====
 Dev
 ---
-- [ ] mz-model: Add property modifier, today=`<input mz-model="user_name" />` planned=`<div mz-model="user.name" />`, it should update `user.name` and send a update signal if `{this.user}` is decorated with `@mz.MVCObject.proxy`.  
+- [*] mz-model: Add property modifier, today=`<input mz-model="user_name" />` planned=`<div mz-model="user.name" />`, it should update `user.name` and send a update signal if `{this.user}` is decorated with `@mz.MVCObject.proxy`.  
 - [ ] mz-if
 - [ ] mz-form: Create component, WIP, treat mz-form as MzInput, it can be used with `mz-model` attrib
 - [ ] mz-repeat: support filters `<mz-repeat filter-from="4" filter-length="10" order-by="Name DESC" filter-by="{this.filter}"></mz-repeat>`
@@ -14,6 +14,7 @@ Dev
 - [ ] Register template from `<template id="my_custom_view">` using `@mz.Widget.Template("#my_custom_view")`
 - [ ] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
 - [ ] !!!Redux state tree bindings with immutable.js, WIP!!!
+- [ ] read checked prop on checkbox in mz-model
 
 Tests
 -----
@@ -25,6 +26,7 @@ Tests
 - [ ] mz-repeat
 - [ ] mz-if
 - [ ] attr `visible` test
+- [*] mz-model attr
 
 UIKit
 -----

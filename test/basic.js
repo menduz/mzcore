@@ -214,6 +214,85 @@ QUnit.test("Basic html template, expression with class selectors", function (ass
     mz.dom.microqueue.flush();
     assert.equal($(result.rootNode).attr('style'), "color: red");
 });
+// microqueue tests
+// end microqueue tests
+mz.dom.microqueue.enabled = false;
+function dispatchChangeEvent(element) {
+    element.dispatchEvent(new Event("changed", { bubbles: false, cancelable: true }));
+}
+QUnit.test("MzModel", function (assert) {
+    var TestComponent = (function (_super) {
+        __extends(TestComponent, _super);
+        function TestComponent() {
+            _super.apply(this, arguments);
+        }
+        __decorate([
+            mz.Widget.proxy, 
+            __metadata('design:type', Object)
+        ], TestComponent.prototype, "theValue", void 0);
+        TestComponent = __decorate([
+            mz.Widget.Template("<input mz-model=\"theValue\" />"), 
+            __metadata('design:paramtypes', [])
+        ], TestComponent);
+        return TestComponent;
+    })(mz.widgets.BasePagelet);
+    var result = new TestComponent();
+    var theInput = result.find('input')[0];
+    assert.ok(theInput instanceof HTMLInputElement, 'input found');
+    assert.ok(result.theValue == undefined, 'Should start undefined');
+    result.theValue = 'Sarasa';
+    assert.equal(result.theValue, 'Sarasa', 'Value setted');
+    assert.equal(theInput.value, 'Sarasa', 'Value reflected on input');
+    theInput.value = 'test';
+    dispatchChangeEvent(theInput);
+    assert.equal(theInput.value, 'test', 'Event changed on input reflected on model');
+});
+QUnit.test("MzModel, classProperty model ex: mz-model='object.name'", function (assert) {
+    var TestComponent = (function (_super) {
+        __extends(TestComponent, _super);
+        function TestComponent() {
+            _super.apply(this, arguments);
+        }
+        __decorate([
+            mz.Widget.proxy, 
+            __metadata('design:type', Object)
+        ], TestComponent.prototype, "object", void 0);
+        TestComponent = __decorate([
+            mz.Widget.Template("<input mz-model=\"object.name\" />"), 
+            __metadata('design:paramtypes', [])
+        ], TestComponent);
+        return TestComponent;
+    })(mz.widgets.BasePagelet);
+    var result = new TestComponent();
+    var theInput = result.find('input')[0];
+    var done = assert.async();
+    assert.ok(theInput instanceof HTMLInputElement, 'input found');
+    assert.ok(result.object == undefined, 'Value should start undefined');
+    theInput.value = 'test';
+    dispatchChangeEvent(theInput);
+    setTimeout(function () {
+        assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with undefined prevState');
+        result.object = { name: 'val' };
+        requestAnimationFrame(function () {
+            assert.equal(theInput.value, 'val', 'Value reflected on input');
+            result.object.name = 'aaaaa';
+            requestAnimationFrame(function () {
+                assert.equal(theInput.value, 'val', 'Changing inner props should not update the view since it does not propagate events');
+                theInput.value = 'test';
+                dispatchChangeEvent(theInput);
+                assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with defined prevState');
+                result.object = { t: 1 };
+                assert.equal(theInput.value, '', 'Invalid model undefines value of input');
+                theInput.value = 'testa';
+                dispatchChangeEvent(theInput);
+                var t = { t: 1 };
+                t.name = 'testa';
+                assert.equal(JSON.stringify(result.object), JSON.stringify(t), 'Only the model property should be updated on the target object');
+                done();
+            });
+        });
+    }, 200);
+});
 function exprTests(assrt) {
     var assert = assrt.ok.bind(assrt);
     var scope = new mz.MVCObject();

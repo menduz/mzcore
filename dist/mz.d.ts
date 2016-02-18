@@ -1702,9 +1702,12 @@ declare namespace uikit {
 declare class MzModelDirective extends mz.AttributeDirective {
     static symbol2wb: symbol | string;
     static jqueryBindings: string;
+    static point_expr: RegExp;
     changeBinding: any;
     componentBinding: mz.EventDispatcherBinding;
     widgetValueBinding: mz.EventDispatcherBinding;
+    setter: (value) => void;
+    getter: () => any;
     private delayedBinding;
     unmount(): void;
     private teardown();
@@ -1878,7 +1881,6 @@ declare namespace mz {
 }
 declare namespace mz.widgets {
     class MzForm<T> extends mz.widgets.MzInput {
-        static EMPTY_TAG: boolean;
         static ERROR_CLASS: string;
         private primaryButton;
         campos: Dictionary<MzInput>;
