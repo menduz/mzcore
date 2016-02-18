@@ -53,7 +53,7 @@ define(["require", "exports"], function (require, exports) {
         };
         ReduxComponent = __decorate([
             mz.redux.connectWidget(function (state) { return state.ja; }, exports.store),
-            mz.Widget.Template("\n<div>\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">+</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li>{scope.val}</li>\n    </mz-repeat>\n</div>"), 
+            mz.Widget.Template("\n<div>\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">-</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li>{scope.val}</li>\n    </mz-repeat>\n</div>"), 
             __metadata('design:paramtypes', [])
         ], ReduxComponent);
         return ReduxComponent;

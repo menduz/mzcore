@@ -1703,6 +1703,8 @@ declare class MzModelDirective extends mz.AttributeDirective {
     static symbol2wb: symbol | string;
     static jqueryBindings: string;
     static point_expr: RegExp;
+    private static getSelectedOptionScope(HtmlSelect);
+    private static getOptionWithScope(HtmlSelect, scope);
     changeBinding: any;
     componentBinding: mz.EventDispatcherBinding;
     widgetValueBinding: mz.EventDispatcherBinding;
