@@ -13,8 +13,10 @@ Dev
 - [*] Allow `<mz-repeat>` to use anything IForEachable as list
 - [ ] Register template from `<template id="my_custom_view">` using `@mz.Widget.Template("#my_custom_view")`
 - [ ] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
-- [ ] !!!Redux state tree bindings with immutable.js, WIP!!!
-- [ ] read checked prop on checkbox in mz-model
+- [ ] redux experiment
+- [*] read checked prop on checkboxs with mz-model
+- [*] read scope from option on selects with mz-model
+
 
 Tests
 -----
@@ -38,4 +40,4 @@ Backlog
 ======
 
 - [ ] raml2mzcore generator
-- [ ] add `{ $index }` to scoped vars 
+- [ ] add `{ $index }` to scoped vars on mz-repeat
