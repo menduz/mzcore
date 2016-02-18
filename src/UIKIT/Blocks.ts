@@ -7,12 +7,8 @@ namespace uikit {
     
     flexStyles.disable();
 
-    flexStyles.set('.mz-fit', {
-        'position': 'absolute',
-        'top': '0',
-        'bottom': '0',
-        'left': '0',
-        'right': '0'
+    flexStyles.set('.mz-hidden, [hidden]', {
+        'display': 'none!important'
     });
 
     flexStyles.set('.mz-flex-row', {
