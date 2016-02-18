@@ -2,8 +2,8 @@
 
 namespace mz.widgets {
     @mz.Widget.RegisterComponent("mz-form")
+    @mz.Widget.ConfigureUnwrapped
     export class MzForm<T> extends mz.widgets.MzInput {
-        static EMPTY_TAG = true;
         static ERROR_CLASS = 'has-error';
 
         private primaryButton: mz.Widget;
@@ -19,14 +19,21 @@ namespace mz.widgets {
         private flagAvoidReUpdate: string;
 
         constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b, c, scope) {
-            attr['tag'] = attr['tag'] || 'div';
+            attr['tag'] = attr['tag'] || 'form';
             this.flagAvoidReUpdate = null;
 
+
+
             super(rootNode, attr, children, b, c, scope);
+
+            this.children = this.generateScopedContent(scope);
 
             this.primaryButton = null;
 
             this.startComponent();
+            this.contentNode = this.contentNode || this.rootNode;
+            
+            this.appendChildrens();
 
             this.defaults = <T>{};
             this.campos = {};
@@ -67,7 +74,7 @@ namespace mz.widgets {
                 (this.value || (this.resetForm(), this.value))[fieldName] = val;
                 this.flagAvoidReUpdate = fieldName;
                 try {
-                    this.value = this.value;
+                    this.set('value', this.value);
                 } catch (e) {
                     console.error(e);
                 }
@@ -169,7 +176,7 @@ namespace mz.widgets {
             let obj = {};
             for (var i in this.campos) {
                 obj[i] = this.defaults[i];
-                this.campos[i].value = this.defaults[i];
+                //this.campos[i].value = this.defaults[i];
             }
             return obj as T;
         }
