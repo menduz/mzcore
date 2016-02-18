@@ -22,7 +22,7 @@ var sourcemaps = require('gulp-sourcemaps');
 var merge = require('merge2');
 var svn = require('gulp-svn');
 var tsc_f = require('gulp-tsconfig-files')
-var qunit = require('gulp-qunit');
+var qunit = require('node-qunit-phantomjs');
 var through = require('through');
 var File = require('vinyl');
 
@@ -50,17 +50,12 @@ gulp.task('default', ['min'], function () {
 });
 
 gulp.task('test_full', ['default'], function () {
-    return gulp.src('./test/index.html').pipe(qunit({ 'verbose': true })).on('error', function (err) {
-        console.log(err.toString());
-        this.emit('end');
-    });
+    qunit('./test/index.html', { 'verbose': true });
 })
 
 
 gulp.task('test', function () {
-    return gulp.src('./test/index.html').pipe(qunit({ 'verbose': true })).on('error', function (err) {
-        console.log(err.toString());
-    });
+    qunit('./test/index.html', { 'verbose': false });
 })
 
 gulp.task('tsconfig_files', function () {

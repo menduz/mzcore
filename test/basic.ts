@@ -18,17 +18,21 @@ QUnit.test("Basic html template, content", function(assert) {
 
     var result = new HelloWorld();
 
+    mz.dom.microqueue.flush();
+
     assert.equal((result.rootNode as HTMLElement).innerHTML, HelloWorld.prototype.defaultTemplate, 'Basic rendering');
 })
 
 // TEST 2
 
 QUnit.test("Basic html template, outer html", function(assert) {
-    
+
     @mz.Widget.Template(`<div>Hello world! OuterHTML</div>`)
     class HelloWorld extends mz.widgets.BasePagelet { }
 
     var result = new HelloWorld();
+
+    mz.dom.microqueue.flush();
 
     assert.equal((result.rootNode as HTMLElement).outerHTML, '<helloworld>' + HelloWorld.prototype.defaultTemplate + '</helloworld>');
 })
@@ -43,6 +47,8 @@ QUnit.test("Basic html template, unwrapped", function(assert) {
     HelloWorld.prototype.defaultTemplate = `<div>Hello world! OuterHTML</div>`;
 
     var result = new HelloWorld();
+
+    mz.dom.microqueue.flush();
 
     assert.equal((result.rootNode as HTMLElement).outerHTML, HelloWorld.prototype.defaultTemplate);
 })
@@ -62,6 +68,8 @@ QUnit.test("Basic html template, expression value", function(assert) {
 
     var result = new HelloWorld();
 
+    mz.dom.microqueue.flush();
+
     assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>${result.value}</div>`);
 })
 
@@ -80,6 +88,9 @@ QUnit.test("Basic html template, expression, change value on the fly", function(
     var result = new HelloWorld();
 
     result.set('value', 'ABC')
+
+    mz.dom.microqueue.flush();
+
     assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>${result.get('value')}</div>`);
 })
 
@@ -94,7 +105,10 @@ QUnit.test("Basic html template, expression, value from attr", function(assert) 
     var result = new HelloWorld();
 
     result.attr('value', 'ABC');
-    assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>[${result.get('value')}]</div>`);
+
+    mz.dom.microqueue.flush();
+
+    assert.equal((result.rootNode as HTMLElement).outerHTML, `<div value="${result.attr('value')}">[${result.attr('value')}]</div>`);
 })
 
 // TEST 7
@@ -109,14 +123,32 @@ QUnit.test("Basic html template, expression with js", function(assert) {
     var result = new HelloWorld();
 
     result.set('value', 'ABC')
+
+    mz.dom.microqueue.flush();
+
     assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>[${result.get('value').toLowerCase()}]</div>`);
+})
+
+QUnit.test("Basic html template, cdata should not be parsed as expression", function(assert) {
+    @mz.Widget.ConfigureUnwrapped
+    class HelloWorld extends mz.widgets.BasePagelet { }
+
+    HelloWorld.prototype.defaultTemplate = `<div><![CDATA[{3}{value.toLowerCase()}]]></div>`;
+
+    var result = new HelloWorld();
+
+    result.set('value', 'ABC')
+
+    mz.dom.microqueue.flush();
+
+    assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>{3}{value.toLowerCase()}</div>`);
 })
 
 // TEST 8
 
 QUnit.test("Basic html template, expression composed with js", function(assert) {
     @mz.Widget.ConfigureUnwrapped
-    class HelloWorld extends mz.widgets.BasePagelet { 
+    class HelloWorld extends mz.widgets.BasePagelet {
         @HelloWorld.proxy
         value;
     }
@@ -127,6 +159,9 @@ QUnit.test("Basic html template, expression composed with js", function(assert) 
     var result = new HelloWorld();
 
     result.value = 'ABC';
+
+    mz.dom.microqueue.flush();
+
     assert.equal((result.rootNode as HTMLElement).outerHTML, `<div>${result.get('value')} a<span>[${result.value.toLowerCase()}]</span></div>`);
 });
 
@@ -146,8 +181,118 @@ QUnit.test("Basic html template, expression with class selectors", function(asse
 
     result.set('value', true);
 
+    mz.dom.microqueue.flush();
+
     assert.equal($(result.rootNode).attr('style'), "color: red");
 });
+
+// microqueue tests
+
+
+// end microqueue tests
+
+
+mz.dom.microqueue.enabled = false;
+
+function dispatchChangeEvent(element: HTMLElement) {
+    element.dispatchEvent(new Event("changed", { bubbles: false, cancelable: true }));
+}
+
+QUnit.test("MzModel", function(assert) {
+
+    @mz.Widget.Template(`<input mz-model="theValue" />`)
+    class TestComponent extends mz.widgets.BasePagelet {
+        @mz.Widget.proxy
+        theValue;
+    }
+
+
+
+    var result = new TestComponent();
+
+    var theInput = (result.find('input')[0] as HTMLInputElement);
+
+    assert.ok(theInput instanceof HTMLInputElement, 'input found');
+
+    assert.ok(result.theValue == undefined, 'Should start undefined');
+
+
+    result.theValue = 'Sarasa';
+    assert.equal(result.theValue, 'Sarasa', 'Value setted');
+
+    assert.equal(theInput.value, 'Sarasa', 'Value reflected on input');
+
+    theInput.value = 'test';
+    dispatchChangeEvent(theInput);
+
+    assert.equal(theInput.value, 'test', 'Event changed on input reflected on model');
+});
+
+
+
+
+QUnit.test("MzModel, classProperty model ex: mz-model='object.name'", function(assert) {
+
+
+
+
+    @mz.Widget.Template(`<input mz-model="object.name" />`)
+    class TestComponent extends mz.widgets.BasePagelet {
+        @mz.Widget.proxy
+        object: { name: string };
+    }
+
+    var result = new TestComponent();
+
+    var theInput = (result.find('input')[0] as HTMLInputElement);
+
+    var done = assert.async();
+
+
+
+    assert.ok(theInput instanceof HTMLInputElement, 'input found');
+
+    assert.ok(result.object == undefined, 'Value should start undefined');
+
+    theInput.value = 'test';
+    dispatchChangeEvent(theInput);
+
+    setTimeout(() => {
+        assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with undefined prevState');
+
+        result.object = { name: 'val' };
+
+        requestAnimationFrame(() => {
+            assert.equal(theInput.value, 'val', 'Value reflected on input');
+
+            result.object.name = 'aaaaa';
+
+            requestAnimationFrame(() => {
+                assert.equal(theInput.value, 'val', 'Changing inner props should not update the view since it does not propagate events')
+
+                theInput.value = 'test';
+                dispatchChangeEvent(theInput);
+                assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with defined prevState');
+
+                result.object = { t: 1 } as any;
+
+                assert.equal(theInput.value, '', 'Invalid model undefines value of input');
+
+                theInput.value = 'testa';
+                dispatchChangeEvent(theInput);
+
+                var t: any = { t: 1 };
+                t.name = 'testa';
+
+                assert.equal(JSON.stringify(result.object), JSON.stringify(t), 'Only the model property should be updated on the target object');
+
+                done();
+            });
+        });
+    }, 200);
+});
+
+
 
 
 function exprTests(assrt) {
@@ -321,3 +466,5 @@ function exprTests(assrt) {
 
 QUnit.test("Expressions", exprTests);
 QUnit.test("Expressions (cached, should be faster)", exprTests);
+
+

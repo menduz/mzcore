@@ -1,6 +1,7 @@
 {
   "files": [
-    "basic.ts"
+    "basic.ts",
+    "redux.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": false,

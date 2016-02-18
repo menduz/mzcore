@@ -1,7 +1,6 @@
 ﻿/// <reference path="../view/Widget.ts" />
 
 module mz.widgets {
-
     function delegateUnmountElement(widget) {
         if (widget && typeof widget == "object") {
             if ('unmount' in widget)
@@ -11,41 +10,29 @@ module mz.widgets {
         }
     }
 
-    function delegateRefreshScope(e: mz.Widget) {
-        if (e && 'refreshScope' in e) {
-            //let parent = mz.dom.adapter.parentElement(e.rootNode);
-            //let next = mz.dom.adapter.nextSibling(e.rootNode);
-            //mz.dom.adapter.remove(e.rootNode);
-            e.refreshScope();
-            //if (next) {
-            //    mz.dom.adapter.insertBefore(next, e.rootNode);
-            //} else {
-            //    mz.dom.adapter.appendChild(parent, e.rootNode);
-            //}
-        }
-
-    }
-
     @mz.Widget.RegisterComponent("mz-repeat")
     @mz.Widget.ConfigureEmptyTag
     export class MzRepeat extends mz.Widget {
 
         @mz.MVCObject.proxy
-        list: mz.Collection<any>;
+        list: IForEachable<any>;
 
         @mz.MVCObject.proxy
         afterAdd: (doms: mz.IChildWidget[], scope: any) => void;
 
         collectionKey: symbol | string;
 
-        private item: any;
+        //private item: any;
+
 
         props: {
-            list: mz.Collection<any>;
+            list: IForEachable<any>;
             afterAdd?: (doms: mz.IChildWidget[], scope: any) => void;
         };
 
         listenersLista: mz.EventDispatcherBinding[];
+
+        //elementCache: mz.WeakMap<any, mz.Widget[]>;
 
         constructor(rootNode: HTMLElement, attr: mz.Dictionary<any>, children: mz.IChildWidget[], b, c, scope) {
             super(rootNode, attr, [], b, c, scope);
@@ -57,14 +44,12 @@ module mz.widgets {
 
             // if the list contains elements.
             if (this.list && this.list.length) {
-                this.list.forEach(this.ponerElem, this);
+                this.list.forEach(this.ponerElem);
             }
         }
 
-        private list_changed(list: mz.Collection<any>, prevList: mz.Collection<any>) {
-
-
-            if (list === prevList) return;
+        private list_changed(list: IForEachable<any>, prevList: IForEachable<any>) {
+            if (list == prevList) return;
 
             if (this.listenersLista) {
                 this.listenersLista.forEach(x => x.off());
@@ -75,23 +60,18 @@ module mz.widgets {
 
             if (prevList) {
                 // clean current collection elements
-                prevList.forEach(this.delegateUnmountElements);
+                prevList.forEach(this.delegateUnmountElements as any);
 
                 this.detachAllNodes();
             }
 
-            if (list && !(list instanceof mz.Collection)) {
-                console.error(new Error("<mz-repeat> expects attr 'list: mz.Collection'"));
-                return;
+            if (this.list && list instanceof mz.Collection) {
+                this.listenersLista.push((this.list as mz.Collection<T>).on('changed', this.redraw.bind(this)));
+                this.listenersLista.push((this.list as mz.Collection<T>).on('pre_clear', a => this.redraw('pre_clear', a)));
             }
 
-            if (this.list) {
-                this.listenersLista.push(this.list.on('changed', this.redraw.bind(this)));
-                this.listenersLista.push(this.list.on('pre_clear', a => this.redraw('pre_clear', a)));
-
-                if (this.list.length && !!this.collectionKey /* collection initialized */)
-                    this.redraw('refresh');
-            }
+            if (this.list && this.list.length && !!this.collectionKey /* collection initialized */)
+                this.redraw('refresh');
         }
 
         unmount() {
@@ -100,24 +80,28 @@ module mz.widgets {
         }
 
         ponerElem(itemDeLista) {
-            this.item = itemDeLista;
-
             var dom = itemDeLista[this.collectionKey];
 
             var existia = !!dom;
 
             if (!existia) {
-                dom = this.generateScopedContent(itemDeLista);
-                itemDeLista[this.collectionKey] = dom;
+                itemDeLista[this.collectionKey] = dom = this.generateScopedContent(itemDeLista);
             }
 
-            dom.forEach((e) => {
+            if (existia) {
                 // si el elemento ya existia, llamo a refreshScope
-                if (existia && e && (typeof e == "object") && 'refreshScope' in e)
-                    e.refreshScope();
+                for (let index = 0; index < dom.length; index++) {
+                    let e = dom[index];
+                    if (e && (typeof e == "object") && 'refreshScope' in e)
+                        e.refreshScope();
 
-                this.append(e);
-            });
+                    this.append(e);
+                }
+            } else {
+                for (let index = 0; index < dom.length; index++) {
+                    this.append(dom[index]);
+                }
+            }
         }
 
         generateScopedContent(scope): IChildWidget[] {
@@ -133,10 +117,9 @@ module mz.widgets {
             }
         }
 
-        private delegateUnmountElements(elementoLista) {
+        private delegateUnmountElements(elementoLista, at?) {
             if (elementoLista[this.collectionKey]) {
                 elementoLista[this.collectionKey].forEach(delegateUnmountElement);
-
                 delete elementoLista[this.collectionKey];
             }
         }
@@ -146,32 +129,33 @@ module mz.widgets {
 
             if (tipo == Collection.EVENTS.ElementChanged && this.collectionKey in b) {
                 let widgets = b[this.collectionKey];
-                for (var i in widgets) {
-                    delegateRefreshScope(widgets[i]);
+
+                for (let i = 0; i < widgets.length; i++) {
+                    let e = widgets[i];
+                    if (e && e.refreshScope) {
+                        e.refreshScope();
+                    }
                 }
             } else if (tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged) {
                 this.ponerElem(b);
             } else if (tipo == Collection.EVENTS.ElementRemoved && b && b[this.collectionKey]) {
                 this.delegateUnmountElements(b);
-            } else if (/*tipo == "addRange" || tipo == "filter" ||*/ tipo == Collection.EVENTS.CollectionSorted) {
+            } else if (tipo == Collection.EVENTS.CollectionSorted) {
                 rebuild = true;
-            } /*else if (tipo == "removed") {
-                rebuild = true;
-            }*/ else if (tipo == "refresh") {
+            } else if (tipo == "refresh") {
                 this.detachAllNodes();
-                this.list.forEach(delegateRefreshScope);
                 rebuild = true;
             } else if (tipo == Collection.EVENTS.BeforeClearCollection) {
                 this.list.forEach(this.delegateUnmountElements);
                 return;
             }
 
-            if (tipo == "clear" || rebuild) {
+            if (tipo == Collection.EVENTS.AfterClearCollection || rebuild) {
                 this.detachAllNodes();
             }
 
             if (rebuild && this.list.length) {
-                this.list.forEach(this.ponerElem, this);
+                this.list.forEach(this.ponerElem);
             }
         }
     }

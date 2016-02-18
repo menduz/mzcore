@@ -22,6 +22,28 @@ namespace mz.app {
 
     }
 
+    /**
+     * Binds a ROUTE_NAME to this method.
+     * pages.json#
+     * [{ 
+     *   name: "index", 
+     *   routes: [{ 
+     *     name: "ROUTE_NAME", 
+     *     route: "index/:id" 
+     *   }] 
+     * }, 
+     * ...]
+     * By default, the method's name is used
+     */
+    export function RouteName(route_name?: string) {
+        return function(target: Page, propertyKey: string | symbol) {
+            if (target[propertyKey] && typeof target[propertyKey] === "function") {
+                target[propertyKey].isRouteHandler = route_name || propertyKey;
+            }
+        }
+    }
+
+
     export class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
@@ -29,6 +51,17 @@ namespace mz.app {
         constructor(appController: PageCoordinator) {
             super(null, { tag: 'div', }, [], this, this, this);
             this.routeHandler = {};
+
+            var componentProps = Object.getPrototypeOf ? Object.getPrototypeOf(this) : (this['__proto__']);
+
+            if (componentProps) {
+                for (var i in componentProps) {
+                    if (typeof this[i] == "function" && this[i].isRouteHandler) {
+                        this.routeHandler[this[i].isRouteHandler] = this[i];
+                    }
+                }
+            }
+
             this.parent = appController;
         }
 
@@ -51,11 +84,17 @@ namespace mz.app {
     }
 
     @mz.Widget.ConfigureUnwrapped
+    @mz.Widget.Template(null, 'content')
     export class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
 
         @mz.MVCObject.proxy
         actualPage: Page;
+
+        @mz.MVCObject.proxy
+        loadingPage: boolean;
+
+        routeHistory: string[];
 
         constructor(opc: {
             templateUrl?: string;
@@ -64,11 +103,13 @@ namespace mz.app {
             pages: string | Array<IAppPage>;
             pagesCollection?: mz.Collection<IAppPageModule>;
         }) {
-            super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, this);
+            super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, undefined);
+
+            this.loadingPage = true;
 
             this.pages = opc.pagesCollection || new mz.Collection<IAppPageModule>(null, { key: "name" });
 
-            
+
 
             if (opc.templateHtml && opc.templateUrl) {
                 throw new Error("You must set only templateUrl or templateHtml, not both.")
@@ -138,16 +179,14 @@ namespace mz.app {
             this.routeHistory = [];
 
             var that = this;
-            
-            if(!mz.globalContext.Backbone && !('backbone' in mz.modules && (Backbone = mz.require('backbone')) && Backbone.history))
-                throw new Error("AppController requires Backbone, please install it before creating this.");
 
             for (var i in routes) {
                 ((route: IAppControllerRouteModule) => {
                     routerParam[route.name] = function() {
                         var t = <any>arguments;
+                        that.loadingPage = true;
                         that.getPage(route.page.name).then((modulo: Page) => {
-                            if (route.name in modulo.routeHandler) {
+                            if (modulo.routeHandler && route.name in modulo.routeHandler) {
                                 modulo.routeHandler[route.name].apply(modulo, t);
                             }
 
@@ -155,18 +194,17 @@ namespace mz.app {
                             that.show(modulo);
 
                             that.routeHistory.push(Backbone.history.getFragment());
+                            that.loadingPage = false;
                         });
                     };
                 })(routes[i]);
             };
 
-            mz.route.start(routerParam);
-
-            this.emit('loaded');
-            this.loaded();
+            mz.route.start(routerParam, () => {
+                this.emit('loaded');
+                this.loaded();
+            });
         }
-
-        routeHistory: string[];
 
         loaded() {
 

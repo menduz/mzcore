@@ -1,6 +1,7 @@
 {
   "files": [
     "src/APP/AppController.ts",
+    "src/APP/Redux.ts",
     "src/AUTH/JWT.ts",
     "src/AUTH/OAuth2.ts",
     "src/CORE/AMD/Define.ts",
@@ -11,6 +12,7 @@
     "src/CORE/DOM.ts",
     "src/CORE/DOM/DOM.ts",
     "src/CORE/DOM/DOM_BrowserImpl.ts",
+    "src/CORE/DOM/MicroQueue.ts",
     "src/CORE/Date.ts",
     "src/CORE/Decorators.ts",
     "src/CORE/EventDispatcher.ts",
@@ -23,6 +25,7 @@
     "src/CORE/Xr.ts",
     "src/TSD/JQuery.d.ts",
     "src/TSD/Promise.d.ts",
+    "src/UIKIT/Blocks.ts",
     "src/VIEW/CSS.ts",
     "src/VIEW/DIRECTIVES/MzIf.ts",
     "src/VIEW/DIRECTIVES/MzModel.ts",
@@ -35,6 +38,7 @@
     "src/VIEW/TextNode.ts",
     "src/VIEW/Tmpl.ts",
     "src/VIEW/Widget.ts",
+    "src/WIDGETS/mz-form.ts",
     "src/WIDGETS/mz-repeat.ts",
     "src/WIDGETS/mz-switcher.ts",
     "src/mz.ts"
