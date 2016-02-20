@@ -43,41 +43,102 @@ namespace mz.redux {
         subscribe(listener: Function): Function;
     }
 
-    export function connectWidget(selector: (state) => any, store: IStore) {
-        return function(target: Function) : void {
+    export var PropertyChangeOnValueMutation: PropertyDecorator = function(target: Object, propertyKey: string | symbol) {
+        var prevProp = Reflect.getPropertyDescriptor(target, propertyKey as string);
+
+        var newProp : PropertyDescriptor = {};
+
+        if (prevProp && prevProp.get && prevProp.set) {
+            newProp.get = prevProp.get;
+            newProp.set = function(value) {
+                if (!shallowEqual(value, prevProp.get.call(this)))
+                    prevProp.set.call(this, value);
+            }
+        } else if (!prevProp || prevProp.value) {
+            var blackboxedValue = prevProp && prevProp.value;
+            newProp.get = () => blackboxedValue;
+            newProp.set = (value) => {
+                if (!shallowEqual(value, blackboxedValue))
+                    blackboxedValue = value;
+            }
+        } else {
+            console.warn("@mz.redux.PropertyChangeOnValueMutation over " + propertyKey.toString() + " invalidated due malformed property", prevProp);
+            return;
+        }
+
+        if (delete target[propertyKey])
+            Object.defineProperty(target, propertyKey as string, newProp);
+    }
+
+    export var PropertyChangeOnReferenceMutation: PropertyDecorator = function(target: Object, propertyKey: string | symbol) {
+        var prevProp = Reflect.getPropertyDescriptor(target, propertyKey as string);
+
+        var newProp: PropertyDescriptor = prevProp ? {
+            writable: prevProp.writable,
+            enumerable: prevProp.enumerable,
+            configurable: prevProp.configurable
+        } : {};
+
+        if (prevProp && prevProp.get && prevProp.set) {
+            newProp.get = prevProp.get;
+            newProp.set = function(value) {
+                if (value === prevProp.get.call(this))
+                    prevProp.set.call(this, value);
+            }
+        } else if (!prevProp || prevProp.value) {
+            var blackboxedValue = prevProp && prevProp.value;
+            newProp.get = () => blackboxedValue;
+            newProp.set = (value) => {
+                if (value !== blackboxedValue)
+                    blackboxedValue = value;
+            }
+        } else {
+            console.warn("@mz.redux.PropertyChangeOnReferenceMutation over " + propertyKey.toString() + " invalidated due malformed property ", prevProp);
+            return;
+        }
+
+        Object.defineProperty(target, propertyKey as string, newProp);
+    }
+
+    export function connectWidget(selector: (state) => any, store: IStore): ClassDecorator {
+        return function <T extends Function>(target: Function): T | void {
 
             if (!store)
-                return console.error("redux store not fund");
+                return console.error("redux store not found");
 
             target.prototype.redux_selector = selector;
             target.prototype.redux_store = store;
             target.prototype.unsubscribe_redux = function() { }
 
-            
-
             var componentInitialized = target.prototype.componentInitialized;
-            
+
+            PropertyChangeOnValueMutation(target.prototype, 'scope');
+
             target.prototype.componentInitialized = function() {
                 var that = this;
-            
+
                 this.unsubscribe_redux = store.subscribe(function() {
                     try {
                         let newScope = selector(store.getState());
                         let oldScope = that.scope;
 
-                        if ((!oldScope || !newScope) && oldScope != newScope || !shallowEqual(oldScope, newScope))
-                            that.scope = newScope;
+                        // check if we should update the widget's scope
+                        // redux is not intended to use references, so we'll check the values
+                        
+                        //if (!shallowEqual(oldScope, newScope)) replaced by -> PropertyChangeOnValueMutation
+                        that.scope = newScope;
+
                     } catch (e) {
                         console.error(e);
                     }
                 });
-            
+
                 try {
                     this.scope = selector(store.getState());
                 } catch (e) {
                     console.error(e);
                 }
-            
+
                 componentInitialized && componentInitialized.apply(this, arguments);
             }
 
@@ -98,6 +159,18 @@ namespace mz.redux {
         if (objA === objB) {
             return true
         }
+
+        let typeA = typeof objA;
+        let typeB = typeof objB;
+
+        if (typeA !== typeB)
+            return false;
+
+        if (typeA != 'object' || typeB != 'object')
+            return objA == objB;
+
+        if ((objA === null) != (objB === null))
+            return false;
 
         const keysA = Object.keys(objA)
         const keysB = Object.keys(objB)
@@ -389,6 +462,8 @@ namespace mz.redux {
         // the initial state tree.
         dispatch({ type: ActionTypes.INIT })
 
+
+
         return {
             dispatch,
             subscribe,
@@ -525,26 +600,26 @@ namespace mz.redux {
             
         // object filter, match properties
         if (typeof filter === 'object')
-            return function (data) {
+            return function(data) {
                 if (typeof data !== 'object')
                     return false;
-                    
+
                 for (var n in filter)
                     if (filter[n] !== data[n])
                         return false;
-                        
+
                 return true;
             }
         
         // value filter, equal data or equal type property
-        return function (data) { 
+        return function(data) {
             if (data && typeof data === 'object')
                 return data.type === filter;
-                
-            return data === filter; 
+
+            return data === filter;
         };
     }
-    
+
     export interface Manager {
         when: (filter: Object | Function | String, fn: Reducer) => Manager,
         otherwise: (fn: Reducer) => Manager,
@@ -556,51 +631,58 @@ namespace mz.redux {
         var steps = [];
         var owfn = null;
 
-        let when = function (filter: Object | Function | String, fn: Reducer) {
+        let when = function(filter: Object | Function | String, fn: Reducer) {
+
             steps.push({ filter: makeFilter(filter), fn: fn });
             return reducer;
         }
-        
-        let otherwise = function (fn: Reducer) {
+
+        let otherwise = function(fn: Reducer) {
             owfn = fn;
             return reducer;
         }
-        
-        let use = function (fn: Reducer) {
+
+        let use = function(fn: Reducer) {
             steps.push({ fn: fn });
             return reducer;
         }
 
-        var reducer : Reducer & Manager = function (state: any, data: any) {
+        var reducer: Reducer & Manager = function(state: any, action: any) {
             var l = steps.length;
             var currentState = state;
             var processed = false;
-            
+
             for (var k = 0; k < l; k++) {
                 var step = steps[k];
-                
-                if (!step.filter || step.filter(data)) {
-                    var newState = step.fn(currentState, data);
-                    
+
+                if (!step.filter || step.filter(action)) {
+                    var newState = step.fn(currentState, action);
+
+                    if (typeof newState === 'undefined') {
+                        var errorMessage = getUndefinedStateErrorMessage(k, action)
+                        console.error(step);
+                        throw new Error(errorMessage)
+                    }
+
                     if (newState !== currentState)
                         processed = true;
-                        
+
                     currentState = newState;
                 }
             }
-            
+
             if (owfn && !processed)
-                return owfn(currentState, data);
-            
+                return owfn(currentState, action);
+
             return currentState;
         } as any;
 
         reducer.when = when;
-        
+
         reducer.otherwise = otherwise;
-        
+
         reducer.use = use;
-        
+
         return reducer;
     }
 }
