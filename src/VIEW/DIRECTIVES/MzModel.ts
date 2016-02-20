@@ -168,6 +168,9 @@ namespace mz.widgets {
 
         @mz.Widget.Attribute
         disabled: boolean;
+        
+        @mz.Widget.Attribute
+        required: boolean;
 
         @mz.Widget.Attribute
         visible: boolean;
@@ -178,7 +181,7 @@ namespace mz.widgets {
             }
         }
 
-        checkValid(formData: any): boolean {
+        isValid(): boolean {
             return true;
         }
     }
