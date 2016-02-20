@@ -182,10 +182,15 @@ module mz {
         if (node instanceof CDATASection) {
             return <any>mz.dom.adapter.createTextNode(node.nodeValue);
         }
+        
+        
 
         var hasScope = arguments.length == 4;
 
         if (node.nodeValue) {
+            
+            if(node.nodeType == node.COMMENT_NODE) return;
+            
             var value = node.nodeValue;
 
             if (value.trim().length === 0) {
