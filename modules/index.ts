@@ -8,10 +8,15 @@ mz.alias("views", module.getPath("./views"));
 declare var hljs;
 
 
-@mz.AttributeDirective.Register('syntax')
+@mz.AttributeDirective.Register('syntax-from')
 class SyntaxHighlighter extends mz.AttributeDirective {
-    mount() {
-        requestAnimationFrame(() => hljs.highlightBlock(this.widget.rootNode));
+    changed(value){
+        $.get(value,data => {
+            
+            
+            this.widget.rootNode.textContent = data.toString();
+            requestAnimationFrame(() => hljs.highlightBlock(this.widget.rootNode));
+        }, 'text');
     }
 }
 
@@ -39,5 +44,8 @@ class Index extends mz.app.PageCoordinator {
         
     }
 }
+
+
+
 var app = new Index();
 export = {};

@@ -43,21 +43,21 @@
                 <li><a href="https://github.com/menduz/mzcore/wiki/Widget#proxy">Sharing data between Views and Widgets</a></li>
                 <li><a href="https://github.com/menduz/mzcore/wiki/Widget#expressions">Template expressions</a></li>
                 <li><a href="https://github.com/menduz/mzcore/wiki/mz-repeat"><code>&lt;mz-repeat&gt;</code> tag</a></li>
-                <li><a href="https://github.com/menduz/mzcore/wiki/mz-visible"><code>mz-visible</code> attribute</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/Built-in-attributes#visible"><code>visible</code> attribute</a></li>
             </ul>
         </li>
         <li>
             <a href="https://github.com/menduz/mzcore/wiki/Forms">Forms</a>
             <ul style="margin-left: 1.6em">
                 <li><a href="https://github.com/menduz/mzcore/wiki/Forms#mz-model-attribute"><code>mz-model</code> attributte</a></li>
-                <li><a href="https://github.com/menduz/mzcore/wiki/Forms#mz-input-component">Creating custom input components</a></li>
+                <li><a href="https://github.com/menduz/mzcore/wiki/Forms#mzinput-component">Creating custom input components</a></li>
             </ul>
         </li>
         
         <li><a href="https://github.com/menduz/mzcore/wiki/MVCObject">MVCObject, the base of everythig</a></li>
         <li><a href="https://github.com/menduz/mzcore/wiki/Collections">Data collections</a></li>
         <li><a href="https://github.com/menduz/mzcore/wiki/Xr">Talking to servers (REST interface)</a></li>
-        <li><a href="https://github.com/menduz/mzcore/wiki/AppController">AppController, route/view manager for SPAs</a></li>
+        <li><a href="https://github.com/menduz/mzcore/wiki/PageCoordinator">PageCoordinator, route/view manager for SPAs</a></li>
     </ol>
     
     <h1>Examples</h1>

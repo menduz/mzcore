@@ -1,0 +1,123 @@
+<div>
+<style scoped="true">
+<![CDATA[
+    table {
+        padding: 0;
+    }
+    table tr {
+        border-top: 1px solid #cccccc;
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    table tr:nth-child(2n) {
+        background-color: #f8f8f8;
+    }
+
+    table tr th {
+        font-weight: bold;
+        border: 1px solid #cccccc;
+        text-align: left;
+        margin: 0;
+        padding: 6px 13px;
+    }
+
+    table tr td {
+        border: 1px solid #cccccc;
+        text-align: left;
+        margin: 0;
+        padding: 6px 13px;
+    }
+
+    table tr th :first-child, table tr td :first-child {
+        margin-top: 0;
+    }
+
+    table tr th :last-child, table tr td :last-child {
+        margin-bottom: 0;
+    }
+]]>
+</style>
+    <div style="padding: 15px 15px 100px 15px;">
+        <flex-row>
+            <flex-col col-width="200px">
+                <h3>Invoices</h3>
+                <mz-repeat list="{this.orderList}" tag="ul" class="filter-list">
+                    <li onclick="{this.selectOrder}" class="filter-item {selected: scope == this.selectedOrder}">
+                        <span class="count">${scope.Total}</span>
+                        {scope.Name}
+                    </li>
+                </mz-repeat>
+                <a onclick="{this.newOrder}" class="btn btn-sm">Add new order</a>
+            </flex-col>
+            <flex-col>
+                <div visible="{!this.selectedOrder}" class="blankslate" style="margin: 0 11px;">
+                    <h3>Select an invoice from the left bar</h3>
+                    <p>or <a onclick="{this.newOrder}">Add new one +</a></p>
+                </div>
+                <flex-row visible="{!!this.selectedOrder}">
+                    <flex-col style="padding: 0 11px;">
+                        <h3>Invoice details</h3>
+                        <table style="width:100%">
+
+                            <tr>
+                                <th>Product</th>
+                                <th>Quantity</th>
+                                <th>Unitary price</th>
+                                <th>Actions</th>
+                            </tr>
+
+                            <mz-repeat list="{this.selectedOrder.Details}" tag="tbody">
+                                <tr>
+                                    <td>{scope.Product}</td>
+                                    <td>{scope.Qty}</td>
+                                    <td>{scope.UnitaryPrice}</td>
+                                    <td>
+                                        <a onclick="{this.selectOrderDetail}" visible="{this.selectedOrderDetail != scope}" class="btn btn-sm">Edit</a>
+                                        <b visible="{this.selectedOrderDetail == scope}">Editing!</b>
+                                    </td>
+                                </tr>
+                            </mz-repeat>
+                        </table>
+                    </flex-col>
+                    <flex-col col-width="250px">
+                        <div visible="{!!this.selectedOrderDetail}">
+                            <h3>Editing order detail</h3>
+                            <div  style="border: 1px solid #e5e5e5;border-radius: .25rem .25rem 0 0;padding:7px;">
+                                <dl class="form">
+                                    <dt><label>Product</label></dt>
+                                    <dd><input mz-model="selectedOrderDetail.Product" type="text" /></dd>
+                                </dl>
+                                <dl class="form">
+                                    <dt><label>Quantity</label></dt>
+                                    <dd><input mz-model="selectedOrderDetail.Qty" type="number" /></dd>
+                                </dl>
+                                <dl class="form">
+                                    <dt><label>UnitaryPrice</label></dt>
+                                    <dd><input mz-model="selectedOrderDetail.UnitaryPrice" type="number" /></dd>
+                                </dl>
+                                
+                                <div class="form-actions">
+                                    <button onclick="{this.newOrderDetail}" class="btn btn-primary btn-sm">Add another detail</button>
+                                    <button onclick="{this.closeOrderDetail}" type="button" class="btn btn-sm">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div visible="{!this.selectedOrderDetail}" class="blankslate">
+                            <h3>Select an order detail</h3>
+                            <p>or <button onclick="{this.newOrderDetail}" class="btn btn-sm">Add new detail</button></p>
+                        </div>
+                    </flex-col>
+                </flex-row>
+            </flex-col>
+        </flex-row>   
+    </div>   
+     
+    <h3>order-form.xml</h3> 
+    <pre lang="xml" syntax-from="modules/examples/order-form/order-form.xml" />
+
+    <h3>order-form.ts</h3>
+    <pre lang="typescript" syntax-from="modules/examples/order-form/order-form.ts" />
+
+</div>

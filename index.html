@@ -82,6 +82,8 @@
         mz.require.route("underscore", "bower_components/underscore/underscore.js");
         mz.require.route("backbone", "bower_components/backbone/backbone.js");
         
+        var createStore = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
+        
         require('modules/index', function() {
             console.log('Main page loaded!');
         });
@@ -99,13 +101,29 @@
                         </a>
                     </nav>
 
-
-
                     <nav class="nav-group">
                         <h5 class="nav-group-title">Examples</h5>
-                        <a class="nav-group-item" href="#!examples/todo">
-                            <span class="icon icon-list"></span> To do list
-                        </a>
+                        <div>
+                            <a class="nav-group-item" href="#!examples/todo">
+                                <span class="icon icon-list"></span> To do list
+                            </a>
+                        </div>
+                        <div>
+                            <a class="nav-group-item" href="#!examples/order-form">
+                                <span class="icon icon-list"></span> Invoice form
+                            </a>
+                        </div>
+                        <div>
+                            <a class="nav-group-item" href="#!examples/flex">
+                                <span class="icon icon-list"></span> Flex col/rows
+                            </a>
+                        </div>
+                        <h5 class="nav-group-title">Redux Examples</h5>
+                        <div>
+                            <a class="nav-group-item" href="#!examples/redux/inc-dec">
+                                <span class="icon icon-list"></span> Basic inc-dec
+                            </a>
+                        </div>
                     </nav>
 
                     <nav class="nav-group" visible="false">
@@ -135,11 +153,8 @@
                     <nav class="nav-group">
                         <h5 class="nav-group-title">Resources</h5>
                         <a class="nav-group-item" href="https://github.com/menduz/mzcore" target="_blank">
-                            <span class="icon icon-github"></span> Explore the source
+                            <span class="icon icon-github"></span> Explore the source on GitHub
                         </a>
-                        <span class="nav-group-item">
-                    <iframe src="https://ghbtns.com/github-btn.html?user=menduz&amp;repo=mzcore&amp;type=star&amp;count=true" frameborder="0" scrolling="0" width="170px" height="20px"></iframe>
-                    </span>
                     </nav>
                 </div>
                 <content class="main-content">

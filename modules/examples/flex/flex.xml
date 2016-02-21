@@ -1,0 +1,110 @@
+<div class="flex-col-exsample">
+<style>
+<![CDATA[
+    .flex-col-exsample .mz-flex-col {
+        border:1px solid black;
+    }
+    .flex-col-exsample h3 {margin-left: 11px;margin-top: 30px;}
+    .flex-col-exsample h1 {text-align: center}
+]]>
+</style>
+    <h1>&lt;flex-row&gt; and &lt;flex-col&gt; example</h1>
+    
+    <h3>One row, three auto cells</h3>
+
+    <flex-row>
+        <flex-col style="background: #eee">
+            col-width auto
+        </flex-col>
+        
+        <flex-col style="background: #eee">
+            col-width auto
+        </flex-col>
+        
+        <flex-col style="background: #eee">
+            col-width auto
+        </flex-col>
+    </flex-row>
+    
+    <h3>Dynamic sizing</h3>
+    
+    <div class="flash flash-with-icon" style="margin: 11px;">
+        <b>NOTE:</b>
+        All <span style="background: limegreen">limegreen</span> cells are toggled on odd seconds.
+        <code><![CDATA[<flex-col visible="{this.second % 2}"></flex-col>]]></code>
+    </div>
+
+    <flex-row>
+        <flex-col col-width="50%" style="background: pink">
+            col-width="50%"
+        </flex-col>
+        
+        <flex-col style="background: green">
+            col-width auto
+        </flex-col>
+        
+        <flex-col style="background: limegreen" visible="{this.second % 2}">
+            col-width auto
+        </flex-col>
+        
+        <flex-col col-width="100px" style="background: cyan">
+            col-width="100px"
+        </flex-col>
+    </flex-row>
+
+    <h3>Nested flex-row</h3>
+
+    <flex-row>
+        <flex-col col-width="20%" style="background: yellow">
+            col-width="20%"
+        </flex-col>
+        
+        <flex-col style="background: #eee">
+            Nested flex row:
+            <flex-row>
+                <flex-col col-width="50%" style="background: pink">
+                    col-width="50%"
+                </flex-col>
+                
+                <flex-col style="background: green">
+                    col-width auto
+                </flex-col>
+                
+                <flex-col style="background: limegreen" visible="{this.second % 2}">
+                    col-width auto
+                </flex-col>
+                
+                <flex-col style="background: cyan">
+                    col-width auto
+                </flex-col>
+            </flex-row>
+        </flex-col>
+        
+        <flex-col col-width="100px" style="background: cyan">
+            col-width="100px"
+        </flex-col>
+    </flex-row>
+    
+    
+    <h3>Parametrized sizing</h3>
+
+    <flex-row>
+        <flex-col col-width="{this.second + 20}%" style="background: pink">
+            col-width="\{this.second + 20}%" <code>col-width="{this.second + 10}%"</code>
+            
+        </flex-col>
+        
+        <flex-col style="background: green">
+            col-width auto
+        </flex-col>
+    </flex-row>
+
+
+    <h3 style="margin-top:100px">flex.ts</h3>
+    <pre lang="typescript" syntax-from="modules/examples/flex/flex.ts" />
+    
+    <h3>flex.xml</h3> 
+    <pre lang="xml" syntax-from="modules/examples/flex/flex.xml" />
+
+
+</div>

@@ -13,55 +13,66 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 define(["require", "exports"], function (require, exports) {
+    var defaultState = [
+        {
+            Name: 'Example task..',
+            Date: new Date().toISOString()
+        }, {
+            Name: 'Another task',
+            Date: new Date().toISOString()
+        }, {
+            Name: 'Remember the milk',
+            Date: new Date().toISOString()
+        }, {
+            Name: 'Learn Typescript',
+            Date: new Date().toISOString(),
+            Completed: true
+        }
+    ];
     var ToDo = (function (_super) {
         __extends(ToDo, _super);
         function ToDo(appController) {
             var _this = this;
             _super.call(this, appController);
-            /// TODO:
             this.elementCount = 0;
             this.todoText = '';
             this.todoList = new mz.Collection();
-            this.loadTemplate(module.getPath("./todo.xml"));
+            // completed tasks list
+            this.todoListCompleted = this.todoList.createView()
+                .filter(function (x) { return x.Completed; });
+            // pending tasks list
+            this.todoListPending = this.todoList.createView()
+                .filter(function (x) { return !x.Completed; });
             this.todoList.on('changed', function () { return _this.elementCount = _this.todoList.length; });
-            this.todoList.addRange([
-                {
-                    Name: 'Example task..',
-                    Date: new Date().toISOString()
-                }, {
-                    Name: 'Another task',
-                    Date: new Date().toISOString()
-                }, {
-                    Name: 'Remember the milk',
-                    Date: new Date().toISOString()
-                }, {
-                    Name: 'Learn Typescript',
-                    Date: new Date().toISOString()
-                }
-            ]);
+            this.todoList.addRange(defaultState);
         }
         ToDo.prototype.newToDo = function (e) {
             if (this.todoText && this.todoText.length) {
                 this.todoList.push({
                     Name: this.todoText,
-                    Date: new Date().toISOString()
+                    Date: new Date().toISOString(),
+                    Completed: false
                 });
                 this.todoText = null;
             }
             e.event.preventDefault();
         };
-        ToDo.prototype.taskFinished = function (e) {
-            if (e.$element.is(":checked"))
-                this.todoList.remove(e.data);
+        ToDo.prototype.updateTask = function (e) {
+            e.data.Completed = e.element.checked;
+            this.todoList.update(e.data);
         };
         __decorate([
-            mz.MVCObject.proxy, 
+            ToDo.proxy, 
             __metadata('design:type', Number)
         ], ToDo.prototype, "elementCount", void 0);
         __decorate([
-            mz.MVCObject.proxy, 
+            ToDo.proxy, 
             __metadata('design:type', String)
         ], ToDo.prototype, "todoText", void 0);
+        ToDo = __decorate([
+            ToDo.Template(module.getPath("./todo.xml")), 
+            __metadata('design:paramtypes', [Object])
+        ], ToDo);
         return ToDo;
     })(mz.app.Page);
     return ToDo;

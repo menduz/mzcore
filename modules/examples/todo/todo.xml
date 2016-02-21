@@ -3,94 +3,36 @@
         <h1 style="text-align:center">To do list</h1>
         
         
-        <form onsubmit="{newToDo}" style="margin: 0 30px">
+        <form onsubmit="{this.newToDo}" style="margin: 0 30px">
             <div class="form-group">
                 <input type="text" class="form-control" style="width: calc(100% - 100px)" placeholder="New entry..." mz-model="todoText"/>
-                <button class="btn {btn-positive: CBool(todoText)} pull-right btn-large" type="submit" style="width: 85px;margin-left:15px;" disabled="{!CBool(todoText)}">Add</button>
+                <button class="btn {btn-primary: !!todoText} pull-right btn-large" type="submit" style="width: 85px;margin-left:15px;" disabled="{!todoText}">Add</button>
             </div>
         </form>
         
         
-        <mz-repeat tag="ul" list="{todoList}" style="padding: 1em 32px;">
+        <mz-repeat tag="ul" list="{this.todoListPending}" style="padding: 1em 32px;">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" onclick="{taskFinished}" /> {scope.Name}
+                    <input type="checkbox" onclick="{updateTask}" checked="{scope.Completed}" /> {scope.Name}
+                </label>
+            </div>
+        </mz-repeat>
+        
+        <h3 style="text-align:center">Completed tasks</h3>
+        
+        <mz-repeat tag="ul" list="{this.todoListCompleted}" style="padding: 1em 32px;">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" onclick="{updateTask}" checked="{scope.Completed}" /> {scope.Name}
                 </label>
             </div>
         </mz-repeat>
     </div>
-            
-    <pre lang="xml" syntax="YEAH!">
-        <h3>todo.xml</h3>
-<![CDATA[
-<h1>To do list</h1>
-
-<form onsubmit="\{this.newToDo}">
-    <input type="text" placeholder="New entry..." mz-model="todoText" />
     
-    <button class="btn \{btn-positive: this.todoText}" type="submit" disabled="\{this.todoText}"> 
-        Add
-    </button>
-</form>
+    <h3>todo.xml</h3> 
+    <pre lang="xml" syntax-from="modules/examples/todo/todo.xml" />
 
-<mz-repeat tag="ul" list="\{this.todoList}">
-    <input type="checkbox" onclick="\{this.taskFinished}" /> 
-        {scope.Name}
-</mz-repeat>
-]]></pre>
-    <pre lang="typescript" syntax="YEAH!">
-        <h3>todo.ts</h3>
-<![CDATA[
-// 
-class ToDo extends mz.widgets.BasePagelet \{
-    @mz.MVCObject.proxy
-    elementCount: number = 0;
-
-    @mz.MVCObject.proxy
-    todoText: string = '';
-
-    todoList = new mz.Collection<any>;
-
-    constructor() \{
-        super();
-
-        this.loadTemplate("@views/todo.xml")
-
-        this.todoList.on('changed', () => this.elementCount = this.todoList.length);
-
-        this.todoList.addRange([
-            \{
-                Name: 'Example task..',
-                Date: new Date().toISOString()
-            }, \{
-                Name: 'Another task',
-                Date: new Date().toISOString()
-            }, \{
-                Name: 'Remember the milk',
-                Date: new Date().toISOString()
-            }, \{
-                Name: 'Learn Typescript',
-                Date: new Date().toISOString()
-            }
-        ]);
-    }
-
-    newToDo(e: mz.IMZComponentEvent) \{
-        if (this.todoText &amp;&amp; this.todoText.length) \{
-            this.todoList.push(\{
-                Name: this.todoText,
-                Date: new Date().toISOString()
-            \});
-            this.todoText = null;
-        }
-        e.event.preventDefault();
-    }
-
-    taskFinished(e: mz.IMZComponentEvent) \{
-        if (e.$element.is(":checked"))
-            this.todoList.remove(e.data);
-    }
-}
-]]>
-    </pre>
+    <h3>todo.ts</h3>
+    <pre lang="typescript" syntax-from="modules/examples/todo/todo.ts" />
 </div>

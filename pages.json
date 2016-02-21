@@ -26,5 +26,36 @@
                 "route": "!examples/todo"
             }
         ]
+    },
+    {
+        "name": "examples-order-form",
+        "module": "modules/examples/order-form/order-form",
+        "routes": [
+            {
+                "name": "order-form",
+                "route": "!examples/order-form"
+            }
+        ]
+    },
+    {
+        "name": "examples-flex",
+        "module": "modules/examples/flex/flex",
+        "routes": [
+            {
+                "name": "flex",
+                "route": "!examples/flex"
+            }
+        ]
+    },
+    {
+        "name": "examples-redux-inc-dec",
+        "module": "modules/examples/redux/inc-dec",
+        "routes": [
+            {
+                "name": "redux-inc-dec",
+                "route": "!examples/redux/inc-dec"
+            }
+        ]
     }
+    
 ]

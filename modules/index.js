@@ -22,12 +22,15 @@ define(["require", "exports", "bower_components/markdown-it/dist/markdown-it.min
         function SyntaxHighlighter() {
             _super.apply(this, arguments);
         }
-        SyntaxHighlighter.prototype.mount = function () {
+        SyntaxHighlighter.prototype.changed = function (value) {
             var _this = this;
-            requestAnimationFrame(function () { return hljs.highlightBlock(_this.widget.rootNode); });
+            $.get(value, function (data) {
+                _this.widget.rootNode.textContent = data.toString();
+                requestAnimationFrame(function () { return hljs.highlightBlock(_this.widget.rootNode); });
+            }, 'text');
         };
         SyntaxHighlighter = __decorate([
-            mz.AttributeDirective.Register('syntax'), 
+            mz.AttributeDirective.Register('syntax-from'), 
             __metadata('design:paramtypes', [])
         ], SyntaxHighlighter);
         return SyntaxHighlighter;
