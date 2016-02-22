@@ -49,7 +49,14 @@ module mz.widgets {
         }
 
         private list_changed(list: IForEachable<any>, prevList: IForEachable<any>) {
-            if (list == prevList) return;
+
+
+
+            if (list && list == prevList) {
+                if (list instanceof mz.Collection) return;
+                this.redraw('refresh');
+                return;
+            }
 
             if (this.listenersLista) {
                 this.listenersLista.forEach(x => x.off());
@@ -58,7 +65,7 @@ module mz.widgets {
                 this.listenersLista = [];
             }
 
-            if (prevList) {
+            if (prevList && prevList != list) {
                 // clean current collection elements
                 prevList.forEach(this.delegateUnmountElements as any);
 
