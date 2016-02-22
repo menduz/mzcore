@@ -15,30 +15,31 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 define(["require", "exports"], function (require, exports) {
     var kreate_store = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
-    exports.store = kreate_store(function (state, action) {
-        switch (action.type) {
-            case 'inc':
-                return mz.copy({}, state, {
-                    ja: {
-                        valor: mz.intval(state.ja.valor) + 1,
-                        list: [{ val: "a" }, { val: "aaaaaa" }, { val: "c" }]
-                    }
-                });
-            case 'dec':
-                return mz.copy({}, state, {
-                    ja: {
-                        valor: mz.intval(state.ja.valor) - 1,
-                        list: [{ val: "a" }, { val: "dddd" }, { val: "c" }]
-                    }
-                });
-            default:
-                return state;
-        }
-    }, /* initial state */ {
+    var manager = mz.redux.createManager();
+    manager.when('inc', function (state, action) {
+        return mz.copy({}, state, {
+            ja: {
+                valor: mz.intval(state.ja.valor) + 1,
+                list: [{ val: "a" }, { val: "aaaaaa" }, { val: "c" }]
+            },
+            valor: mz.intval(state.valor) + 1
+        });
+    });
+    manager.when('dec', function (state, action) {
+        return mz.copy({}, state, {
+            ja: {
+                valor: mz.intval(state.ja.valor) - 1,
+                list: [{ val: "a" }, { val: "dddd" }, { val: "c" }]
+            },
+            valor: mz.intval(state.valor) + 1
+        });
+    });
+    exports.store = kreate_store(manager, /* initial state */ {
         ja: {
             valor: 'hola redux',
             list: [{ val: "a" }, { val: "b" }, { val: "c" }]
-        }
+        },
+        valor: null
     });
     var ReduxComponent = (function (_super) {
         __extends(ReduxComponent, _super);
@@ -53,11 +54,29 @@ define(["require", "exports"], function (require, exports) {
         };
         ReduxComponent = __decorate([
             mz.redux.connectWidget(function (state) { return state.ja; }, exports.store),
-            mz.Widget.Template("\n<div>\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">-</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li>{scope.val}</li>\n    </mz-repeat>\n</div>"), 
+            mz.Widget.Template("\n<div>Mensajes:\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">-</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li>{scope.val}</li>\n    </mz-repeat>\n</div>"), 
             __metadata('design:paramtypes', [])
         ], ReduxComponent);
         return ReduxComponent;
     })(mz.widgets.BasePagelet);
     (new ReduxComponent()).appendTo("body");
+    // store.subscribe(listener)
+    var ReduxComponent2 = (function (_super) {
+        __extends(ReduxComponent2, _super);
+        function ReduxComponent2() {
+            _super.apply(this, arguments);
+        }
+        __decorate([
+            ReduxComponent2.proxy, 
+            __metadata('design:type', Object)
+        ], ReduxComponent2.prototype, "scope", void 0);
+        ReduxComponent2 = __decorate([
+            mz.redux.connectWidget(function (state) { return state.valor; }, exports.store),
+            mz.Widget.Template("\n<div>\n    Cantidad mensajes: {scope}\n</div>"), 
+            __metadata('design:paramtypes', [])
+        ], ReduxComponent2);
+        return ReduxComponent2;
+    })(mz.widgets.BasePagelet);
+    (new ReduxComponent2()).appendTo("body");
 });
 //# sourceMappingURL=redux.js.map

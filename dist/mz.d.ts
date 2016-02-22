@@ -199,6 +199,7 @@ declare namespace mz {
         setValues(values: any | MVCObject, emit?: boolean): void;
         set(field: string, value: any, NoTrigerearChanged?: boolean): void;
         get(field: string): any;
+        touch(fieldName: string): void;
     }
 }
 declare namespace mz.MVCObject {
@@ -549,6 +550,8 @@ declare module mz {
         protected attrDirectives: Dictionary<AttributeDirective>;
         private _unwrapedComponent;
         defaultTemplate: string;
+        selectorTemplate: string;
+        remoteTemplate: string;
         scope: any;
         scope_changed(scope: any): void;
         private _cachedDOM;
@@ -784,6 +787,12 @@ declare namespace mz.app {
     }
 }
 declare namespace mz.redux {
+    namespace stateHelpers {
+        function cloneArray<T>(array: IForEachable<T>): Array<T>;
+        function cloneArrayAndPush<T>(array: IForEachable<any>, element: any): Array<T>;
+        function cloneDeep<T>(object: T): T;
+        function cloneShallow<T>(object: T): T;
+    }
     interface IAppState {
     }
     namespace ActionTypes {
@@ -815,7 +824,9 @@ declare namespace mz.redux {
         getState(): IAppState;
         subscribe(listener: Function): Function;
     }
-    function connectWidget(selector: (state) => any, store: IStore): (target: Function) => void;
+    var PropertyChangeOnValueMutation: PropertyDecorator;
+    var PropertyChangeOnReferenceMutation: PropertyDecorator;
+    function connectWidget(selector: (state) => any, store: IStore): ClassDecorator;
     function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
     function shallowEqual(objA: any, objB: any): boolean;
     /**
@@ -1627,6 +1638,7 @@ declare namespace Reflect {
     var MetadataInfo: string | symbol;
     function metadata(metadataKey: any, metadataValue: any): any;
     function setObjectSymbol<T>(target: Object, symbol: string | symbol, value: T): T;
+    var getPropertyDescriptor: (o: Object, name: string) => PropertyDescriptor;
 }
 declare module mz {
     interface RouterOptions {
@@ -1719,9 +1731,10 @@ declare namespace mz.widgets {
     class MzInput extends mz.Widget {
         value: any;
         disabled: boolean;
+        required: boolean;
         visible: boolean;
         focus(): void;
-        checkValid(formData: any): boolean;
+        isValid(): boolean;
     }
 }
 declare class MzRawDirective extends mz.AttributeDirective {

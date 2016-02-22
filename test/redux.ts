@@ -2,39 +2,42 @@
 
 var kreate_store : typeof mz.redux.createStore = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
 
+var manager = mz.redux.createManager();
 
-export var store = kreate_store(function(state, action) {
-    switch (action.type) {
+manager.when('inc', function(state, action){
+    return mz.copy({}, state, {
+        ja: {
+            valor: mz.intval(state.ja.valor) + 1,
+            list: [{ val: "a" }, { val: "aaaaaa" }, { val: "c" }]
+        },
+        valor:  mz.intval(state.valor) + 1
+    });
+});
 
-        case 'inc':
-            return mz.copy({}, state, {
-                ja: {
-                    valor: mz.intval(state.ja.valor) + 1,
-                    list: [{ val: "a" }, { val: "aaaaaa" }, { val: "c" }]
-                }
-            });
-        case 'dec':
-            return mz.copy({}, state, {
-                ja: {
-                    valor: mz.intval(state.ja.valor) - 1,
-                    list: [{ val: "a" }, { val: "dddd" }, { val: "c" }]
-                }
-            });
-        default:
-            return state;
-    }
-}, /* initial state */
+manager.when('dec', function(state, action){
+    return mz.copy({}, state, {
+        ja: {
+            valor: mz.intval(state.ja.valor) - 1,
+            list: [{ val: "a" }, { val: "dddd" }, { val: "c" }]
+        },
+        valor:  mz.intval(state.valor) + 1
+    });
+});
+
+
+export var store = kreate_store(manager, /* initial state */
     {
         ja: {
             valor: 'hola redux',
             list: [{ val: "a" }, { val: "b" }, { val: "c" }]
-        }
+        },
+        valor: null
     }
 );
 
 @mz.redux.connectWidget(state => state.ja, store)
 @mz.Widget.Template(`
-<div>
+<div>Mensajes:
     <button onclick="{this.inc}">+</button>
     <button onclick="{this.dec}">-</button>
     {scope.valor}
@@ -52,4 +55,35 @@ class ReduxComponent extends mz.widgets.BasePagelet {
 }
 
 (new ReduxComponent()).appendTo("body");
+
+
+
+
+
+
+
+
+// store.subscribe(listener)
+
+
+
+
+
+
+
+
+
+
+
+@mz.redux.connectWidget(state => state.valor, store)
+@mz.Widget.Template(`
+<div>
+    Cantidad mensajes: {scope}
+</div>`)
+class ReduxComponent2 extends mz.widgets.BasePagelet { 
+    @ReduxComponent2.proxy
+    scope: mz.Dictionary<number>;
+}
+
+(new ReduxComponent2()).appendTo("body");
 

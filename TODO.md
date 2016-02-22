@@ -12,11 +12,11 @@ Dev
 - [*] `@mz.app.AppController.RouteName` decorator
 - [*] Allow `<mz-repeat>` to use anything IForEachable as list
 - [ ] Register template from `<template id="my_custom_view">` using `@mz.Widget.Template("#my_custom_view")`
-- [ ] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
-- [ ] redux experiment
+- [*] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
+- [*] redux experiment
 - [*] read checked prop on checkboxs with mz-model
 - [*] read scope from option on selects with mz-model
-
+- [*] comments are parsed as text
 
 Tests
 -----
@@ -32,7 +32,7 @@ Tests
 
 UIKit
 -----
-- [ ] add `<flex-row>` and `<flex-col>` components
+- [*] add `<flex-row>` and `<flex-col>` components
 - [ ] add gridview
 - [ ] add contextMenu
 
