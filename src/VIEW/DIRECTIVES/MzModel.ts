@@ -66,8 +66,8 @@ class MzModelDirective extends mz.AttributeDirective {
             }
             listenVar = match[1];
         } else {
-            this.setter = function(value) {
-                this.component[value] = value;
+            this.setter = function(v) {
+                this.component[value] = v;
             }
             this.getter = function() {
                 return this.component[value];

@@ -137,7 +137,7 @@ namespace mz.widgets {
                     var err = null;
 
                     try {
-                        err = this.campos[i].checkValid(this.data);
+                        err = this.campos[i].isValid();
                     } catch (e) {
                         err = e;
                     }
