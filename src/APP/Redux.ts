@@ -1,6 +1,35 @@
 /// <reference path="../VIEW/Widget.ts" />
 
 namespace mz.redux {
+
+    export namespace stateHelpers {
+        export function cloneArray<T>(array: IForEachable<T>): Array<T> {
+            let newArray = new Array(array && array.length || 0);
+            array && array.forEach((item, index) => newArray[index] = item);
+            return newArray;
+        }
+
+        export function cloneArrayAndPush<T>(array: IForEachable<any>, element): Array<T> {
+            let newArray = cloneArray(array);
+            newArray.push(element);
+            return newArray;
+        }
+
+        export function cloneDeep<T>(object: T): T {
+            return JSON.parse(JSON.stringify(object));
+        }
+
+        export function cloneShallow<T>(object: T): T {
+            let target = {};
+            for (var i in object) {
+                if (object.hasOwnProperty(i)) {
+                    target[i] = object[i];
+                }
+            }
+            return target as T;
+        }
+    }
+
     export interface IAppState {
 
     }
@@ -46,7 +75,7 @@ namespace mz.redux {
     export var PropertyChangeOnValueMutation: PropertyDecorator = function(target: Object, propertyKey: string | symbol) {
         var prevProp = Reflect.getPropertyDescriptor(target, propertyKey as string);
 
-        var newProp : PropertyDescriptor = {};
+        var newProp: PropertyDescriptor = {};
 
         if (prevProp && prevProp.get && prevProp.set) {
             newProp.get = prevProp.get;
