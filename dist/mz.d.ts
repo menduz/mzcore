@@ -1721,11 +1721,12 @@ declare class MzModelDirective extends mz.AttributeDirective {
     componentBinding: mz.EventDispatcherBinding;
     widgetValueBinding: mz.EventDispatcherBinding;
     setter: (value) => void;
+    touch: () => void;
     getter: () => any;
     private delayedBinding;
     unmount(): void;
     private teardown();
-    changed(value: string, prevVal: string): void;
+    changed(destinationField: string, prevVal: string): void;
 }
 declare namespace mz.widgets {
     class MzInput extends mz.Widget {
@@ -1910,7 +1911,7 @@ declare namespace mz.widgets {
         fieldIsVisible(fieldName: string): boolean;
         focus(field?: string): void;
         errors: string[];
-        checkValid(): boolean;
+        isValid(): boolean;
         checkAll(noEmitAlert?: boolean): boolean;
         getDefaultValue(): T;
         resetForm(): T;

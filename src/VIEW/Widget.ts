@@ -480,10 +480,8 @@ module mz {
 
                     typeofValue = "boolean";
                 }
-                
-                let prevValue = this.get(attrName);
 
-                this.set(attrName, value);
+                let prevValue = this.get(attrName);
 
                 if (attrNameLower in AttributeDirective.directives && AttributeDirective.directives[attrNameLower]) {
                     if (!this.attrDirectives)
@@ -493,30 +491,35 @@ module mz {
                         this.attrDirectives[attrNameLower].value = value;
                     else
                         this.attrDirectives[attrNameLower] = new AttributeDirective.directives[attrNameLower](this, this._parentComponent, value);
-                } else if (boolAttr) {
-                    if (value) {
-                        if (!mz.dom.adapter.hasAttribute(this.rootNode, attrName))
-                            mz.dom.adapter.setAttribute(this.rootNode, attrName, attrName);
-                    } else {
-                        if (mz.dom.adapter.hasAttribute(this.rootNode, attrName))
-                            mz.dom.adapter.removeAttribute(this.rootNode, attrName);
-                    }
-                } else if (regexpOn.test(attrName) && typeofValue === "function" && value !== prevValue) {
-                    var cbName = regexpOn.exec(attrName)[1];
 
-                    if (/^on_/.test(attrName)){
-                        prevValue && this.off(cbName, prevValue);
-                        this.listening.push(this.on(cbName, value));
-                    } else {
-                        this.DOM.off(cbName);
-                        this.DOM.on(cbName, getJQueryEventWrapper(value, this));
-                    }
+                    this.set(attrName, this.attrDirectives[attrNameLower].value);
                 } else {
-                    if ((typeofValue === "string" || typeofValue === "number" || typeofValue === "boolean") && !(/^:/.test(attrName))) {
-                        if (attrNameLower in ignoredAttrs) return;
+                    this.set(attrName, value);
+                    if (boolAttr) {
+                        if (value) {
+                            if (!mz.dom.adapter.hasAttribute(this.rootNode, attrName))
+                                mz.dom.adapter.setAttribute(this.rootNode, attrName, attrName);
+                        } else {
+                            if (mz.dom.adapter.hasAttribute(this.rootNode, attrName))
+                                mz.dom.adapter.removeAttribute(this.rootNode, attrName);
+                        }
+                    } else if (regexpOn.test(attrName) && typeofValue === "function" && value !== prevValue) {
+                        var cbName = regexpOn.exec(attrName)[1];
 
-                        mz.dom.microqueue.setAttribute(this.rootNode, attrName, value);
-                        //mz.dom.adapter.setAttribute(this.rootNode, attrName, value);
+                        if (/^on_/.test(attrName)) {
+                            prevValue && this.off(cbName, prevValue);
+                            this.listening.push(this.on(cbName, value));
+                        } else {
+                            this.DOM.off(cbName);
+                            this.DOM.on(cbName, getJQueryEventWrapper(value, this));
+                        }
+                    } else {
+                        if ((typeofValue === "string" || typeofValue === "number" || typeofValue === "boolean") && !(/^:/.test(attrName))) {
+                            if (attrNameLower in ignoredAttrs) return;
+
+                            mz.dom.microqueue.setAttribute(this.rootNode, attrName, value);
+                            //mz.dom.adapter.setAttribute(this.rootNode, attrName, value);
+                        }
                     }
                 }
             }

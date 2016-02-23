@@ -32,7 +32,7 @@ namespace mz.widgets {
 
             this.startComponent();
             this.contentNode = this.contentNode || this.rootNode;
-            
+
             this.appendChildrens();
 
             this.defaults = <T>{};
@@ -84,10 +84,11 @@ namespace mz.widgets {
 
         private _findICampos(component: mz.Widget) {
             if (component != this) {
-                if (component instanceof MzInput && component !== this) {
+                if (component !== this) {
                     let fieldName = component.attr('field-name');
                     if (fieldName) {
-                        this.adoptInput(fieldName, component);
+                        this.adoptInput(fieldName, component as MzInput);
+                        return;
                     }
                 } else {
                     if (component.rootNode && component.rootNode.nodeName.toLowerCase() == "button" && (component.attr('mz-form-primary') || component.attr('type') === "submit")) {
@@ -96,9 +97,8 @@ namespace mz.widgets {
                 }
             }
 
-
             component && component.children && component.children.forEach(c => {
-                if (!(c instanceof MzForm) && c instanceof mz.Widget)
+                if (c instanceof mz.Widget)
                     this._findICampos(c);
             });
         }
@@ -119,7 +119,7 @@ namespace mz.widgets {
 
         errors: string[];
 
-        checkValid(): boolean {
+        isValid(): boolean {
             this.errors = [];
 
             var cumple = true;
@@ -162,7 +162,7 @@ namespace mz.widgets {
         }
 
         checkAll(noEmitAlert?: boolean): boolean {
-            let cumple = this.checkValid();
+            let cumple = this.isValid();
 
             if (this.errors.length) {
                 this.emit('error', this.errors);

@@ -29,6 +29,7 @@ class MzModelDirective extends mz.AttributeDirective {
     widgetValueBinding: mz.EventDispatcherBinding;
 
     setter: (value) => void;
+    touch: () => void;
     getter: () => any;
 
     private delayedBinding = null;
@@ -45,20 +46,23 @@ class MzModelDirective extends mz.AttributeDirective {
         this.delayedBinding = null;
     }
 
-    changed(value: string, prevVal: string) {
+    changed(destinationField: string, prevVal: string) {
         this.teardown();
 
-        if (value.length == 0) return;
+        if (destinationField.length == 0) return;
 
         var match: RegExpExecArray;
 
-        var listenVar = value;
+        var listenVar = destinationField;
 
-        if (match = MzModelDirective.point_expr.exec(value)) {
+        if (match = MzModelDirective.point_expr.exec(destinationField)) {
             this.setter = function(value) {
                 let obj = this.component[match[1]] || {};
                 obj[match[2]] = value;
                 this.component[match[1]] = obj;
+            }
+            this.touch = function() {
+                this.component.touch(match[1]);
             }
             this.getter = function() {
                 let obj = this.component[match[1]] || {};
@@ -67,10 +71,13 @@ class MzModelDirective extends mz.AttributeDirective {
             listenVar = match[1];
         } else {
             this.setter = function(v) {
-                this.component[value] = v;
+                this.component[destinationField] = v;
             }
             this.getter = function() {
-                return this.component[value];
+                return this.component[destinationField];
+            }
+            this.touch = function() {
+                this.component.touch(destinationField);
             }
         }
 
@@ -80,6 +87,8 @@ class MzModelDirective extends mz.AttributeDirective {
             this.widgetValueBinding = this.widget.on("value_changed", newVal => {
                 if (newVal != this.getter())
                     this.setter(newVal);
+                else
+                    this.touch();
             });
 
             this.componentBinding = this.component.on(listenVar + "_changed", () => {
@@ -97,6 +106,8 @@ class MzModelDirective extends mz.AttributeDirective {
                     let actualVal = !!(this.widget.rootNode as HTMLInputElement).checked;
                     if (actualVal != CBool(this.getter()))
                         this.setter(actualVal);
+                    else
+                        this.touch();
                 };
         
                 // detecto los cambios
@@ -116,6 +127,8 @@ class MzModelDirective extends mz.AttributeDirective {
 
                     if (actualVal != this.getter())
                         this.setter(actualVal);
+                    else
+                        this.touch();
                 };
         
                 // detecto los cambios
@@ -139,6 +152,8 @@ class MzModelDirective extends mz.AttributeDirective {
                     let actualVal = this.widget.DOM.val();
                     if (actualVal != this.getter())
                         this.setter(actualVal);
+                    else
+                        this.touch();
                 };
         
                 // detecto los cambios
@@ -168,7 +183,7 @@ namespace mz.widgets {
 
         @mz.Widget.Attribute
         disabled: boolean;
-        
+
         @mz.Widget.Attribute
         required: boolean;
 
