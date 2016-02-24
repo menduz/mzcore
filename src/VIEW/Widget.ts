@@ -81,8 +81,11 @@ module mz {
 
     var testScope = /^{scope\./;
 
+    const enableListener = function(listener: EventDispatcherBinding){
+        listener.enable()
+    }
 
-    function setScopeRecursive(list: any[], scope: any) {
+    function setScopeRecursiveAndEnableListeners(list: any[], scope: any) {
         for (let i = 0; i < list.length; i++) {
             let w = list[i];
             if (w) {
@@ -90,9 +93,11 @@ module mz {
                     w.scope = scope;
                     w.refreshScope();
                 } else if (w instanceof Widget) {
-                    w.children && w.children.length && setScopeRecursive(w.children as any, scope);
+                    w.children && w.children.length && setScopeRecursiveAndEnableListeners(w.children as any, scope);
+                    w.listening && w.listening.forEach(enableListener);
                     w.scope = scope;
                     w.refreshScope();
+                    
                 }
             }
         }
@@ -473,7 +478,7 @@ module mz {
             // check if i have an element from object pool
             if (this.scopedContentPool && this.scopedContentPool.length) {
                 let scopedContent = this.scopedContentPool.pop();
-                setScopeRecursive(scopedContent, scope);
+                setScopeRecursiveAndEnableListeners(scopedContent, scope);
                 return scopedContent;
             }
             
