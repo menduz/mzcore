@@ -171,7 +171,7 @@ namespace mz.dom.microqueue {
     }
 
     export function callback(cb) {
-        if (!enabled) { cb(); }
+        if (!enabled) { cb(); return; }
         theMicroDomTaskQueue.queueMicroTask({
             type: MicroQueueOpKind.CALLBACK,
             destination: cb
