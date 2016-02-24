@@ -104,4 +104,79 @@ QUnit.test("MVCObject, proxy", function (assert) {
     ev.test = 200;
     assert.equal(ev.get('test'), 200, '.set() then .get()');
 });
+QUnit.test("MVCObject, proxy and hooks", function (assert) {
+    var extended_mvcObject = (function (_super) {
+        __extends(extended_mvcObject, _super);
+        function extended_mvcObject() {
+            _super.apply(this, arguments);
+            this.test2 = -1;
+            this.test3 = 1;
+        }
+        extended_mvcObject.prototype.test_changed = function (val, prevVal) {
+            if (val === prevVal)
+                throw mz.MVCObject.Exception_PreventPropagation;
+            if (val == null || val == undefined)
+                throw mz.MVCObject.Exception_RollbackOperation;
+            if (val > 10)
+                return 10;
+            if (val < 0)
+                return 0;
+        };
+        extended_mvcObject.prototype.test2_changed = function (val, prevVal) {
+            if (val === prevVal)
+                throw mz.MVCObject.Exception_PreventPropagation;
+            if (val == null || val == undefined)
+                throw mz.MVCObject.Exception_RollbackOperation;
+            if (val > 10)
+                return 10;
+            if (val < 0)
+                return 0;
+        };
+        extended_mvcObject.prototype.test3_changed = function (val, prevVal) {
+            if (val === prevVal)
+                throw mz.MVCObject.Exception_PreventPropagation;
+            if (val == null || val == undefined)
+                throw mz.MVCObject.Exception_RollbackOperation;
+            if (val > 10)
+                return 10;
+            if (val < 0)
+                return 0;
+        };
+        __decorate([
+            mz.MVCObject.proxy, 
+            __metadata('design:type', Number)
+        ], extended_mvcObject.prototype, "test", void 0);
+        __decorate([
+            mz.MVCObject.proxy, 
+            __metadata('design:type', Number)
+        ], extended_mvcObject.prototype, "test2", void 0);
+        __decorate([
+            mz.MVCObject.proxy, 
+            __metadata('design:type', Number)
+        ], extended_mvcObject.prototype, "test3", void 0);
+        return extended_mvcObject;
+    })(mz.MVCObject);
+    var ev = new extended_mvcObject;
+    var calls = 0;
+    assert.ok(typeof ev.test === "undefined", 'Uninitialized values must start as undefined');
+    assert.equal(ev.test2, 0, 'On initialization values must be transformed');
+    assert.equal(ev.test3, 1, 'Defined values must start with a value');
+    ev.on('test_changed', function () { return calls++; });
+    ev.test = 1;
+    assert.equal(ev.test, 1, 'Property set');
+    assert.equal(calls, 1, 'Property set, event emited');
+    ev.test = ev.test;
+    assert.equal(ev.test, 1, 'Property set, same value');
+    assert.equal(calls, 1, 'Operation canceled, must not emit events');
+    ev.test = null;
+    assert.equal(ev.test, 1, 'Property set with invalid value, must rollback');
+    assert.equal(calls, 1, 'Operation rolled back');
+    ev.test = 100;
+    assert.equal(ev.test, 10, 'Property set with outranged value, must transform');
+    assert.equal(calls, 2, 'Transformation must emit events');
+    ev.once('test_changed', function (val) { return assert.equal(val, 2, 'Changed events'); });
+    ev.test = 2;
+    ev.once('test_changed', function (val) { return assert.equal(val, 10, 'Changed events, transformed'); });
+    ev.test = 11;
+});
 //# sourceMappingURL=events.js.map

@@ -9,8 +9,10 @@ namespace mz {
             setValues: "setValues",
             /// Triggered when a value is setted
             valueChanged: "valueChanged"
-        },
-            EventDispatcher.EVENTS);
+        }, EventDispatcher.EVENTS);
+        
+        static Exception_RollbackOperation = new Error("The change operation has been rolled back");
+        static Exception_PreventPropagation = new Error("The propagation events has been aborted");
 
         protected data: Dictionary<any> = {};
 
@@ -41,9 +43,23 @@ namespace mz {
             this.data[field] = value;
 
             var ch = field + '_changed';
+            var result;
 
-            if (ch in this && typeof this[ch] === 'function')
-                var result = this[ch](value, viejo);
+            if (ch in this && typeof this[ch] === 'function'){
+                try {
+                    result = this[ch](value, viejo);
+                } catch (e) {
+                    if(e === MVCObject.Exception_RollbackOperation){
+                        this.data[field] = viejo;
+                        return;
+                    }
+                    
+                    if(e === MVCObject.Exception_PreventPropagation) 
+                        return;
+                        
+                    throw e;
+                }
+            }
 
             if (typeof result !== "undefined") {
                 value = this.data[field] = result;
