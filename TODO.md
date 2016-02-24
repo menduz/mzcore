@@ -17,6 +17,7 @@ Dev
 - [*] read checked prop on checkboxs with mz-model
 - [*] read scope from option on selects with mz-model
 - [*] comments are parsed as text
+- [*] object pool for generateScopedContent
 
 Tests
 -----
@@ -29,6 +30,10 @@ Tests
 - [ ] mz-if
 - [ ] attr `visible` test
 - [*] mz-model attr
+- [ ] specially on mz-repeat, test scopedContentPoll
+- [*] MVCObject tests
+- [*] event dispatcher tests
+- [ ] test for object pool in mz-repeat, using arrays and mz.Collection 
 
 UIKit
 -----
