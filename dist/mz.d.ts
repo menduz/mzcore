@@ -196,11 +196,13 @@ declare namespace mz {
             setValues: string;
             valueChanged: string;
         } & {};
+        static Exception_RollbackOperation: Error;
+        static Exception_PreventPropagation: Error;
         protected data: Dictionary<any>;
         constructor(args?: any);
         getAll(): Dictionary<any>;
         setValues(values: any | MVCObject, emit?: boolean): void;
-        set(field: string, value: any, NoTrigerearChanged?: boolean): void;
+        set(field: string, value: any, PreventPropagation?: boolean): void;
         get(field: string): any;
         touch(fieldName: string): void;
     }

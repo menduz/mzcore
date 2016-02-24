@@ -1,26 +1,26 @@
 /// <reference path="../dist/mz.d.ts" />
 
-var kreate_store : typeof mz.redux.createStore = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
+var kreate_store: typeof mz.redux.createStore = mz.globalContext.devToolsExtension ? mz.globalContext.devToolsExtension()(mz.redux.createStore) : mz.redux.createStore;
 
 var manager = mz.redux.createManager();
 
-manager.when('inc', function(state, action){
+manager.when('inc', function(state, action) {
     return mz.copy({}, state, {
         ja: {
             valor: mz.intval(state.ja.valor) + 1,
             list: [{ val: "a" }, { val: "aaaaaa" }, { val: "c" }]
         },
-        valor:  mz.intval(state.valor) + 1
+        valor: mz.intval(state.valor) + 1
     });
 });
 
-manager.when('dec', function(state, action){
+manager.when('dec', function(state, action) {
     return mz.copy({}, state, {
         ja: {
             valor: mz.intval(state.ja.valor) - 1,
             list: [{ val: "a" }, { val: "dddd" }]
         },
-        valor:  mz.intval(state.valor) + 1
+        valor: mz.intval(state.valor) + 1
     });
 });
 
@@ -53,27 +53,27 @@ class ReduxComponent extends mz.widgets.BasePagelet {
     dec() {
         store.dispatch({ type: 'dec' });
     }
-    
+
     updateVal() {
         this.val = !this.val;
     }
-    
+
     @ReduxComponent.proxy
     val: boolean;
-    
+
     count = 0;
-    
-    testCaller(){
+
+    testCaller() {
         this.count++;
         return ' called-' + this.count;
     }
-    
-    componentInitialized(){
+
+    componentInitialized() {
         console.error('ReduxComponent.componentInitialized')
         setInterval(() => {
             this.count = 0;
             this.val = !this.val;
-            console.log(this.count, ' Updates');
+            //console.log(this.count, ' Updates');
         }, 3000);
     }
 }
@@ -104,7 +104,7 @@ class ReduxComponent extends mz.widgets.BasePagelet {
 <div style="color: {red: scope % 2 == 1, green: scope % 2 == 0}">
     Cantidad mensajes: {scope}
 </div>`)
-class ReduxComponent2 extends mz.widgets.BasePagelet { 
+class ReduxComponent2 extends mz.widgets.BasePagelet {
     @ReduxComponent2.proxy
     scope: number;
 }

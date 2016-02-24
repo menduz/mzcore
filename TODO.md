@@ -44,7 +44,7 @@ Tests
 - [ ] mz-if
 - [ ] attr `visible` test
 - [x] mz-model attr
-- [ ] specially on mz-repeat, test scopedContentPoll
+- [ ] specially on mz-repeat, test scopedContentPool
 - [x] MVCObject tests
 - [x] event dispatcher tests
 - [ ] test for object pool in mz-repeat, using arrays and mz.Collection 
