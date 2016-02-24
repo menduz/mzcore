@@ -21,7 +21,7 @@ namespace mz {
             args && this.setValues(args);
         }
 
-        getAll() { return this.data; }
+        getAll() { return mz.copy(this.data); }
 
         setValues(values: any | MVCObject, emit?: boolean) {
             if (values instanceof MVCObject) {
@@ -35,8 +35,8 @@ namespace mz {
             this.emit(MVCObject.EVENTS.setValues, this.data, values);
         }
 
-        set(field: string, value: any, NoTrigerearChanged?: boolean) {
-            if (!isDef(field)) return;
+        set(field: string, value: any, PreventPropagation?: boolean) {
+            if (typeof field === "undefined") return;
 
             var viejo = this.data[field];
 
@@ -67,7 +67,7 @@ namespace mz {
 
             this.emit(ch, this.data[field], viejo);
 
-            !NoTrigerearChanged && this.emit(MVCObject.EVENTS.valueChanged, this.data, field, this.data[field], viejo);
+            !PreventPropagation && this.emit(MVCObject.EVENTS.valueChanged, this.data, field, this.data[field], viejo);
         }
 
         get(field: string) {

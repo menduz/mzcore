@@ -18,6 +18,20 @@ Dev
 - [*] read scope from option on selects with mz-model
 - [*] comments are parsed as text
 - [*] object pool for generateScopedContent
+- [*] MVCObject hooks
+    ```typescript
+    class ValidatedMVCObject extends mz.MVCObject {
+        @mz.MVCObject.proxy
+        test: number;
+        
+        test_changed(val, prevVal){
+            if(val === prevVal) throw mz.MVCObject.Exception_PreventPropagation;
+            if(val == null || val == undefined) throw mz.MVCObject.Exception_RollbackOperation;
+            if(val > 10) return 10;
+            if(val < 0) return 0;
+        }
+    }
+    ```
 
 Tests
 -----
