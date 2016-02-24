@@ -81,6 +81,23 @@ module mz {
 
     var testScope = /^{scope\./;
 
+
+    function setScopeRecursive(list: any[], scope: any) {
+        for (let i = 0; i < list.length; i++) {
+            let w = list[i];
+            if (w) {
+                if (w instanceof widgets.TextNode) {
+                    w.scope = scope;
+                    w.refreshScope();
+                } else if (w instanceof Widget) {
+                    w.children && w.children.length && setScopeRecursive(w.children as any, scope);
+                    w.scope = scope;
+                    w.refreshScope();
+                }
+            }
+        }
+    }
+
     var containsScope = /[\{|\s|\(|\[]scope[\.|\s|\[|\(]/;
 
     var parser = new DOMParser();
@@ -225,12 +242,7 @@ module mz {
                         // catch other samples, ex: "$ {this.value + scope.value} {currency}"
                         childWidget.listening.push(component.on('valueChanged', function(data, elem, a, b) {
                             if (a != b && value.indexOf(elem) != -1) {
-                                let t = view.tmpl(value, component, scope || undefined);
-                                if (typeof t === "undefined" || t === null) t = '';
-                                //if (childWidget.rootNode.textContent != t) {
-                                //    childWidget.rootNode.textContent = t;
-                                //}
-                                mz.dom.microqueue.setText(childWidget.rootNode, t);
+                                childWidget.refreshScope();
                             }
                         }));
                     }
@@ -380,7 +392,7 @@ module mz {
             ComponentMounted: 'mount'
         }, mz.MVCObject.EVENTS)
 
-
+        private scopedContentPool: Widget[][];
 
         rootNode: Element;
         
@@ -457,7 +469,33 @@ module mz {
         }
 
         protected generateScopedContent(scope?): IChildWidget[] {
+            
+            // check if i have an element from object pool
+            if (this.scopedContentPool && this.scopedContentPool.length) {
+                let scopedContent = this.scopedContentPool.pop();
+                setScopeRecursive(scopedContent, scope);
+                return scopedContent;
+            }
+            
+            // elsewhere, let's create the object
             return getChildNodes(this.originalNode, this._params, this._parentComponent, scope || null);
+        }
+
+        protected releaseScopedContent(scopedContent: Widget[]) {
+            // create object poll if necesary
+            if (!this.scopedContentPool)
+                this.scopedContentPool = [];
+
+            for (var i = 0; i < scopedContent.length; i++) {
+                var e = scopedContent[i];
+                if (e.listening) {
+                    for (let evt = 0; evt < e.listening.length; evt++) {
+                        e.listening[evt].disable();
+                    }
+                }
+            }
+
+            this.scopedContentPool.push(scopedContent);
         }
 
         attr(attrName: string, value?: any) {
@@ -758,6 +796,19 @@ module mz {
 
             this.emit(Widget.EVENTS.ComponentUnmounted);
             this.off();
+
+            if (this.scopedContentPool) {
+                for (var i = 0; i < this.scopedContentPool.length; i++) {
+                    var p = this.scopedContentPool[i];
+                    for (var sub_i = 0; sub_i < p.length; sub_i++) {
+                        var element = p[sub_i];
+                        'unmount' in element && element.unmount()
+                    }
+                    p.length = 0;
+                }
+                this.scopedContentPool.length = 0;
+                delete this.scopedContentPool;
+            }
 
             for (let i of this.listening)
                 i && i.off && i.off();

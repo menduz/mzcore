@@ -68,7 +68,10 @@ module mz.widgets {
             if (prevList && prevList != list) {
                 // clean current collection elements
                 prevList.forEach(this.delegateUnmountElements as any);
-
+                
+               
+                this.detachAllNodes();
+            } else if (prevList != list) {
                 this.detachAllNodes();
             }
 
@@ -126,7 +129,8 @@ module mz.widgets {
 
         private delegateUnmountElements(elementoLista, at?) {
             if (elementoLista[this.collectionKey]) {
-                elementoLista[this.collectionKey].forEach(delegateUnmountElement);
+                //elementoLista[this.collectionKey].forEach(delegateUnmountElement);
+                this.releaseScopedContent(elementoLista[this.collectionKey]);
                 delete elementoLista[this.collectionKey];
             }
         }
