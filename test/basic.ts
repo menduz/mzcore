@@ -468,3 +468,32 @@ QUnit.test("Expressions", exprTests);
 QUnit.test("Expressions (cached, should be faster)", exprTests);
 
 
+
+QUnit.test("Expressions on templates", function(assert) {
+    @mz.Widget.ConfigureUnwrapped
+    @mz.Widget.Template(`<b class="{this.val_class}">{this.val}</b>`)
+    class HelloWorld extends mz.widgets.BasePagelet { 
+        @HelloWorld.proxy
+        val: string = 'passed';
+        
+        @HelloWorld.proxy
+        val_class: string = 'a';
+    }
+
+    var instance = new HelloWorld();
+
+    mz.dom.microqueue.flush();
+    assert.equal((instance.rootNode as HTMLElement).outerHTML, '<b class="a">passed</b>', 'Default proxyed property value');
+    
+    instance.val = 'a';
+    mz.dom.microqueue.flush();
+    assert.equal((instance.rootNode as HTMLElement).outerHTML, '<b class="a">a</b>', 'New property value');
+    
+    instance.val = null;
+    mz.dom.microqueue.flush();
+    assert.equal((instance.rootNode as HTMLElement).outerHTML, '<b class="a"></b>', 'Null property value');
+    
+    instance.val_class = 'b';
+    mz.dom.microqueue.flush();
+    assert.equal((instance.rootNode as HTMLElement).outerHTML, '<b class="b"></b>', 'Null property value');
+});

@@ -29,7 +29,7 @@ define(["require", "exports"], function (require, exports) {
         return mz.copy({}, state, {
             ja: {
                 valor: mz.intval(state.ja.valor) - 1,
-                list: [{ val: "a" }, { val: "dddd" }, { val: "c" }]
+                list: [{ val: "a" }, { val: "dddd" }]
             },
             valor: mz.intval(state.valor) + 1
         });
@@ -39,12 +39,13 @@ define(["require", "exports"], function (require, exports) {
             valor: 'hola redux',
             list: [{ val: "a" }, { val: "b" }, { val: "c" }]
         },
-        valor: null
+        valor: 0
     });
     var ReduxComponent = (function (_super) {
         __extends(ReduxComponent, _super);
         function ReduxComponent() {
             _super.apply(this, arguments);
+            this.count = 0;
         }
         ReduxComponent.prototype.inc = function () {
             exports.store.dispatch({ type: 'inc' });
@@ -52,9 +53,29 @@ define(["require", "exports"], function (require, exports) {
         ReduxComponent.prototype.dec = function () {
             exports.store.dispatch({ type: 'dec' });
         };
+        ReduxComponent.prototype.updateVal = function () {
+            this.val = !this.val;
+        };
+        ReduxComponent.prototype.testCaller = function () {
+            this.count++;
+            return ' called-' + this.count;
+        };
+        ReduxComponent.prototype.componentInitialized = function () {
+            var _this = this;
+            console.error('ReduxComponent.componentInitialized');
+            setInterval(function () {
+                _this.count = 0;
+                _this.val = !_this.val;
+                console.log(_this.count, ' Updates');
+            }, 3000);
+        };
+        __decorate([
+            ReduxComponent.proxy, 
+            __metadata('design:type', Boolean)
+        ], ReduxComponent.prototype, "val", void 0);
         ReduxComponent = __decorate([
             mz.redux.connectWidget(function (state) { return state.ja; }, exports.store),
-            mz.Widget.Template("\n<div>Mensajes:\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">-</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li>{scope.val}</li>\n    </mz-repeat>\n</div>"), 
+            mz.Widget.Template("\n<div>Mensajes:\n    <button onclick=\"{this.inc}\">+</button>\n    <button onclick=\"{this.dec}\">-</button>\n    {scope.valor}\n    <mz-repeat list=\"{scope.list}\" tag=\"ul\">\n        <li class=\"{this.testCaller().toString() + (this.val ? ' par' : ' inpar') + this.val}\" onclick=\"{this.updateVal}\">{scope.val}</li>\n        {scope.val}\n    </mz-repeat>\n</div>"), 
             __metadata('design:paramtypes', [])
         ], ReduxComponent);
         return ReduxComponent;
@@ -68,11 +89,11 @@ define(["require", "exports"], function (require, exports) {
         }
         __decorate([
             ReduxComponent2.proxy, 
-            __metadata('design:type', Object)
+            __metadata('design:type', Number)
         ], ReduxComponent2.prototype, "scope", void 0);
         ReduxComponent2 = __decorate([
             mz.redux.connectWidget(function (state) { return state.valor; }, exports.store),
-            mz.Widget.Template("\n<div>\n    Cantidad mensajes: {scope}\n</div>"), 
+            mz.Widget.Template("\n<div style=\"color: {red: scope % 2 == 1, green: scope % 2 == 0}\">\n    Cantidad mensajes: {scope}\n</div>"), 
             __metadata('design:paramtypes', [])
         ], ReduxComponent2);
         return ReduxComponent2;

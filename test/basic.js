@@ -426,4 +426,40 @@ function exprTests(assrt) {
 }
 QUnit.test("Expressions", exprTests);
 QUnit.test("Expressions (cached, should be faster)", exprTests);
+QUnit.test("Expressions on templates", function (assert) {
+    var HelloWorld = (function (_super) {
+        __extends(HelloWorld, _super);
+        function HelloWorld() {
+            _super.apply(this, arguments);
+            this.val = 'passed';
+            this.val_class = 'a';
+        }
+        __decorate([
+            HelloWorld.proxy, 
+            __metadata('design:type', String)
+        ], HelloWorld.prototype, "val", void 0);
+        __decorate([
+            HelloWorld.proxy, 
+            __metadata('design:type', String)
+        ], HelloWorld.prototype, "val_class", void 0);
+        HelloWorld = __decorate([
+            mz.Widget.ConfigureUnwrapped,
+            mz.Widget.Template("<b class=\"{this.val_class}\">{this.val}</b>"), 
+            __metadata('design:paramtypes', [])
+        ], HelloWorld);
+        return HelloWorld;
+    })(mz.widgets.BasePagelet);
+    var instance = new HelloWorld();
+    mz.dom.microqueue.flush();
+    assert.equal(instance.rootNode.outerHTML, '<b class="a">passed</b>', 'Default proxyed property value');
+    instance.val = 'a';
+    mz.dom.microqueue.flush();
+    assert.equal(instance.rootNode.outerHTML, '<b class="a">a</b>', 'New property value');
+    instance.val = null;
+    mz.dom.microqueue.flush();
+    assert.equal(instance.rootNode.outerHTML, '<b class="a"></b>', 'Null property value');
+    instance.val_class = 'b';
+    mz.dom.microqueue.flush();
+    assert.equal(instance.rootNode.outerHTML, '<b class="b"></b>', 'Null property value');
+});
 //# sourceMappingURL=basic.js.map

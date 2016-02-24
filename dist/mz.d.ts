@@ -168,21 +168,24 @@ declare namespace mz {
 }
 declare module mz {
     class EventDispatcherBinding {
-        id: string;
+        id: number;
         cb: any;
         evento: string;
-        sharedList: any;
+        sharedList: EventDispatcherBinding[];
         object: EventDispatcher;
+        enabled: boolean;
         off(): void;
+        enable(): void;
+        disable(): void;
     }
     class EventDispatcher {
         static EVENTS: {};
         private ed_bindeos;
-        private ed_bindeosTotales;
         private ed_bindCount;
-        on(event: string, callback: Function, once?: boolean): any;
-        once(event: string, callback: Function): any;
+        on(event: string, callback: Function, once?: boolean): EventDispatcherBinding;
+        once(event: string, callback: Function): EventDispatcherBinding;
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
+        protected cleanupTurnedOffEvents(): void;
         emit(event: string, ...params: any[]): any;
         trigger: (event: string, ...params: any[]) => any;
     }
@@ -538,6 +541,7 @@ declare module mz {
             setValues: string;
             valueChanged: string;
         } & {};
+        private scopedContentPool;
         rootNode: Element;
         contentNode: Element;
         originalNode: Node;
@@ -558,6 +562,7 @@ declare module mz {
         DOM: JQuery;
         constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
         protected generateScopedContent(scope?: any): IChildWidget[];
+        protected releaseScopedContent(scopedContent: Widget[]): void;
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
         find(selector: string): Element[];
@@ -773,11 +778,8 @@ declare namespace mz.app {
         loadingPage: boolean;
         routeHistory: string[];
         constructor(opc: {
-            templateUrl?: string;
-            templateHtml?: string;
             templateSelector?: string;
             pages: string | Array<IAppPage>;
-            pagesCollection?: mz.Collection<IAppPageModule>;
         });
         setPages(pages: Array<IAppPage>): void;
         loaded(): void;
@@ -1227,7 +1229,7 @@ declare namespace mz.oauth2 {
     function logout(): Promise<xr.XrResponse>;
     function login(username: string, password: string): Promise<xr.XrResponse>;
     function loggedIn(): boolean;
-    var on: (event: string, callback: Function, once?: boolean) => any;
+    var on: (event: string, callback: Function, once?: boolean) => EventDispatcherBinding;
     var emit: (event: string, ...params: any[]) => any;
     var off: (bindeo?: string | Function | EventDispatcherBinding, callback?: Function) => void;
 }

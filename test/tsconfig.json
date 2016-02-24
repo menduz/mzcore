@@ -1,7 +1,8 @@
 {
   "files": [
     "basic.ts",
-    "redux.ts"
+    "redux.ts",
+    "events.ts"
   ],
   "compilerOptions": {
     "noImplicitAny": false,
