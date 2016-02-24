@@ -66,7 +66,7 @@ define(["require", "exports"], function (require, exports) {
             setInterval(function () {
                 _this.count = 0;
                 _this.val = !_this.val;
-                console.log(_this.count, ' Updates');
+                //console.log(this.count, ' Updates');
             }, 3000);
         };
         __decorate([

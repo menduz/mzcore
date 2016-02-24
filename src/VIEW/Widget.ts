@@ -81,7 +81,7 @@ module mz {
 
     var testScope = /^{scope\./;
 
-    const enableListener = function(listener: EventDispatcherBinding){
+    const enableListener = function(listener: EventDispatcherBinding) {
         listener.enable()
     }
 
@@ -97,7 +97,7 @@ module mz {
                     w.listening && w.listening.forEach(enableListener);
                     w.scope = scope;
                     w.refreshScope();
-                    
+
                 }
             }
         }
@@ -493,6 +493,7 @@ module mz {
 
             for (var i = 0; i < scopedContent.length; i++) {
                 var e = scopedContent[i];
+                if (e.rootNode) mz.dom.adapter.remove(e.rootNode);
                 if (e.listening) {
                     for (let evt = 0; evt < e.listening.length; evt++) {
                         e.listening[evt].disable();
