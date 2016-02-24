@@ -57,6 +57,7 @@ namespace mz.dom.microqueue {
         microTaskQueueCapacity = 1024;
         requestFlushMicroTaskQueue: any;
         requestFlushTaskQueue: any;
+        flushing = false;
 
         constructor() {
             if (mz.globalContext.MutationObserver || mz.globalContext.WebKitMutationObserver) {
@@ -87,6 +88,8 @@ namespace mz.dom.microqueue {
             let index = 0;
             let task: MicroDomTask;
 
+            if (this.flushing) return;
+            this.flushing = true;
             try {
                 while (index < queue.length) {
                     task = queue[index];
@@ -131,7 +134,7 @@ namespace mz.dom.microqueue {
             } catch (error) {
                 onError(error);
             }
-
+            this.flushing = false;
             queue.length = 0;
         }
     }
@@ -168,7 +171,7 @@ namespace mz.dom.microqueue {
     }
 
     export function callback(cb) {
-        if (!enabled) { cb(); }
+        if (!enabled) { cb(); return; }
         theMicroDomTaskQueue.queueMicroTask({
             type: MicroQueueOpKind.CALLBACK,
             destination: cb

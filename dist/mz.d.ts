@@ -168,21 +168,24 @@ declare namespace mz {
 }
 declare module mz {
     class EventDispatcherBinding {
-        id: string;
+        id: number;
         cb: any;
         evento: string;
-        sharedList: any;
+        sharedList: EventDispatcherBinding[];
         object: EventDispatcher;
+        enabled: boolean;
         off(): void;
+        enable(): void;
+        disable(): void;
     }
     class EventDispatcher {
         static EVENTS: {};
         private ed_bindeos;
-        private ed_bindeosTotales;
         private ed_bindCount;
-        on(event: string, callback: Function, once?: boolean): any;
-        once(event: string, callback: Function): any;
+        on(event: string, callback: Function, once?: boolean): EventDispatcherBinding;
+        once(event: string, callback: Function): EventDispatcherBinding;
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
+        protected cleanupTurnedOffEvents(): void;
         emit(event: string, ...params: any[]): any;
         trigger: (event: string, ...params: any[]) => any;
     }
@@ -199,6 +202,7 @@ declare namespace mz {
         setValues(values: any | MVCObject, emit?: boolean): void;
         set(field: string, value: any, NoTrigerearChanged?: boolean): void;
         get(field: string): any;
+        touch(fieldName: string): void;
     }
 }
 declare namespace mz.MVCObject {
@@ -537,6 +541,7 @@ declare module mz {
             setValues: string;
             valueChanged: string;
         } & {};
+        private scopedContentPool;
         rootNode: Element;
         contentNode: Element;
         originalNode: Node;
@@ -549,12 +554,15 @@ declare module mz {
         protected attrDirectives: Dictionary<AttributeDirective>;
         private _unwrapedComponent;
         defaultTemplate: string;
+        selectorTemplate: string;
+        remoteTemplate: string;
         scope: any;
         scope_changed(scope: any): void;
         private _cachedDOM;
         DOM: JQuery;
         constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
         protected generateScopedContent(scope?: any): IChildWidget[];
+        protected releaseScopedContent(scopedContent: Widget[]): void;
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
         find(selector: string): Element[];
@@ -770,11 +778,8 @@ declare namespace mz.app {
         loadingPage: boolean;
         routeHistory: string[];
         constructor(opc: {
-            templateUrl?: string;
-            templateHtml?: string;
             templateSelector?: string;
             pages: string | Array<IAppPage>;
-            pagesCollection?: mz.Collection<IAppPageModule>;
         });
         setPages(pages: Array<IAppPage>): void;
         loaded(): void;
@@ -784,6 +789,12 @@ declare namespace mz.app {
     }
 }
 declare namespace mz.redux {
+    namespace stateHelpers {
+        function cloneArray<T>(array: IForEachable<T>): Array<T>;
+        function cloneArrayAndPush<T>(array: IForEachable<any>, element: any): Array<T>;
+        function cloneDeep<T>(object: T): T;
+        function cloneShallow<T>(object: T): T;
+    }
     interface IAppState {
     }
     namespace ActionTypes {
@@ -815,7 +826,9 @@ declare namespace mz.redux {
         getState(): IAppState;
         subscribe(listener: Function): Function;
     }
-    function connectWidget(selector: (state) => any, store: IStore): (target: Function) => void;
+    var PropertyChangeOnValueMutation: PropertyDecorator;
+    var PropertyChangeOnReferenceMutation: PropertyDecorator;
+    function connectWidget(selector: (state) => any, store: IStore): ClassDecorator;
     function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
     function shallowEqual(objA: any, objB: any): boolean;
     /**
@@ -1216,7 +1229,7 @@ declare namespace mz.oauth2 {
     function logout(): Promise<xr.XrResponse>;
     function login(username: string, password: string): Promise<xr.XrResponse>;
     function loggedIn(): boolean;
-    var on: (event: string, callback: Function, once?: boolean) => any;
+    var on: (event: string, callback: Function, once?: boolean) => EventDispatcherBinding;
     var emit: (event: string, ...params: any[]) => any;
     var off: (bindeo?: string | Function | EventDispatcherBinding, callback?: Function) => void;
 }
@@ -1627,6 +1640,7 @@ declare namespace Reflect {
     var MetadataInfo: string | symbol;
     function metadata(metadataKey: any, metadataValue: any): any;
     function setObjectSymbol<T>(target: Object, symbol: string | symbol, value: T): T;
+    var getPropertyDescriptor: (o: Object, name: string) => PropertyDescriptor;
 }
 declare module mz {
     interface RouterOptions {
@@ -1709,19 +1723,21 @@ declare class MzModelDirective extends mz.AttributeDirective {
     componentBinding: mz.EventDispatcherBinding;
     widgetValueBinding: mz.EventDispatcherBinding;
     setter: (value) => void;
+    touch: () => void;
     getter: () => any;
     private delayedBinding;
     unmount(): void;
     private teardown();
-    changed(value: string, prevVal: string): void;
+    changed(destinationField: string, prevVal: string): void;
 }
 declare namespace mz.widgets {
     class MzInput extends mz.Widget {
         value: any;
         disabled: boolean;
+        required: boolean;
         visible: boolean;
         focus(): void;
-        checkValid(formData: any): boolean;
+        isValid(): boolean;
     }
 }
 declare class MzRawDirective extends mz.AttributeDirective {
@@ -1897,7 +1913,7 @@ declare namespace mz.widgets {
         fieldIsVisible(fieldName: string): boolean;
         focus(field?: string): void;
         errors: string[];
-        checkValid(): boolean;
+        isValid(): boolean;
         checkAll(noEmitAlert?: boolean): boolean;
         getDefaultValue(): T;
         resetForm(): T;

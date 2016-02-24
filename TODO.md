@@ -12,11 +12,26 @@ Dev
 - [*] `@mz.app.AppController.RouteName` decorator
 - [*] Allow `<mz-repeat>` to use anything IForEachable as list
 - [ ] Register template from `<template id="my_custom_view">` using `@mz.Widget.Template("#my_custom_view")`
-- [ ] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
-- [ ] redux experiment
+- [*] Register template from file using `@mz.Widget.Template("@views/my_template.xml")`
+- [*] redux experiment
 - [*] read checked prop on checkboxs with mz-model
 - [*] read scope from option on selects with mz-model
-
+- [*] comments are parsed as text
+- [*] object pool for generateScopedContent
+- [*] MVCObject hooks
+    ```typescript
+    class ValidatedMVCObject extends mz.MVCObject {
+        @mz.MVCObject.proxy
+        test: number;
+        
+        test_changed(val, prevVal){
+            if(val === prevVal) throw mz.MVCObject.Exception_PreventPropagation;
+            if(val == null || val == undefined) throw mz.MVCObject.Exception_RollbackOperation;
+            if(val > 10) return 10;
+            if(val < 0) return 0;
+        }
+    }
+    ```
 
 Tests
 -----
@@ -29,10 +44,14 @@ Tests
 - [ ] mz-if
 - [ ] attr `visible` test
 - [*] mz-model attr
+- [ ] specially on mz-repeat, test scopedContentPoll
+- [*] MVCObject tests
+- [*] event dispatcher tests
+- [ ] test for object pool in mz-repeat, using arrays and mz.Collection 
 
 UIKit
 -----
-- [ ] add `<flex-row>` and `<flex-col>` components
+- [*] add `<flex-row>` and `<flex-col>` components
 - [ ] add gridview
 - [ ] add contextMenu
 

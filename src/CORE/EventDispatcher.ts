@@ -2,19 +2,41 @@ module mz {
     var eventSplitter = /\s+/g;
 
     export class EventDispatcherBinding {
-        id: string;
-        cb = null;
-        evento: string = null;
-        sharedList = null;
-        object: EventDispatcher = null;
+        id: number;
+        cb;
+        evento: string;
+        sharedList: EventDispatcherBinding[];
+        object: EventDispatcher;
+        enabled: boolean = true;
 
         off() {
             if (this.object) {
                 this.cb && this.object.off(this);
                 this.cb = null;
                 this.object = null;
+                if (this.sharedList)
+                    delete this.sharedList;
             }
         }
+
+        enable() {
+            if (this.sharedList) {
+                for (var i = 0; i < this.sharedList.length; i++)
+                    this.sharedList[i].enabled = true;
+            } else this.enabled = true;
+        }
+
+
+        disable() {
+            if (this.sharedList) {
+                for (var i = 0; i < this.sharedList.length; i++)
+                    this.sharedList[i].enabled = false;
+            } else this.enabled = false;
+        }
+    }
+
+    const turnOffCallback = function(f) {
+        delete f.cb;
     }
 
     export class EventDispatcher {
@@ -23,16 +45,15 @@ module mz {
 
         }
 
-        private ed_bindeos: any = {};
-        private ed_bindeosTotales: any = [];
+        private ed_bindeos: Dictionary<EventDispatcherBinding[]> = {};
         private ed_bindCount = 0;
 
-        on(event: string, callback: Function, once?: boolean) {
+        on(event: string, callback: Function, once?: boolean): EventDispatcherBinding {
             this.ed_bindCount++;
 
             var events = event.split(eventSplitter);
 
-            var tmp;
+            var tmp: EventDispatcherBinding;
             var listaBindeos = [];
 
             events.forEach(evt => {
@@ -43,7 +64,7 @@ module mz {
                 tmp.sharedList = listaBindeos;
                 tmp.object = this;
 
-                listaBindeos.push(tmp);
+                listaBindeos && listaBindeos.push(tmp);
 
                 if (once) {
                     tmp.cb = function() {
@@ -55,8 +76,6 @@ module mz {
                 }
 
                 tmp.cb = tmp.cb.bind(this);
-
-                this.ed_bindeosTotales[tmp.id] = tmp;
 
                 this.ed_bindeos[evt] = this.ed_bindeos[evt] || [];
                 this.ed_bindeos[evt].push(tmp);
@@ -72,72 +91,83 @@ module mz {
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function) {
             if (arguments.length == 0) {
                 for (var i in this.ed_bindeos) {
-                    delete this.ed_bindeos[i].cb;
+                    for (let e in this.ed_bindeos[i])
+                        delete this.ed_bindeos[i][e].cb;
+                    this.ed_bindeos[i].length = 0;
                 }
-                this.ed_bindeos.length = 0;
+
             } else if (bindeo instanceof EventDispatcherBinding) {
                 bindeo.cb = null;
-                bindeo.sharedList && bindeo.sharedList.length && bindeo.sharedList.forEach(function(f) { f.cb = null; });
-            } else if (typeof bindeo == 'string') {
+                bindeo.sharedList && bindeo.sharedList.length && bindeo.sharedList.forEach(turnOffCallback);
+            } else if (typeof bindeo === 'string') {
                 if (typeof callback == 'function') {
-                    for (var i in this.ed_bindeos) {
-                        if (this.ed_bindeos[i].cb === callback) {
-                            this.ed_bindeos[i].cb = null;
+                    for (var i in this.ed_bindeos[bindeo]) {
+                        if (this.ed_bindeos[bindeo][i].cb === callback) {
+                            this.ed_bindeos[bindeo][i].cb = null;
                         }
                     }
                 } else if (typeof bindeo == 'string') {
                     this.ed_bindeos[bindeo as string] = [];
                 }
             } else if (typeof bindeo === 'function') {
-                for (var i in this.ed_bindeos) {
-                    if (this.ed_bindeos[i].cb === bindeo) {
-                        this.ed_bindeos[i].cb = null;
+                for (let evt in this.ed_bindeos) {
+                    for (let i in this.ed_bindeos[evt]) {
+                        if (this.ed_bindeos[evt][i].cb === bindeo) {
+                            this.ed_bindeos[evt][i].cb = null;
+                        }
                     }
                 }
             }
         }
         
+        // cleanup the disposed events
+        protected cleanupTurnedOffEvents() {
+            for (let evt in this.ed_bindeos) {
+                let list = [];
+                for (var i in this.ed_bindeos[evt]) {
+                    if (this.ed_bindeos[evt][i] && this.ed_bindeos[evt][i] instanceof EventDispatcherBinding && this.ed_bindeos[evt][i].cb) {
+                        list.push(this.ed_bindeos[evt]);
+                    }
+                }
+                this.ed_bindeos[evt] = list;
+            }
+        }
+
         emit(event: string, ...params: any[]);
         emit(event: string) {
             if (event in this.ed_bindeos) {
 
                 if (arguments.length == 1) {
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb();
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb();
                     }
                 } else if (arguments.length == 2) {
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb(arguments[1]);
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb(arguments[1]);
                     }
                 } else if (arguments.length == 3) {
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2]);
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb(arguments[1], arguments[2]);
                     }
                 } else if (arguments.length == 4) {
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2], arguments[3]);
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb(arguments[1], arguments[2], arguments[3]);
                     }
                 } else if (arguments.length == 5) {
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb(arguments[1], arguments[2], arguments[3], arguments[4]);
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb(arguments[1], arguments[2], arguments[3], arguments[4]);
                     }
                 } else if (arguments.length > 4) {
                     var args = Array.prototype.slice.call(arguments, 1);
 
-                    for (var i in this.ed_bindeos[event]) {
-                        if (this.ed_bindeos[event][i].cb) {
-                            this.ed_bindeos[event][i].cb.call(this, args);
-                        }
+                    for (let i = 0; i < this.ed_bindeos[event].length; i++) {
+                        let e = this.ed_bindeos[event][i];
+                        e && e.cb && e.enabled && e.cb.apply(this, args);
                     }
                 }
             }
