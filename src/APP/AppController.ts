@@ -97,23 +97,14 @@ namespace mz.app {
         routeHistory: string[];
 
         constructor(opc: {
-            templateUrl?: string;
-            templateHtml?: string;
             templateSelector?: string;
             pages: string | Array<IAppPage>;
-            pagesCollection?: mz.Collection<IAppPageModule>;
         }) {
             super(null, { tag: 'div', class: 'mz-page-coordinator' }, [], this, this, undefined);
 
             this.loadingPage = true;
 
-            this.pages = opc.pagesCollection || new mz.Collection<IAppPageModule>(null, { key: "name" });
-
-
-
-            if (opc.templateHtml && opc.templateUrl) {
-                throw new Error("You must set only templateUrl or templateHtml, not both.")
-            }
+            this.pages = new mz.Collection<IAppPageModule>(null, { key: "name" });
 
             if (!opc.pages) {
                 throw new Error("You must provide 'pages: Url(.json) | Array[]' option.")
@@ -127,11 +118,7 @@ namespace mz.app {
                 throw new TypeError("opc.pages must be an Array or Url(.json)");
             }
 
-            if (opc.templateHtml)
-                this.startComponent([opc.templateHtml]);
-            else if (opc.templateUrl)
-                this.loadTemplate(opc.templateUrl);
-            else
+            if (opc.templateSelector)
                 $(() => {
                     var frag = document.createElement("app");
 
