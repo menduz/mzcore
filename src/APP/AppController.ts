@@ -15,7 +15,7 @@ namespace mz.app {
     export interface IAppPage {
         name: string;
         module: string;
-        routes: Array<IAppControllerRoute>;
+        routes: Dictionary<string>;
     }
 
     export interface IAppPageModule extends IAppPage {
@@ -27,13 +27,13 @@ namespace mz.app {
      * pages.json#
      * [{ 
      *   name: "index", 
-     *   routes: [{ 
-     *     name: "ROUTE_NAME", 
-     *     route: "index/:id" 
-     *   }] 
+     *   module: "index.ts",
+     *   routes: { 
+     *     "index/:id": "ROUTE_NAME" 
+     *   }
      * }, 
      * ...]
-     * By default, the method's name is used
+     * By default, the target method's name is used
      */
     export function RouteName(route_name?: string) {
         return function(target: Page, propertyKey: string | symbol) {
@@ -48,7 +48,7 @@ namespace mz.app {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
 
-        constructor(appController: PageCoordinator) {
+        constructor(appController?: PageCoordinator) {
             super(null, { tag: 'div', }, [], this, this, this);
             this.routeHandler = {};
 
@@ -63,6 +63,8 @@ namespace mz.app {
             }
 
             this.parent = appController;
+
+            this.resize = mz.screenDelayer(this.resize, this);
         }
 
         handleRoute(routeName: string, ...args: any[]) {
@@ -72,13 +74,19 @@ namespace mz.app {
         show() {
             super.show();
             this.parent.actualPage = this;
+            this.parent.actualPageName = this.pageControllerName;
+
             requestAnimationFrame(() => this.resize());
         
             // phonegap!
             document.addEventListener("resetScrollView", () => {
                 this.resize();
             });
+
+            $(window).on('resize', () => this.resize());
         }
+
+        pageControllerName: string;
 
         static instance: Page;
     }
@@ -92,9 +100,10 @@ namespace mz.app {
         actualPage: Page;
 
         @mz.MVCObject.proxy
-        loadingPage: boolean;
+        actualPageName: string;
 
-        routeHistory: string[];
+        @mz.MVCObject.proxy
+        loadingPage: boolean;
 
         constructor(opc: {
             templateSelector?: string;
@@ -122,14 +131,30 @@ namespace mz.app {
                 $(() => {
                     var frag = document.createElement("app");
 
-                    frag.appendChild(document.querySelector(opc.templateSelector || "body *"));
 
-                    this.startComponent(<any>frag);
+                    let elem = document.querySelector(opc.templateSelector || "body *");
+
+                    if (!elem) {
+                        console.error("PageCoordinator: Target not fund!. Selector: " + opc.templateSelector || "body *")
+                        return;
+                    }
+
+                    let parentNode = frag.parentNode;
+
+                    if (parentNode && elem && this.rootNode && elem != this.rootNode) {
+                        mz.dom.adapter.replaceChild(parentNode, this.rootNode, elem);
+                        frag.appendChild(elem);
+                        this.startComponent(<any>frag);
+                    } else {
+                        frag.appendChild(elem);
+                        this.startComponent(<any>frag);
+                        this.appendTo("body");
+                    }
                 });
-
-            $(() => {
-                this.appendTo("body");
-            });
+            else
+                $(() => {
+                    this.appendTo("body");
+                });
         }
 
         setPages(pages: Array<IAppPage>) {
@@ -140,19 +165,30 @@ namespace mz.app {
             this.pages.clear();
 
             for (let page of pages) {
-                if (page.routes && page.routes.length) {
-                    for (let route of page.routes) {
+                if (page.routes) {
+                    for (let route in page.routes) {
+                        let action_name = page.routes[route];
 
-                        if (route.route in bindRoutes)
-                            console.warn(`Route ${route.route} duplicated on page ${page.name}.`);
+                        if (typeof action_name !== "string") {
+                            console.error(`invalid action name for route ${page.name}[${route}], type of action must be a string value instead is: `, action_name);
+                            continue;
+                        }
 
-                        routes[route.name] = {
+                        if (route in bindRoutes)
+                            console.warn(`Route ${route} duplicated.`);
+
+                        if ('routes' === action_name) {
+                            console.error('PageCoordinator: Action name "routes" not allowed');
+                            continue;
+                        }
+
+                        routes[action_name] = {
                             page: page,
-                            route: route.route,
-                            name: route.name
+                            route: route,
+                            name: action_name
                         };
 
-                        bindRoutes[route.route] = route.name;
+                        bindRoutes[route] = action_name;
                     }
                 }
 
@@ -162,8 +198,6 @@ namespace mz.app {
             var routerParam: any = {
                 routes: bindRoutes
             };
-
-            this.routeHistory = [];
 
             var that = this;
 
@@ -179,8 +213,9 @@ namespace mz.app {
 
                             modulo.handleRoute(route.name, ...t);
                             that.show(modulo);
+                            that.emit('route', route.name, ...t);
+                            that.emit('history', Backbone.history.getFragment());
 
-                            that.routeHistory.push(Backbone.history.getFragment());
                             that.loadingPage = false;
                         });
                     };
@@ -189,8 +224,11 @@ namespace mz.app {
 
             mz.route.start(routerParam, () => {
                 this.emit('loaded');
+                this.loadingPage = false;
                 this.loaded();
             });
+
+
         }
 
         loaded() {
@@ -201,6 +239,7 @@ namespace mz.app {
             if (page instanceof Page) {
                 super.show(page);
                 this.actualPage = page;
+                this.actualPageName = page.pageControllerName;
             } else throw new Error("App only shows instances of Page");
         }
 
@@ -212,14 +251,18 @@ namespace mz.app {
             var page = this.pages.indexedGet(pageName);
 
             if (page == null)
-                return Promise.reject(Error("Page not found"));
+                return Promise.reject(new Error("Page not found"));
 
             return new Promise(ok => {
                 mz.require(page.module, (modulo: typeof Page) => {
                     if (modulo.instance)
                         return ok(modulo.instance);
 
-                    ok(modulo.instance = new modulo(this));
+                    modulo.instance = new modulo(this);
+                    modulo.instance.parent = this;
+                    modulo.instance.pageControllerName = pageName;
+
+                    ok(modulo.instance);
                 });
             });
         }

@@ -748,7 +748,7 @@ declare namespace mz.app {
     interface IAppPage {
         name: string;
         module: string;
-        routes: Array<IAppControllerRoute>;
+        routes: Dictionary<string>;
     }
     interface IAppPageModule extends IAppPage {
     }
@@ -757,28 +757,29 @@ declare namespace mz.app {
      * pages.json#
      * [{
      *   name: "index",
-     *   routes: [{
-     *     name: "ROUTE_NAME",
-     *     route: "index/:id"
-     *   }]
+     *   module: "index.ts",
+     *   routes: {
+     *     "index/:id": "ROUTE_NAME"
+     *   }
      * },
      * ...]
-     * By default, the method's name is used
+     * By default, the target method's name is used
      */
     function RouteName(route_name?: string): (target: Page, propertyKey: string | symbol) => void;
     class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
-        constructor(appController: PageCoordinator);
+        constructor(appController?: PageCoordinator);
         handleRoute(routeName: string, ...args: any[]): void;
         show(): void;
+        pageControllerName: string;
         static instance: Page;
     }
     class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
         actualPage: Page;
+        actualPageName: string;
         loadingPage: boolean;
-        routeHistory: string[];
         constructor(opc: {
             templateSelector?: string;
             pages: string | Array<IAppPage>;
