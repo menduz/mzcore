@@ -61,6 +61,10 @@ define(["require", "exports", "bower_components/markdown-it/dist/markdown-it.min
             });
             this.loading = false;
         }
+        Index.prototype.loaded = function () {
+            $("#startup").remove();
+            $('.hidden-on-load').css('opacity', '1');
+        };
         __decorate([
             mz.MVCObject.proxy, 
             __metadata('design:type', Boolean)

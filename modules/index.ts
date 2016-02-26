@@ -43,6 +43,12 @@ class Index extends mz.app.PageCoordinator {
         });
         
     }
+    
+    
+    loaded(){
+        $("#startup").remove();
+        $('.hidden-on-load').css('opacity', '1');
+    }
 }
 
 

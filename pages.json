@@ -2,60 +2,45 @@
     {
         "name": "index",
         "module": "modules/index/index",
-        "routes": [
-            {
-                "name": "index",
-                "route": ""
-            },
-            {
-                "name": "index",
-                "route": "!index"
-            },
-            {
-                "name": "index",
-                "route": "!"
-            }
-        ]
+        "routes": {
+            "": "index",
+            "!index": "index",
+            "!": "index"
+        }
     },
     {
         "name": "examples-todo",
         "module": "modules/examples/todo/todo",
-        "routes": [
-            {
-                "name": "todo",
-                "route": "!examples/todo"
-            }
-        ]
+        "routes": {
+            "!examples/todo": "todo"
+        }
     },
     {
         "name": "examples-order-form",
         "module": "modules/examples/order-form/order-form",
-        "routes": [
-            {
-                "name": "order-form",
-                "route": "!examples/order-form"
-            }
-        ]
+        "routes": {
+            "!examples/order-form": "order-form"
+        }
     },
     {
         "name": "examples-flex",
         "module": "modules/examples/flex/flex",
-        "routes": [
-            {
-                "name": "flex",
-                "route": "!examples/flex"
-            }
-        ]
+        "routes": {
+            "!examples/flex": "flex"
+        }
     },
     {
         "name": "examples-redux-inc-dec",
         "module": "modules/examples/redux/inc-dec",
-        "routes": [
-            {
-                "name": "redux-inc-dec",
-                "route": "!examples/redux/inc-dec"
-            }
-        ]
+        "routes": {
+            "!examples/redux/inc-dec": "redux-inc-dec"
+        }
+    },
+    {
+        "name": "examples-ionic",
+        "module": "modules/examples/ionic/ionic",
+        "routes": {
+            "!examples/ionic": "ionic"
+        }
     }
-    
 ]

@@ -1,0 +1,69 @@
+<div class="device-preview-page">
+    <style>
+        <![CDATA[
+.device-preview-page {
+  position: relative; 
+  padding: 50px;
+}
+.device-preview-page .docs-section:last-child {
+    padding-bottom: 600px; 
+}
+
+.device-preview-page .device-preview {
+    right: 0;
+    z-index: 1;
+    width: 380px;
+    height: 810px;
+    background: url("css/phone-case.png") no-repeat right top; 
+}
+@media only screen and (-webkit-min-device-pixel-ratio: 1.3), only screen and (min--moz-device-pixel-ratio: 1.3), only screen and (min-device-pixel-ratio: 1.3), only screen and (min-resolution: 124dpi) {
+    .device-preview-page .device-preview {
+        background-image: url("css/phone-case@2x.png");
+        background-size: 365px 792px; 
+    } 
+}
+.ionic-body {
+    background: #000;
+}
+
+.device-preview-page .device-preview > div {
+    position: absolute;
+    top: 104px;
+    left: 33px;
+    z-index: 0;
+    width: 328px;
+    height: 576px;
+    border: 4px solid #22272d;
+    background: #fff;
+    opacity: 0;
+    transition: opacity .2s ease-in-out;
+    }
+    .device-preview-page .device-preview > div.active-preview {
+      z-index: 100;
+      opacity: 1; }
+
+
+
+]]>
+    </style>
+    <flex-row>
+        <flex-col>
+            <div> Check out the                 
+                <a href="https://github.com/menduz/mzcore-ionic">mzcore-ionic components</a> source                        
+            </div>
+            <div>
+                <a href="https://github.com/menduz/mzcore-ionic-example">Demo source code (GitHub)</a>
+            </div>
+        </flex-col>
+        <flex-col style="text-align:center" col-width="380px">
+            <div class="device-preview" style="left: 446px;">
+                <div class="ionic-body active-preview">
+                    <div class="spinner spinner-centered spinner-lg" />
+                    <iframe src="https://menduz.github.io/mzcore-ionic-example/" style="position: absolute;top: 0;left: 0;bottom: 0;right: 0;" frameborder="0" height="100%" width="100%"/>
+                </div>
+            </div>
+            <a href="http://menduz.github.io/mzcore-ionic-example/" target="_blank">Open demo in a new window</a>
+        </flex-col>
+        <flex-col></flex-col>
+    </flex-row>
+</div>

@@ -168,21 +168,24 @@ declare namespace mz {
 }
 declare module mz {
     class EventDispatcherBinding {
-        id: string;
+        id: number;
         cb: any;
         evento: string;
-        sharedList: any;
+        sharedList: EventDispatcherBinding[];
         object: EventDispatcher;
+        enabled: boolean;
         off(): void;
+        enable(): void;
+        disable(): void;
     }
     class EventDispatcher {
         static EVENTS: {};
         private ed_bindeos;
-        private ed_bindeosTotales;
         private ed_bindCount;
-        on(event: string, callback: Function, once?: boolean): any;
-        once(event: string, callback: Function): any;
+        on(event: string, callback: Function, once?: boolean): EventDispatcherBinding;
+        once(event: string, callback: Function): EventDispatcherBinding;
         off(bindeo?: string | Function | EventDispatcherBinding, callback?: Function): void;
+        protected cleanupTurnedOffEvents(): void;
         emit(event: string, ...params: any[]): any;
         trigger: (event: string, ...params: any[]) => any;
     }
@@ -193,11 +196,13 @@ declare namespace mz {
             setValues: string;
             valueChanged: string;
         } & {};
+        static Exception_RollbackOperation: Error;
+        static Exception_PreventPropagation: Error;
         protected data: Dictionary<any>;
         constructor(args?: any);
         getAll(): Dictionary<any>;
         setValues(values: any | MVCObject, emit?: boolean): void;
-        set(field: string, value: any, NoTrigerearChanged?: boolean): void;
+        set(field: string, value: any, PreventPropagation?: boolean): void;
         get(field: string): any;
         touch(fieldName: string): void;
     }
@@ -538,6 +543,7 @@ declare module mz {
             setValues: string;
             valueChanged: string;
         } & {};
+        private scopedContentPool;
         rootNode: Element;
         contentNode: Element;
         originalNode: Node;
@@ -558,6 +564,7 @@ declare module mz {
         DOM: JQuery;
         constructor(originalNode: Node, attr: mz.Dictionary<any>, children: mz.IChildWidget[], _params?: any, _parentComponent?: Widget, scope?: any);
         protected generateScopedContent(scope?: any): IChildWidget[];
+        protected releaseScopedContent(scopedContent: Widget[]): void;
         attr(attrName: string, value?: any): any;
         refreshScope(): void;
         find(selector: string): Element[];
@@ -741,7 +748,7 @@ declare namespace mz.app {
     interface IAppPage {
         name: string;
         module: string;
-        routes: Array<IAppControllerRoute>;
+        routes: Dictionary<string>;
     }
     interface IAppPageModule extends IAppPage {
     }
@@ -750,34 +757,32 @@ declare namespace mz.app {
      * pages.json#
      * [{
      *   name: "index",
-     *   routes: [{
-     *     name: "ROUTE_NAME",
-     *     route: "index/:id"
-     *   }]
+     *   module: "index.ts",
+     *   routes: {
+     *     "index/:id": "ROUTE_NAME"
+     *   }
      * },
      * ...]
-     * By default, the method's name is used
+     * By default, the target method's name is used
      */
     function RouteName(route_name?: string): (target: Page, propertyKey: string | symbol) => void;
     class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
-        constructor(appController: PageCoordinator);
+        constructor(appController?: PageCoordinator);
         handleRoute(routeName: string, ...args: any[]): void;
         show(): void;
+        pageControllerName: string;
         static instance: Page;
     }
     class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
         actualPage: Page;
+        actualPageName: string;
         loadingPage: boolean;
-        routeHistory: string[];
         constructor(opc: {
-            templateUrl?: string;
-            templateHtml?: string;
             templateSelector?: string;
             pages: string | Array<IAppPage>;
-            pagesCollection?: mz.Collection<IAppPageModule>;
         });
         setPages(pages: Array<IAppPage>): void;
         loaded(): void;
@@ -787,6 +792,12 @@ declare namespace mz.app {
     }
 }
 declare namespace mz.redux {
+    namespace stateHelpers {
+        function cloneArray<T>(array: IForEachable<T>): Array<T>;
+        function cloneArrayAndPush<T>(array: IForEachable<any>, element: any): Array<T>;
+        function cloneDeep<T>(object: T): T;
+        function cloneShallow<T>(object: T): T;
+    }
     interface IAppState {
     }
     namespace ActionTypes {
@@ -1221,7 +1232,7 @@ declare namespace mz.oauth2 {
     function logout(): Promise<xr.XrResponse>;
     function login(username: string, password: string): Promise<xr.XrResponse>;
     function loggedIn(): boolean;
-    var on: (event: string, callback: Function, once?: boolean) => any;
+    var on: (event: string, callback: Function, once?: boolean) => EventDispatcherBinding;
     var emit: (event: string, ...params: any[]) => any;
     var off: (bindeo?: string | Function | EventDispatcherBinding, callback?: Function) => void;
 }
@@ -1715,11 +1726,12 @@ declare class MzModelDirective extends mz.AttributeDirective {
     componentBinding: mz.EventDispatcherBinding;
     widgetValueBinding: mz.EventDispatcherBinding;
     setter: (value) => void;
+    touch: () => void;
     getter: () => any;
     private delayedBinding;
     unmount(): void;
     private teardown();
-    changed(value: string, prevVal: string): void;
+    changed(destinationField: string, prevVal: string): void;
 }
 declare namespace mz.widgets {
     class MzInput extends mz.Widget {
@@ -1904,7 +1916,7 @@ declare namespace mz.widgets {
         fieldIsVisible(fieldName: string): boolean;
         focus(field?: string): void;
         errors: string[];
-        checkValid(): boolean;
+        isValid(): boolean;
         checkAll(noEmitAlert?: boolean): boolean;
         getDefaultValue(): T;
         resetForm(): T;

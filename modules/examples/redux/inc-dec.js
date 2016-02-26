@@ -51,9 +51,9 @@ define(["require", "exports"], function (require, exports) {
             _super.apply(this, arguments);
         }
         ActionListComponent = __decorate([
+            ActionListComponent.RegisterComponent('action-list'),
             mz.redux.connectWidget(function (state) { return state.actionList; }, store),
             ActionListComponent.Template("\n<div>\n    <h1>Action history</h1>\n    <mz-repeat list=\"{scope}\" tag=\"ul\">\n        <li>{scope.type}</li>\n    </mz-repeat>\n</div>\n"),
-            ActionListComponent.RegisterComponent('action-list'),
             ActionListComponent.ConfigureUnwrapped, 
             __metadata('design:paramtypes', [])
         ], ActionListComponent);
@@ -66,9 +66,9 @@ define(["require", "exports"], function (require, exports) {
             _super.apply(this, arguments);
         }
         ActualStateComponent = __decorate([
+            ActionListComponent.RegisterComponent('actual-state'),
             mz.redux.connectWidget(function (state) { return state; }, store),
             ActionListComponent.Template("\n<div>\n    <h1>Actual state</h1>\n    <pre>{JSON.stringify(scope, null, 2)}</pre>\n</div>\n"),
-            ActionListComponent.RegisterComponent('actual-state'),
             ActionListComponent.ConfigureUnwrapped, 
             __metadata('design:paramtypes', [])
         ], ActualStateComponent);
