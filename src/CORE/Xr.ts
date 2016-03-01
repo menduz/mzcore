@@ -58,16 +58,15 @@ module mz {
 
             var data = typeof opts.data === 'object' && !opts.raw ? opts.dump.call(opts, opts.data) : opts.data;
 
+            let queryString = opts.params ? getParams(opts.params) : null;
+
+            xhr.open(opts.method, queryString && queryString.length ? '' + opts.url.split('?')[0] + '?' + queryString : opts.url, true);
 
             if (opts.url && opts.url.contains("//") && opts.withCredentials == null) {
                 xhr.withCredentials = true;
             } else if (opts.withCredentials) {
                 xhr.withCredentials = opts.withCredentials;
             }
-
-            let queryString = opts.params ? getParams(opts.params) : null;
-
-            xhr.open(opts.method, queryString && queryString.length ? '' + opts.url.split('?')[0] + '?' + queryString : opts.url, true);
 
             xhr.addEventListener(xr.Events.READY_STATE_CHANGE, function(e) {
                 if (xhr.readyState == 4) {
