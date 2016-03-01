@@ -60,4 +60,12 @@ namespace Reflect {
             return descriptor;
         };
     })()
+
+    export function getPrototypeOf(object: any): any {
+        if (Object.getPrototypeOf) {
+            return Object.getPrototypeOf(object);
+        } else {
+            return object['__proto__'];
+        }
+    }
 }

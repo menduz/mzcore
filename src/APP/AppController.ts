@@ -1,5 +1,6 @@
 /// <reference path="../WIDGETS/mz-switcher.ts" />
 
+
 declare var Backbone;
 
 namespace mz.app {
@@ -48,11 +49,18 @@ namespace mz.app {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
 
+        @Page.proxy
+        windowTitle: string;
+
+        private windowTitle_changed() {
+            this.parent && this.parent.updatePageTitle();
+        }
+
         constructor(appController?: PageCoordinator) {
             super(null, { tag: 'div', }, [], this, this, this);
             this.routeHandler = {};
 
-            var componentProps = Object.getPrototypeOf ? Object.getPrototypeOf(this) : (this['__proto__']);
+            var componentProps = Reflect.getPrototypeOf(this);
 
             if (componentProps) {
                 for (var i in componentProps) {
@@ -77,13 +85,9 @@ namespace mz.app {
             this.parent.actualPageName = this.pageControllerName;
 
             requestAnimationFrame(() => this.resize());
-        
-            // phonegap!
-            document.addEventListener("resetScrollView", () => {
-                this.resize();
-            });
 
-            $(window).on('resize', () => this.resize());
+
+
         }
 
         pageControllerName: string;
@@ -155,6 +159,14 @@ namespace mz.app {
                 $(() => {
                     this.appendTo("body");
                 });
+
+
+            $(window).on('resize', () => this.resize());
+            
+            // phonegap!
+            document.addEventListener("resetScrollView", () => {
+                this.resize();
+            });
         }
 
         setPages(pages: Array<IAppPage>) {
@@ -233,6 +245,19 @@ namespace mz.app {
 
         loaded() {
 
+        }
+
+
+        updatePageTitle() {
+            if (this.actualPage) {
+                if (this.actualPage.windowTitle)
+                    mz.dom.adapter.setTitle(this.actualPage.windowTitle);
+            }
+        }
+
+
+        actualPage_changed(page: Page) {
+            this.updatePageTitle();
         }
 
         show(page: Page) {
