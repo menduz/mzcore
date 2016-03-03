@@ -32,6 +32,8 @@ Dev
         }
     }
     ```
+- [ ] mz.boot.js
+- [ ] check for absolute urls on mz.loadCss
 
 Tests
 -----
@@ -47,7 +49,22 @@ Tests
 - [ ] specially on mz-repeat, test scopedContentPool
 - [x] MVCObject tests
 - [x] event dispatcher tests
-- [ ] test for object pool in mz-repeat, using arrays and mz.Collection 
+- [ ] test for object pool in mz-repeat, using arrays and mz.Collection  
+    ```typescript
+        class sarasa extends mz.Widget {
+        @sarasa.proxy
+            test: string = 'a'   
+        }
+    ```  
+    ```xml
+        <div><sarasa test="b" /></div>
+    ```  
+    Renders
+    ```xml
+        <div><sarasa test="a" /></div>
+    ```
+
+
 
 UIKit
 -----
