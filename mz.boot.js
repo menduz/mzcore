@@ -39,7 +39,7 @@ if (!('atob' in window))
 if (!('requestAnimationFrame' in window))
     document.write('<' + 'scr' + 'ipt type="text/javascript" charset="UTF-8" src="' + path + 'dist/polyfills/raf.js"></' + 'script>');
 
-if (!('Promise' in window.jQuery))
+if (!('jQuery' in window))
     document.write('<' + 'scr' + 'ipt type="text/javascript" charset="UTF-8" src="' + path + 'dist/jquery.js"></' + 'script>');
 
 document.write('<' + 'scr' + 'ipt type="text/javascript" charset="UTF-8" src="' + path + 'dist/mz' + (window._debug ? '' : '.min') + '.js"></' + 'script>');
