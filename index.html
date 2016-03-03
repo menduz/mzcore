@@ -4,11 +4,9 @@
 <head>
     <title>mUST WORK tests</title>
     <meta charset="utf-8">
-    <link rel="stylesheet" href="../node_modules/qunitjs/qunit/qunit.css" type="text/css" media="screen">
-    <script type="text/javascript" src="../node_modules/qunitjs/qunit/qunit.js"></script>
-
-    <script src="../dist/jquery.js"></script>
-    <script src="../dist/mz.js"></script>
+    <link rel="stylesheet" href="node_modules/qunitjs/qunit/qunit.css" type="text/css" media="screen">
+    <script type="text/javascript" src="node_modules/qunitjs/qunit/qunit.js"></script>
+    <script src="mz.boot.js?mz-debug"></script>
 </head>
 
 <body>
@@ -18,7 +16,7 @@
         
         QUnit.test("Module events", function(assert){
             var done = assert.async();
-            require('events', function() {
+            require('test/events', function() {
                 assert.ok(true, 'Event tests loaded');
                 done();
             });
@@ -26,7 +24,7 @@
         
         QUnit.test("Module loading", function(assert){
             var done = assert.async();
-            require('basic', function() {
+            require('test/basic', function() {
                 assert.ok(true, 'Module loaded');
                 done();
                 console.log('Basic tests loaded')
@@ -35,7 +33,7 @@
         
         QUnit.test("Module loading2", function(assert){
             var done = assert.async();
-            require('redux', function() {
+            require('test/redux', function() {
                 assert.ok(true, 'Module 2 loaded');
                 done();
             });
