@@ -1,11 +1,10 @@
 {
   "name": "mzcore",
-  "version": "16.02.01",
+  "version": "0.1.1",
   "scripts": {
     "test": "gulp default && cd test && tsc && cd .. && gulp test"
   },
   "dependencies": {},
-  "private": true,
   "devDependencies": {
     "gulp": "^3.8.11",
     "gulp-concat": "*",

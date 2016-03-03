@@ -1,9 +1,9 @@
 {
     "name": "mzcore",
-    "description": "mzcore library",
+    "description": "A templating library built on top of Typescript",
     "main": "mz.boot.js",
     "authors": [
-        "Agustin Mendez (Menduz) <lord.yo.wo@gmail.com>"
+        "Agustin Mendez (@menduz) <agustin.mz.92@gmail.com>"
     ],
     "license": "MIT",
     "keywords": [
@@ -23,7 +23,10 @@
         "test",
         "src",
         "*.md",
-        "gulpfile.js"
+        "gulpfile.js",
+        "index.html",
+        "tsconfig.json",
+        "jsconfig.json"
     ],
     "repository": {
         "type": "git",
