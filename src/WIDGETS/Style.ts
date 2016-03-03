@@ -34,9 +34,9 @@ module mz.widgets {
             }))
 
             if ('MutationObserver' in mz.globalContext) {
-                this.observer = new MutationObserver(() => {
+                this.observer = new MutationObserver(mz.screenDelayer(() => {
                     this.update();
-                });
+                }));
                 // have the observer observe foo for changes in children
                 this.observer.observe(this.contentNode, { childList: true, subtree: true, characterData: true });
             } else {
@@ -58,7 +58,6 @@ module mz.widgets {
 
         textValue_changed(val, prevVal) {
             if (val !== prevVal) {
-                console.log('style updated', val);
                 let urlCss = 'data:text/css;base64,' + btoa(val);
                 this.link.attr('href', urlCss);
             }
