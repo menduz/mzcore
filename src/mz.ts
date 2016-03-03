@@ -116,7 +116,7 @@ namespace mz {
     export function getPath(path: string, root?: string) {
         var io = 0,
             clave = null,
-            base = root || core_path;
+            base = root || mz.dom.adapter.getBaseHref() || core_path;
 
         (base.substr(-1) !== '/') && (base += '/');
 

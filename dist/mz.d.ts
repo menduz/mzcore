@@ -1905,6 +1905,8 @@ declare namespace mz {
      */
     function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
 }
+declare module mz.widgets {
+}
 declare namespace mz.widgets {
     class MzForm<T> extends mz.widgets.MzInput {
         static ERROR_CLASS: string;
