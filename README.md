@@ -132,7 +132,7 @@ Manual installation
 
 First, [download a release](https://github.com/menduz/mzcore/releases), then include the file "mz.boot.js" in your file
 ```html
-<script src="bower_components/mzcore/mz.boot.js"></script>
+<script src="mzcore/mz.boot.js"></script>
 ```
 
 Checkout the examples
