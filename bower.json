@@ -1,0 +1,32 @@
+{
+    "name": "mzcore",
+    "description": "mzcore library",
+    "main": "mz.boot.js",
+    "authors": [
+        "Agustin Mendez (Menduz) <lord.yo.wo@gmail.com>"
+    ],
+    "license": "MIT",
+    "keywords": [
+        "typescript",
+        "templates",
+        "mvc",
+        "redux"
+    ],
+    "homepage": "http://mzcore.menduz.com",
+    "moduleType": [
+        "globals"
+    ],
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "src",
+        "*.md",
+        "gulpfile.js"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/menduz/mzcore.git"
+    }
+}

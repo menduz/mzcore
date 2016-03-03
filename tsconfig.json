@@ -38,6 +38,7 @@
     "src/VIEW/TextNode.ts",
     "src/VIEW/Tmpl.ts",
     "src/VIEW/Widget.ts",
+    "src/WIDGETS/Style.ts",
     "src/WIDGETS/mz-form.ts",
     "src/WIDGETS/mz-repeat.ts",
     "src/WIDGETS/mz-switcher.ts",

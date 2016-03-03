@@ -139,7 +139,7 @@ declare namespace mz {
     }
     var hardCodedFiles: Dictionary<string>;
     function escapeRegExp(str: any): any;
-    function loadCss(url: string): any;
+    function loadCss(url: string): HTMLLinkElement;
     function fnInfo(fn: any): {
         params: any;
         body: any;
@@ -748,7 +748,7 @@ declare namespace mz.app {
     interface IAppPage {
         name: string;
         module: string;
-        routes: Array<IAppControllerRoute>;
+        routes: Dictionary<string>;
     }
     interface IAppPageModule extends IAppPage {
     }
@@ -757,34 +757,39 @@ declare namespace mz.app {
      * pages.json#
      * [{
      *   name: "index",
-     *   routes: [{
-     *     name: "ROUTE_NAME",
-     *     route: "index/:id"
-     *   }]
+     *   module: "index.ts",
+     *   routes: {
+     *     "index/:id": "ROUTE_NAME"
+     *   }
      * },
      * ...]
-     * By default, the method's name is used
+     * By default, the target method's name is used
      */
     function RouteName(route_name?: string): (target: Page, propertyKey: string | symbol) => void;
     class Page extends mz.widgets.MzSwitcherPanel {
         routeHandler: mz.Dictionary<Function> | any;
         parent: PageCoordinator;
-        constructor(appController: PageCoordinator);
+        windowTitle: string;
+        private windowTitle_changed();
+        constructor(appController?: PageCoordinator);
         handleRoute(routeName: string, ...args: any[]): void;
         show(): void;
+        pageControllerName: string;
         static instance: Page;
     }
     class PageCoordinator extends mz.widgets.MzSwitcher {
         pages: mz.Collection<IAppPageModule>;
         actualPage: Page;
+        actualPageName: string;
         loadingPage: boolean;
-        routeHistory: string[];
         constructor(opc: {
             templateSelector?: string;
             pages: string | Array<IAppPage>;
         });
         setPages(pages: Array<IAppPage>): void;
         loaded(): void;
+        updatePageTitle(): void;
+        actualPage_changed(page: Page): void;
         show(page: Page): void;
         navigate(route: string, trigger?: boolean): void;
         getPage(pageName: string): Promise<Page>;
@@ -1643,6 +1648,7 @@ declare namespace Reflect {
     function metadata(metadataKey: any, metadataValue: any): any;
     function setObjectSymbol<T>(target: Object, symbol: string | symbol, value: T): T;
     var getPropertyDescriptor: (o: Object, name: string) => PropertyDescriptor;
+    function getPrototypeOf(object: any): any;
 }
 declare module mz {
     interface RouterOptions {
@@ -1898,6 +1904,8 @@ declare namespace mz {
      * Hyperscript for JSX or TSX
      */
     function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
+}
+declare module mz.widgets {
 }
 declare namespace mz.widgets {
     class MzForm<T> extends mz.widgets.MzInput {

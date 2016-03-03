@@ -22,9 +22,9 @@ if (!('Promise' in window)) {
 
 
 namespace mz {
-    
-    
-    
+
+
+
     export interface IForEachable<T> {
         forEach: (cb: ((elem: T, index: string | number) => void)) => void;
         length: number;
@@ -116,7 +116,7 @@ namespace mz {
     export function getPath(path: string, root?: string) {
         var io = 0,
             clave = null,
-            base = root || core_path;
+            base = root || mz.dom.adapter.getBaseHref() || core_path;
 
         (base.substr(-1) !== '/') && (base += '/');
 
@@ -568,26 +568,30 @@ namespace mz {
 
     var cssCargados = {};
 
-    export function loadCss(url: string) {
+    export function loadCss(url: string): HTMLLinkElement {
         url = getPath(url);
+        let absoluteUrl = mz.xr.getAbsoluteUrl(url);
 
         if (url in cssCargados) return cssCargados[url];
+        if (absoluteUrl in cssCargados) return cssCargados[absoluteUrl];
 
         var estilos = document.getElementsByTagName('link'),
             i, ln;
 
         for (i = 0, ln = estilos.length; i < ln; i++) {
-            if (estilos[i].rel == 'stylesheet' && estilos[i].href.split('?')[0] == url) return;
+            if (estilos[i].rel == 'stylesheet' && (estilos[i].href.split('?')[0] == url || estilos[i].href.split('?')[0] == absoluteUrl)) return estilos[i];
         }
 
         if ('createStyleSheet' in document) {
             return cssCargados[url] = (document as any).createStyleSheet(url);
         } else {
-            var style = $("<link rel='stylesheet' href='" + url + "' type='text/css' />");
+            var style = $("<link rel='stylesheet' type='text/css' />");
+            style.attr('href', url);
             //$(function () {
             style.appendTo($("head"))
             //});
-            return cssCargados[url] = style;
+            cssCargados[url] = style;
+            return style[0] as HTMLLinkElement;
         }
     }
 
