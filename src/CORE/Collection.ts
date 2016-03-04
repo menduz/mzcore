@@ -1132,19 +1132,50 @@ namespace mz {
         }
 
         private _remake(noTriggerear?: boolean) {
-            this.clear(noTriggerear);
+            if (this.key) {
+                if (this.get('parent')) {
+                    var arr = this.get('parent').getPrivateArray();
 
-            if (this.get('parent')) {
-                var arr = this.get('parent').getPrivateArray();
+                    var filtro = this.get('filter');
+                    let newArray = [];
 
-                var filtro = this.get('filter');
+                    if (filtro) {
+                        for (var i = 0; i < arr.length; i++) {
+                            if (filtro.call(this, arr[i])) newArray.push(arr[i]);
 
-                if (filtro) {
-                    for (var i in arr)
-                        if (filtro.call(this, arr[i])) this.push(arr[i], noTriggerear);
-                } else
-                    for (var i in arr) this.push(arr[i], noTriggerear);
+                        }
+
+                    } else
+                        newArray = arr;
+
+                    if (newArray.length == 0 && this.length != 0) {
+                        this.clear();
+                        return;
+                    }
+
+                    let result = this.mergeArray(newArray, true);
+
+                    // if we do not add any values, then tecnically we dont have to resort the array in case of deterministic sorts
+                    if (!result.added || !result.added.length) return;
+                } else {
+                    this.clear();
+                }
+            } else {
+                this.clear(noTriggerear);
+
+                if (this.get('parent')) {
+                    var arr = this.get('parent').getPrivateArray();
+
+                    var filtro = this.get('filter');
+
+                    if (filtro) {
+                        for (var i in arr)
+                            if (filtro.call(this, arr[i])) this.push(arr[i], noTriggerear);
+                    } else
+                        for (var i in arr) this.push(arr[i], noTriggerear);
+                }
             }
+
             this.resort();
         }
 
