@@ -64,7 +64,9 @@ Tests
         <div><sarasa test="a" /></div>
     ```
 
-
+- [ ] generateScopedContent of `<scoper><b>{scope.name}</b> (test)</scoper>` generates `[<b>myName</b>, undefined]`
+- [ ] input send a value thru mz-model, the hook transforms the value, the new value should update the input
+- [ ] Collection tests
 
 UIKit
 -----

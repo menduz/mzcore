@@ -1628,6 +1628,7 @@ declare namespace mz {
     }
     class CollectionView<T> extends Collection<T> {
         constructor(base: Collection<T>, opc: IMZCollectionOpc);
+        private filter_changed(nuevo, viejo);
         private _handleChanged(tipo, nuevo, viejo);
         private _remake(noTriggerear?);
         resort(): void;

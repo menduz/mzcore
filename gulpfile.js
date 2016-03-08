@@ -50,12 +50,12 @@ gulp.task('default', ['min'], function () {
 });
 
 gulp.task('test_full', ['default'], function () {
-    qunit('./test/index.html', { 'verbose': true });
+    qunit('./index.html', { 'verbose': true });
 })
 
 
 gulp.task('test', function () {
-    qunit('./test/index.html', { 'verbose': false });
+    qunit('./index.html', { 'verbose': false });
 })
 
 gulp.task('tsconfig_files', function () {
