@@ -94,7 +94,7 @@ class MzModelDirective extends mz.AttributeDirective {
             this.componentBinding = this.component.on(listenVar + "_changed", () => {
                 let actualVal = (this.widget as mz.widgets.MzInput).value;
                 let newVal = this.getter();
-                if (actualVal != newVal && (!newVal || newVal.toString() != actualVal))
+                if (actualVal != newVal)
                     (this.widget as mz.widgets.MzInput).value = newVal;
             });
         } else if (this.widget.rootNode.nodeName.toUpperCase() == 'INPUT' || this.widget.rootNode.nodeName.toUpperCase() == 'SELECT') {
