@@ -1,9 +1,5 @@
 
-class Main extends mz.app.Page {
-    constructor(a){
-        super(a);
-        this.loadTemplate(module.getPath('./index.xml'));
-    }
-}
+@Main.Template(module.getPath('./index.xml'))
+class Main extends mz.app.Page { }
 
 export = Main;

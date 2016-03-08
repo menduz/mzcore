@@ -13,17 +13,18 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 define(["require", "exports"], function (require, exports) {
-    var Main = (function (_super) {
-        __extends(Main, _super);
-        function Main() {
+    var Tabs = (function (_super) {
+        __extends(Tabs, _super);
+        function Tabs() {
             _super.apply(this, arguments);
         }
-        Main = __decorate([
-            Main.Template(module.getPath('./index.xml')), 
+        Tabs.prototype.gotoNamedTab = function () { this.namedTab.show(); };
+        Tabs = __decorate([
+            Tabs.Template(module.getPath("./tabs.xml")), 
             __metadata('design:paramtypes', [])
-        ], Main);
-        return Main;
+        ], Tabs);
+        return Tabs;
     })(mz.app.Page);
-    return Main;
+    return Tabs;
 });
-//# sourceMappingURL=index.js.map
+//# sourceMappingURL=tabs.js.map

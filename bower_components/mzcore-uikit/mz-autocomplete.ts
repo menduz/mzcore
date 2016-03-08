@@ -5,11 +5,14 @@ var cssClassLoading = cssClass + '-loading';
 var cssClassClear = cssClass + '-clear';
 var cssClassOptionContainer = cssClass + '-opc-cont';
 var cssClassLoadingHolder = cssClass + '-loading-holder';
+var cssClassInput = cssClass + '-input';
+
 
 @MzAutocomplete.Template(`
 <div class="${cssClass} {${cssClassHidden}: !this.contentVisible, ${cssClassLoading}: this.contentLoading}" name="elem">
-    <button visible="{this.value != null}" onclick="{this.clear}" class="${cssClassClear}">X</button>
+    <button visible="{this.value != null}" onclick="{this.clear}" class="${cssClassClear}" disabled="{disabled}"></button>
     <input 
+        class="${cssClassInput}"
         type="search" 
         name="input" 
         disabled="{disabled}"
@@ -42,7 +45,7 @@ export class MzAutocomplete extends mz.widgets.MzInput {
 
     private static maxHeight = 130;
 
-    currentInputValue = 0;
+    currentInputValue = '';
 
 
     //elem: mz.Widget;
@@ -51,9 +54,7 @@ export class MzAutocomplete extends mz.widgets.MzInput {
 
     DOMContenedorOpciones: mz.Widget;
 
-    origen: (filtro: string) => Promise<Array<any>>;
-
-    dataList = [];
+    searchMethod: (filtro: string) => Promise<Array<any>>;
 
     onNewLabel: string;
     emptyLabel: string;
@@ -61,6 +62,8 @@ export class MzAutocomplete extends mz.widgets.MzInput {
 
     @MzAutocomplete.proxy
     maxHeight: number;
+
+    dataList = [];
 
     onInputBlur() {
         this.renderValue();
@@ -129,13 +132,15 @@ export class MzAutocomplete extends mz.widgets.MzInput {
     }
 
     constructor(a, b, c, d, e, f) {
-        super(a, b, c, d, e, f);
+        super(a, {}, c, d, e, f);
 
         this.onNew = b.onNew || null;
 
-        this.emptyLabel = b.emptyLabel || ñ('No se encontraron resultados');
+        this.emptyLabel = b.emptyLabel || mz.translate('No se encontraron resultados');
 
-        this.origen = b.origen || null;
+        this.searchMethod = b.searchMethod || null;
+
+        this.initAttr(b);
     }
 
     private clear() {
@@ -158,7 +163,7 @@ export class MzAutocomplete extends mz.widgets.MzInput {
             this.contentLoading = true;
         }
 
-        this.origen && this.origen(val).then(
+        this.searchMethod && this.searchMethod(val).then(
             (datos) => {
                 this.contentLoading = false;
 

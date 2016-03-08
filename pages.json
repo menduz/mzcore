@@ -42,5 +42,19 @@
         "routes": {
             "!examples/ionic": "ionic"
         }
+    },
+    {
+        "name": "examples-uikit-autocomplete",
+        "module": "modules/examples/uikit-autocomplete/uikit-autocomplete",
+        "routes": {
+            "!examples/uikit-autocomplete": "uikit-autocomplete"
+        }
+    },
+    {
+        "name": "examples-uikit-tabs",
+        "module": "modules/examples/uikit-tabs/tabs",
+        "routes": {
+            "!examples/uikit-tabs": "uikit-tabs"
+        }
     }
 ]

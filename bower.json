@@ -6,7 +6,7 @@
     "markdown-it": "^5.1.0",
     "primer-css": "^2.5.0",
     "mzcore": "*",
-    "mzcore-uikit": "*",
+    "mzcore-uikit": "^0.0.4",
     "mzcore-leaflet": "*",
     "mzcore-leaflet-heat": "*",
     "mzcore-leaflet-extensions": "*"

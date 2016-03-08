@@ -2,15 +2,15 @@ export declare class MzAutocomplete extends mz.widgets.MzInput {
     contentVisible: boolean;
     contentLoading: boolean;
     private static maxHeight;
-    currentInputValue: number;
+    currentInputValue: string;
     input: mz.Widget;
     DOMContenedorOpciones: mz.Widget;
-    origen: (filtro: string) => Promise<Array<any>>;
-    dataList: any[];
+    searchMethod: (filtro: string) => Promise<Array<any>>;
     onNewLabel: string;
     emptyLabel: string;
     onNew: (fillData: (x: any) => void, searchedText: string) => void;
     maxHeight: number;
+    dataList: any[];
     onInputBlur(): void;
     onInputKeyDown(evt: mz.IMZComponentEvent): void;
     onKeyUp(evt: mz.IMZComponentEvent): void;

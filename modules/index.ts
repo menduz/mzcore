@@ -1,6 +1,6 @@
-/// <reference path="../dist/mz.d.ts" />
-/// <amd-dependency path="bower_components/markdown-it/dist/markdown-it.min.js" name="MarkdownIt" />
-/// <amd-dependency path="backbone" name="backbone" />
+import * as components from 'components/components';
+
+components.ensureComponents();
 
 declare var MarkdownIt;
 mz.alias("views", module.getPath("./views"));
@@ -10,10 +10,10 @@ declare var hljs;
 
 @mz.AttributeDirective.Register('syntax-from')
 class SyntaxHighlighter extends mz.AttributeDirective {
-    changed(value){
-        $.get(value,data => {
-            
-            
+    changed(value) {
+        $.get(value, data => {
+
+
             this.widget.rootNode.textContent = data.toString();
             requestAnimationFrame(() => hljs.highlightBlock(this.widget.rootNode));
         }, 'text');
@@ -41,11 +41,11 @@ class Index extends mz.app.PageCoordinator {
             templateSelector: '.window',
             pages: 'pages.json'
         });
-        
+
     }
-    
-    
-    loaded(){
+
+
+    loaded() {
         $("#startup").remove();
         $('.hidden-on-load').css('opacity', '1');
     }

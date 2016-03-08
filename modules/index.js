@@ -1,6 +1,3 @@
-/// <reference path="../dist/mz.d.ts" />
-/// <amd-dependency path="bower_components/markdown-it/dist/markdown-it.min.js" name="MarkdownIt" />
-/// <amd-dependency path="backbone" name="backbone" />
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -15,7 +12,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-define(["require", "exports", "bower_components/markdown-it/dist/markdown-it.min.js", "backbone"], function (require, exports, MarkdownIt, backbone) {
+define(["require", "exports", 'components/components'], function (require, exports, components) {
+    components.ensureComponents();
     mz.alias("views", module.getPath("./views"));
     var SyntaxHighlighter = (function (_super) {
         __extends(SyntaxHighlighter, _super);

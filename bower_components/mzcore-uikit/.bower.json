@@ -31,14 +31,14 @@
     "type": "git",
     "url": "git://github.com/menduz/mzcore-uikit.git"
   },
-  "version": "0.0.3",
-  "_release": "0.0.3",
+  "version": "0.0.4",
+  "_release": "0.0.4",
   "_resolution": {
     "type": "version",
-    "tag": "0.0.3",
+    "tag": "0.0.4",
     "commit": "103dc766e7315b519c8fb21f00bd49cf92ea8a88"
   },
   "_source": "git://github.com/menduz/mzcore-uikit.git",
-  "_target": "*",
+  "_target": "^0.0.4",
   "_originalSource": "mzcore-uikit"
 }

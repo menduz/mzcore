@@ -20,13 +20,14 @@ define(["require", "exports"], function (require, exports) {
     var cssClassClear = cssClass + '-clear';
     var cssClassOptionContainer = cssClass + '-opc-cont';
     var cssClassLoadingHolder = cssClass + '-loading-holder';
+    var cssClassInput = cssClass + '-input';
     var MzAutocomplete = (function (_super) {
         __extends(MzAutocomplete, _super);
         function MzAutocomplete(a, b, c, d, e, f) {
-            _super.call(this, a, b, c, d, e, f);
+            _super.call(this, a, {}, c, d, e, f);
             this.contentVisible = false;
             this.contentLoading = false;
-            this.currentInputValue = 0;
+            this.currentInputValue = '';
             this.dataList = [];
             this.selectedItemIndex = 0;
             this.selectedItem = {
@@ -35,8 +36,9 @@ define(["require", "exports"], function (require, exports) {
             };
             this.holderText = $("<div>");
             this.onNew = b.onNew || null;
-            this.emptyLabel = b.emptyLabel || ñ('No se encontraron resultados');
-            this.origen = b.origen || null;
+            this.emptyLabel = b.emptyLabel || mz.translate('No se encontraron resultados');
+            this.searchMethod = b.searchMethod || null;
+            this.initAttr(b);
         }
         MzAutocomplete.prototype.onInputBlur = function () {
             this.renderValue();
@@ -106,7 +108,7 @@ define(["require", "exports"], function (require, exports) {
                 this.contentVisible = true;
                 this.contentLoading = true;
             }
-            this.origen && this.origen(val).then(function (datos) {
+            this.searchMethod && this.searchMethod(val).then(function (datos) {
                 _this.contentLoading = false;
                 _this.handleData(datos);
                 if (_this.find('input')[0] == document.activeElement) {
@@ -275,7 +277,7 @@ define(["require", "exports"], function (require, exports) {
             __metadata('design:returntype', void 0)
         ], MzAutocomplete.prototype, "onChange", null);
         MzAutocomplete = __decorate([
-            MzAutocomplete.Template("\n<div class=\"" + cssClass + " {" + cssClassHidden + ": !this.contentVisible, " + cssClassLoading + ": this.contentLoading}\" name=\"elem\">\n    <button visible=\"{this.value != null}\" onclick=\"{this.clear}\" class=\"" + cssClassClear + "\">X</button>\n    <input \n        type=\"search\" \n        name=\"input\" \n        disabled=\"{disabled}\"\n        required=\"{required}\" \n        placeholder=\"{placeholder}\"\n        onblur=\"{this.onInputBlur}\"\n        onkeydown=\"{this.onInputKeyDown}\"\n        onkeyup=\"{this.onKeyUp}\"\n        autocomplete=\"off\"\n    />\n    \n    <div class=\"" + cssClassOptionContainer + "\" style=\"max-height: {this.maxHeight ? this.maxHeight + 'px' : 'auto'}\" name=\"DOMContenedorOpciones\">\n        <div class=\"" + cssClassLoadingHolder + "\">\n            <div class=\"progress-container active infinite\">\n                <div class=\"progress-bit\" />\n            </div>\n        </div>\n    </div>\n</div>\n"),
+            MzAutocomplete.Template("\n<div class=\"" + cssClass + " {" + cssClassHidden + ": !this.contentVisible, " + cssClassLoading + ": this.contentLoading}\" name=\"elem\">\n    <button visible=\"{this.value != null}\" onclick=\"{this.clear}\" class=\"" + cssClassClear + "\" disabled=\"{disabled}\"></button>\n    <input \n        class=\"" + cssClassInput + "\"\n        type=\"search\" \n        name=\"input\" \n        disabled=\"{disabled}\"\n        required=\"{required}\" \n        placeholder=\"{placeholder}\"\n        onblur=\"{this.onInputBlur}\"\n        onkeydown=\"{this.onInputKeyDown}\"\n        onkeyup=\"{this.onKeyUp}\"\n        autocomplete=\"off\"\n    />\n    \n    <div class=\"" + cssClassOptionContainer + "\" style=\"max-height: {this.maxHeight ? this.maxHeight + 'px' : 'auto'}\" name=\"DOMContenedorOpciones\">\n        <div class=\"" + cssClassLoadingHolder + "\">\n            <div class=\"progress-container active infinite\">\n                <div class=\"progress-bit\" />\n            </div>\n        </div>\n    </div>\n</div>\n"),
             MzAutocomplete.ConfigureEmptyTag,
             MzAutocomplete.ConfigureUnwrapped,
             MzAutocomplete.RegisterComponent('mz-autocomplete'), 
