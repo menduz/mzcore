@@ -97,6 +97,8 @@ class MzModelDirective extends mz.AttributeDirective {
                 if (actualVal != newVal)
                     (this.widget as mz.widgets.MzInput).value = newVal;
             });
+
+
         } else if (this.widget.rootNode.nodeName.toUpperCase() == 'INPUT' || this.widget.rootNode.nodeName.toUpperCase() == 'SELECT') {
             let inputType = this.widget.rootNode.nodeName.toUpperCase() == 'SELECT' ? 'select' : mz.dom.adapter.getAttribute(this.widget.rootNode, "type") || "text";
             inputType = inputType.toUpperCase();
@@ -168,9 +170,8 @@ class MzModelDirective extends mz.AttributeDirective {
                         this.widget.DOM.val(newVal)
                 });
             }
-
-
         }
+        this.touch();
     }
 }
 
