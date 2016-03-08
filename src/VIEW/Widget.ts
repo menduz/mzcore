@@ -540,12 +540,17 @@ module mz {
                 } else {
                     this.set(attrName, value);
                     if (boolAttr) {
+
                         if (value) {
                             if (!mz.dom.adapter.hasAttribute(this.rootNode, attrName))
                                 mz.dom.adapter.setAttribute(this.rootNode, attrName, attrName);
                         } else {
                             if (mz.dom.adapter.hasAttribute(this.rootNode, attrName))
                                 mz.dom.adapter.removeAttribute(this.rootNode, attrName);
+                        }
+
+                        if (attrName in this.rootNode && typeof (this.rootNode[attrName] == "boolean" || typeof this.rootNode[attrName] == "undefined")) {
+                            this.rootNode[attrName] = value;
                         }
                     } else if (regexpOn.test(attrName) && typeofValue === "function" && value !== prevValue) {
                         var cbName = regexpOn.exec(attrName)[1];

@@ -32,8 +32,11 @@ Dev
         }
     }
     ```
-- [ ] mz.boot.js
+- [*] mz.boot.js
 - [ ] check for absolute urls on mz.loadCss
+- [ ] Add redux route to mz.app.PageController
+- [ ] Add redux selector decorator for properties
+- [ ] Add mzproject.json parsing
 
 Tests
 -----
