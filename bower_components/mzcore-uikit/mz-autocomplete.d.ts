@@ -1,0 +1,35 @@
+export declare class MzAutocomplete extends mz.widgets.MzInput {
+    contentVisible: boolean;
+    contentLoading: boolean;
+    private static maxHeight;
+    currentInputValue: number;
+    input: mz.Widget;
+    DOMContenedorOpciones: mz.Widget;
+    origen: (filtro: string) => Promise<Array<any>>;
+    dataList: any[];
+    onNewLabel: string;
+    emptyLabel: string;
+    onNew: (fillData: (x: any) => void, searchedText: string) => void;
+    maxHeight: number;
+    onInputBlur(): void;
+    onInputKeyDown(evt: mz.IMZComponentEvent): void;
+    onKeyUp(evt: mz.IMZComponentEvent): void;
+    onChange(e: mz.IMZComponentEvent): void;
+    constructor(a: any, b: any, c: any, d: any, e: any, f: any);
+    private clear();
+    focus(): void;
+    buscarLista(): void;
+    private selectedItemIndex;
+    private selectedItem;
+    private selectItem(itemIndex, animateScroll);
+    private selectNext();
+    private selectPrev();
+    private chooseSelected();
+    private generateItem(item, index);
+    private renderValue();
+    value_changed(data: any): void;
+    private holderText;
+    private getItemText(element);
+    chooseNew(): void;
+    handleData(data: any[]): void;
+}

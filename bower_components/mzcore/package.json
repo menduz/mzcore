@@ -1,0 +1,29 @@
+{
+  "name": "mzcore",
+  "version": "0.1.1",
+  "scripts": {
+    "test": "gulp default && cd test && tsc && cd .. && gulp test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "gulp": "^3.8.11",
+    "gulp-concat": "*",
+    "gulp-concat-sourcemap": "*",
+    "gulp-insert": "*",
+    "gulp-order": "*",
+    "gulp-qunit": "1.3.1",
+    "gulp-sourcemaps": "*",
+    "gulp-svn": "*",
+    "gulp-tsconfig-files": "*",
+    "gulp-typescript": "*",
+    "gulp-uglify": "*",
+    "merge2": "*",
+    "minimist": "*",
+    "node-qunit-phantomjs": "^1.3.1",
+    "qunitjs": "*",
+    "through": "*",
+    "typescript": "1.7.5",
+    "vinyl": "*",
+    "vinyl-transform": "*"
+  }
+}

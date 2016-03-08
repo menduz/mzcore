@@ -1,0 +1,45 @@
+{
+  "name": "mzcore-leaflet-heat",
+  "description": "Leaflet.Heat wrapper for mzcore",
+  "main": "index.js",
+  "authors": [
+    "Agustin Mendez (@menduz) <agustin.mz.92@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "templates",
+    "mvc",
+    "redux",
+    "leaflet"
+  ],
+  "dependencies": {
+    "mzcore": "*",
+    "mzcore-leaflet": "*"
+  },
+  "homepage": "https://github.com/menduz/mzcore-leaflet-heat",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "test",
+    "tsconfig.json",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/menduz/mzcore-leaflet-heat.git"
+  },
+  "version": "0.0.1",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.1",
+    "commit": "a0bf81c8a2762785dc86f6c4ceee9b3d175245b4"
+  },
+  "_source": "git://github.com/menduz/mzcore-leaflet-heat.git",
+  "_target": "*",
+  "_originalSource": "mzcore-leaflet-heat"
+}

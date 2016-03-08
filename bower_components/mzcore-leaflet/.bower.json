@@ -1,0 +1,44 @@
+{
+  "name": "mzcore-leaflet",
+  "description": "Leaflet component for mzcore",
+  "main": "index.js",
+  "authors": [
+    "Agustin Mendez (@menduz) <agustin.mz.92@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "templates",
+    "mvc",
+    "redux",
+    "ionic"
+  ],
+  "devDependencies": {
+    "mzcore": "*"
+  },
+  "homepage": "https://github.com/menduz/mzcore-leaflet",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "test",
+    "tsconfig.json",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/menduz/mzcore-leaflet.git"
+  },
+  "version": "0.0.1",
+  "_release": "0.0.1",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.0.1",
+    "commit": "1d0140c83351984d02ce3ffe5c6031ce692c0aeb"
+  },
+  "_source": "git://github.com/menduz/mzcore-leaflet.git",
+  "_target": "^0.0.1",
+  "_originalSource": "mzcore-leaflet"
+}

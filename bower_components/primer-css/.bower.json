@@ -17,15 +17,14 @@
     "octicons": "*"
   },
   "homepage": "https://github.com/primer/primer",
-  "version": "2.5.0",
-  "_release": "2.5.0",
+  "version": "2.7.0",
+  "_release": "2.7.0",
   "_resolution": {
     "type": "version",
-    "tag": "v2.5.0",
-    "commit": "c0df9e1a2a75bd67239eff09980b6703aee13123"
+    "tag": "v2.7.0",
+    "commit": "901f14ea27bd321ced2fd6f07d5c55f06d429925"
   },
   "_source": "git://github.com/primer/primer.git",
   "_target": "^2.5.0",
-  "_originalSource": "primer-css",
-  "_direct": true
+  "_originalSource": "primer-css"
 }

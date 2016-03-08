@@ -1,0 +1,38 @@
+{
+  "name": "mzcore-leaflet-extensions",
+  "description": "Leaflet extensions for mzcore",
+  "main": "index.js",
+  "authors": [
+    "Agustin Mendez (@menduz) <agustin.mz.92@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "templates",
+    "mvc",
+    "redux",
+    "leaflet"
+  ],
+  "devDependencies": {
+    "mzcore-leaflet": "*"
+  },
+  "homepage": "https://github.com/menduz/mzcore-leaflet-extensions",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "test",
+    "tsconfig.json",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/menduz/mzcore-leaflet-extensions.git"
+  },
+  "dependencies": {
+    "mzcore": "^0.1.3",
+    "mzcore-leaflet": "^0.0.1"
+  }
+}

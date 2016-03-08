@@ -14,7 +14,7 @@
         <mz-repeat tag="ul" list="{this.todoListPending}" style="padding: 1em 32px;">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" onclick="{updateTask}" checked="{scope.Completed}" /> {scope.Name}
+                    <input type="checkbox" onchange="{updateTask}" checked="{!!scope.Completed}" /> {scope.Name}
                 </label>
             </div>
         </mz-repeat>
@@ -24,7 +24,7 @@
         <mz-repeat tag="ul" list="{this.todoListCompleted}" style="padding: 1em 32px;">
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" onclick="{updateTask}" checked="{scope.Completed}" /> {scope.Name}
+                    <input type="checkbox" onchange="{updateTask}" checked="{scope.Completed}" /> {scope.Name}
                 </label>
             </div>
         </mz-repeat>

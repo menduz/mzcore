@@ -1,0 +1,44 @@
+{
+  "name": "mzcore-uikit",
+  "description": "UIKIT for mzcore",
+  "main": "index.js",
+  "authors": [
+    "Agustin Mendez (@menduz) <agustin.mz.92@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "typescript",
+    "templates",
+    "mvc",
+    "redux",
+    "ui"
+  ],
+  "devDependencies": {
+    "mzcore": "*"
+  },
+  "homepage": "https://github.com/menduz/mzcore-uikit",
+  "moduleType": [
+    "amd"
+  ],
+  "ignore": [
+    "**/.*",
+    "bower_components",
+    "test",
+    "tsconfig.json",
+    "index.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/menduz/mzcore-uikit.git"
+  },
+  "version": "0.0.3",
+  "_release": "0.0.3",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.0.3",
+    "commit": "103dc766e7315b519c8fb21f00bd49cf92ea8a88"
+  },
+  "_source": "git://github.com/menduz/mzcore-uikit.git",
+  "_target": "*",
+  "_originalSource": "mzcore-uikit"
+}
