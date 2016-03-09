@@ -60,6 +60,7 @@ class MzModelDirective extends mz.AttributeDirective {
                 let obj = this.component[match[1]] || {};
                 obj[match[2]] = value;
                 this.component[match[1]] = obj;
+                this.touch();
             }
             this.touch = function() {
                 this.component.touch(match[1]);

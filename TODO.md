@@ -37,6 +37,8 @@ Dev
 - [ ] Add redux route to mz.app.PageController
 - [ ] Add redux selector decorator for properties
 - [ ] Add mzproject.json parsing
+- [ ] url() on styles should prepend the local address
+- [ ] add `dispatch` to redux class
 
 Tests
 -----

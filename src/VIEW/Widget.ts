@@ -157,7 +157,7 @@ module mz {
         // mando directamente Val(hola) a el atributo
         if ((match = lonelyProperty.exec(attrValue)) || (match = lonelyPropertyThis.exec(attrValue))) {
             return observable.on(match[1] + '_changed', function(a, b) {
-                if (a !== b) {
+                if (a !== b || typeof a === "object") {
                     if (widget.attr(attrName) != a)
                         widget.attr(attrName, a);
                 }
@@ -167,7 +167,7 @@ module mz {
         // mando Tmpl("{this.hola}", MVCObject, scope)
         else {
             return observable.on('valueChanged', function(data, elem, a, b) {
-                if (a !== b && attrValue.indexOf(elem) != -1) {
+                if ((a !== b || typeof a === "object") && attrValue.indexOf(elem) != -1) {
                     var t = view.tmpl(attrValue, observable, (widget as any).data.scope);
                     if (widget.attr(attrName) != t)
                         widget.attr(attrName, t);
@@ -236,7 +236,7 @@ module mz {
                     // If the expr is "{prop}" or "{this.prop}" we assume a proxy
                     if ((match = lonelyProperty.exec(value)) || (match = lonelyPropertyThis.exec(value))) {
                         childWidget.listening.push(component.on(match[1] + '_changed', function(a, b) {
-                            if (a != b) {
+                            if (a != b || typeof a == "object") {
                                 if (typeof a === "undefined" || a === null) a = '';
                                 //if (childWidget.rootNode.textContent != a)
                                 //    childWidget.rootNode.textContent = a;
@@ -246,7 +246,7 @@ module mz {
                     } else {
                         // catch other samples, ex: "$ {this.value + scope.value} {currency}"
                         childWidget.listening.push(component.on('valueChanged', function(data, elem, a, b) {
-                            if (a != b && value.indexOf(elem) != -1) {
+                            if ((a != b || typeof a == "object") && value.indexOf(elem) != -1) {
                                 childWidget.refreshScope();
                             }
                         }));
