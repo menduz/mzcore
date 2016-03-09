@@ -64,7 +64,7 @@ module mz.widgets {
         }
 
         update() {
-            this.textValue = transformCssLocal((this.contentNode as HTMLElement).innerText, "#" + this.parent_selector);
+            this.textValue = transformCssLocal((this.contentNode as HTMLElement).textContent, "#" + this.parent_selector);
         }
     }
 }
