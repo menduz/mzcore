@@ -1046,7 +1046,8 @@ namespace mz {
         mergeArray(array: T[] | any[] | Collection<T>, eliminarNoMatcheados?: boolean): { added: T[]; removed: T[] } {
             var ret = {
                 added: [],
-                removed: []
+                removed: [],
+                merged: []
             };
             if (this.opciones.key) {
                 var keys = {};
@@ -1065,11 +1066,11 @@ namespace mz {
                     if (indice != -1) {
                         mz.copy(this.array[indice], elem);
                         this.updateIndex(indice);
+                        ret.merged.push(this.array[indice]);
                     } else {
                         this.push(elem);
                         ret.added.push(elem);
                     }
-
                 }
                 //});
 
@@ -1102,15 +1103,18 @@ namespace mz {
 
             this.set('order', null);
 
-            this.on('filter_changed', (nuevo, viejo) => {
-                this._handleChanged('filter', nuevo, viejo);
-            });
             this.on('order_changed', (nuevo, viejo) => {
                 this._handleChanged('order', nuevo, viejo);
             });
 
             this.attachTo(base);
+        }
 
+        private filter_changed(nuevo, viejo) {
+            nuevo = nuevo || null;
+            if (nuevo != null && typeof nuevo !== "function") throw mz.MVCObject.Exception_RollbackOperation;
+            this._handleChanged('filter', nuevo, viejo);
+            return nuevo;
         }
 
         private _handleChanged(tipo, nuevo, viejo) {
@@ -1132,19 +1136,54 @@ namespace mz {
         }
 
         private _remake(noTriggerear?: boolean) {
-            this.clear(noTriggerear);
+            if (this.key) {
+                if (this.get('parent')) {
+                    var arr = this.get('parent').getPrivateArray();
 
-            if (this.get('parent')) {
-                var arr = this.get('parent').getPrivateArray();
+                    var filtro = this.get('filter');
+                    let newArray = [];
 
-                var filtro = this.get('filter');
+                    if (filtro) {
+                        for (let i = 0; i < arr.length; i++) {
+                            if (filtro(arr[i]))
+                                newArray.push(arr[i]);
+                        }
+                    } else
+                        newArray = arr;
 
-                if (filtro) {
-                    for (var i in arr)
-                        if (filtro.call(this, arr[i])) this.push(arr[i], noTriggerear);
-                } else
-                    for (var i in arr) this.push(arr[i], noTriggerear);
+                    if (newArray.length == 0 && this.length != 0) {
+                        this.clear();
+                        return;
+                    }
+
+                    let result = this.mergeArray(newArray, true);
+
+                    // if we do not add any values, then tecnically we dont have to resort the array in case of deterministic sorts
+                    if (!result.added || !result.added.length) return;
+                } else {
+                    this.clear();
+                }
+            } else {
+                this.clear(noTriggerear);
+
+                if (this.get('parent')) {
+                    var arr = this.get('parent').getPrivateArray();
+
+                    var filtro = this.get('filter');
+
+                    if (filtro) {
+                        for (let i = 0; i < arr.length; i++) {
+                            if (filtro(arr[i]))
+                                this.push(arr[i], noTriggerear);
+                        }
+                    } else {
+                        for (let i = 0; i < arr.length; i++) {
+                            this.push(arr[i], noTriggerear);
+                        }
+                    }
+                }
             }
+
             this.resort();
         }
 
@@ -1184,7 +1223,7 @@ namespace mz {
             this._remake();
         }
         filter(filter: (elem: T) => boolean) {
-            this.set('filter', filter);
+            this.set('filter', filter && filter.bind(this) || null);
             return this;
         }
         orderBy(q) {
@@ -1207,6 +1246,8 @@ namespace mz {
             this.set('parent', obj);
             if (obj) {
                 var that = this;
+
+                this.key = obj.key;
 
                 this.get('bindeosParent').push(obj.on(Collection.EVENTS.AfterClearCollection, function() {
                     that.clear();
@@ -1286,7 +1327,146 @@ namespace mz {
             }
         }
     }
+/*
 
+    export class CollectionRange<T> extends Collection<T> {
+
+        @CollectionRange.proxy
+        start: number = 0;
+
+        @CollectionRange.proxy
+        quantity: number = Infinity;
+
+        private end: number;
+
+        start_changed(val, prevVal) {
+            if (val === prevVal)
+                throw CollectionRange.Exception_PreventPropagation;
+            val = parseInt(val);
+            if (isNaN(val))
+                throw CollectionRange.Exception_RollbackOperation;
+            if (val < 0) val = 0;
+            this.end = val + this.quantity;
+            return val;
+        }
+
+        quantity_changed(val, prevVal) {
+            if (val === prevVal)
+                throw CollectionRange.Exception_PreventPropagation;
+            val = parseInt(val);
+            if (isNaN(val))
+                throw CollectionRange.Exception_RollbackOperation;
+            if (val < 1) val = 1;
+            this.end = val + this.quantity;
+            return val;
+        }
+
+        constructor(base: Collection<T>, opc: IMZCollectionOpc) {
+            super(null, opc);
+
+            this.attachTo(base);
+        }
+
+        private _handleChanged(tipo, nuevo, viejo) {
+            var necesitoReOrdenar = tipo == 'order' || tipo == Collection.EVENTS.CollectionSorted || tipo == 'insert_at' || tipo == 'set_at' || tipo == 'addRange';
+
+            if (tipo == 'clear') {
+                this.clear();
+                necesitoReOrdenar = false;
+            }
+
+            if (tipo == 'addRange' || tipo == 'filter') {
+
+                necesitoReOrdenar = true;
+            }
+        }
+
+        attachTo(obj: Collection<T>) {
+            this.detach();
+            this.set('bindeosParent', []);
+            this.set('parent', obj);
+            if (obj) {
+                var that = this;
+
+                this.key = obj.key;
+
+                this.get('bindeosParent').push(obj.on(Collection.EVENTS.AfterClearCollection, function() {
+                    that.clear();
+                }));
+
+                this.get('bindeosParent').push(
+                    obj.on(Collection.EVENTS.BeforeClearCollection, function(noPropagado) {
+                        that.trigger(CollectionView.EVENTS.BeforeClearCollection, noPropagado);
+                    })
+                );
+
+                this.get('bindeosParent').push(
+                    obj.on('changed', function(tipo, a1, a2) {
+                        if ((tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged) && obj.agregandoLote) return;
+
+                        var filter = that.get('filter');
+
+                        if (tipo == Collection.EVENTS.ElementInserted || tipo == Collection.EVENTS.ElementChanged || tipo == Collection.EVENTS.ElementRemoved) {
+                            var indice = that.indexOf(a2);
+                            if (!filter || filter(a2)) {
+                                switch (tipo) {
+                                    case Collection.EVENTS.ElementInserted:
+                                        if (indice == -1) {
+                                            that.push(a2);
+                                        }
+                                        return;
+                                    case Collection.EVENTS.ElementChanged:
+
+                                        if (indice != -1) {
+                                            that.updateIndex(indice);
+                                        } else {
+                                            that.push(a2);
+                                        }
+
+
+                                        return;
+                                    case Collection.EVENTS.ElementRemoved:
+                                        if (indice != -1) {
+                                            that.removeAt(indice);
+                                            return;
+                                        }
+                                }
+                            } else {
+                                if (indice != -1) {
+                                    that.removeAt(indice);
+                                    return;
+                                }
+                            }
+                        }
+
+                        if (tipo == 'refresh') {
+                            that._remake();
+                            return;
+                        }
+
+                        that._handleChanged.apply(that, arguments);
+                    })
+                );
+
+                this._remake();
+            }
+        }
+        detach() {
+            if (this.get('bindeosParent') && this.get('parent')) {
+                this.clear();
+
+                var bindeos = this.get('bindeosParent');
+
+                for (var i in bindeos) bindeos[i].off();
+
+                bindeos.length = 0;
+
+                this.set('bindeosParent', null);
+                this.set('parent', null);
+            }
+        }
+    }
+*/
     export interface IMZCollectionOpc {
         key?: string;
         initialSize?: number;

@@ -32,8 +32,13 @@ Dev
         }
     }
     ```
-- [ ] mz.boot.js
+- [*] mz.boot.js
 - [ ] check for absolute urls on mz.loadCss
+- [ ] Add redux route to mz.app.PageController
+- [ ] Add redux selector decorator for properties
+- [ ] Add mzproject.json parsing
+- [ ] url() on styles should prepend the local address
+- [ ] add `dispatch` to redux class
 
 Tests
 -----
@@ -64,7 +69,9 @@ Tests
         <div><sarasa test="a" /></div>
     ```
 
-
+- [ ] generateScopedContent of `<scoper><b>{scope.name}</b> (test)</scoper>` generates `[<b>myName</b>, undefined]`
+- [ ] input send a value thru mz-model, the hook transforms the value, the new value should update the input
+- [ ] Collection tests
 
 UIKit
 -----

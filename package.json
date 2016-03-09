@@ -24,6 +24,7 @@
     "through": "*",
     "typescript": "1.7.5",
     "vinyl": "*",
-    "vinyl-transform": "*"
+    "vinyl-transform": "*",
+    "http-server": "*"
   }
 }
