@@ -10,7 +10,7 @@
     <b>Dependencies?</b> No external library or framework is needed, only Visual Studio, VSCode or tsc
     </p>
 
-    <h1>Inspiration</h1>
+    <h1>Motivation</h1>
     <p>
         The idea of this library is to give the opportunity to develop web applications quickly, without needing to use Gulp, Grunt, Bower, Node.js, Babel or other transpiler. Only Typescript, which is included in VSCode or Visual Studio.
     </p><p>
