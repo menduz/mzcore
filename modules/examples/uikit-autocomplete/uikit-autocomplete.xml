@@ -1,39 +1,62 @@
-<div>
+<div class="documentation">
 <style>
     :local(.mz-flex-col) \{ padding: 15px; }
     :local(input) \{ width: calc(100% - 30px) }
-    :local(pre) \{ padding: 10px; background: #eee; margin: 5px 0; }
+    :local(pre) \{ padding: 10px; background: #eee; }
     :local(.mz-autocompletar-clear) \{ width: 20px;  }
     :local(.mz-autocompletar-clear:after) \{ display: inline-block; content: "x"; }
 
 </style>
-    <div style="margin:100px 0 161px 0">
-        <h1 style="text-align:center">Autocomplete (<a href="https://github.com/menduz/mzcore-uikit">UIKIT</a>)</h1>
-        <flex-row>
-            <flex-col>
-                <h3>Presetted value</h3>
-                <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="Type something" mz-model="pre_setted_value">
-                    <b>{scope.Name}</b> ({scope.Github})                                
-                </mz-autocomplete>
-                
-                <pre>Value: {JSON.stringify(this.pre_setted_value, null, 2)}</pre>
-            </flex-col>
-            <flex-col>
-                <h3>Empty value</h3>
-                <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="Search an user" mz-model="empty_value">
-                    <b>{scope.Name}</b> ({scope.Github})                                
-                </mz-autocomplete>
-                
-                <pre>Value: {JSON.stringify(this.empty_value, null, 2)}</pre>
-                
-                <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="(disabled input)" mz-model="empty_value" disabled="true">
-                    <b>{scope.Name}</b> ({scope.Github})             
-                </mz-autocomplete>
-            </flex-col>
-        </flex-row>
-    </div>
-    <h3>uikit-autocomplete.xml</h3>
-    <pre lang="xml" syntax-from="modules/examples/uikit-autocomplete/uikit-autocomplete.xml" />
-    <h3>uikit-autocomplete.ts</h3>
-    <pre lang="typescript" syntax-from="modules/examples/uikit-autocomplete/uikit-autocomplete.ts" />
+    <h1>Autocomplete (<a href="https://github.com/menduz/mzcore-uikit">UIKIT</a>)</h1>
+    <flex-row>
+        <flex-col>
+            <h3>Presetted value</h3>
+            
+            
+            
+            <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="Type something" mz-model="pre_setted_value">
+                <b>{scope.Name}</b> ({scope.Github})                                
+            </mz-autocomplete>
+            
+            
+            
+        </flex-col>
+        <flex-col>
+            <h3>Value inspector</h3>
+            <pre>Value: {JSON.stringify(this.pre_setted_value, null, 2)}</pre>
+        </flex-col>
+    </flex-row>
+    <hr/>
+    <flex-row>
+        <flex-col>
+            <h3>Empty by default</h3>
+            
+            
+            
+            <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="Search an user" mz-model="empty_value">
+                <b>{scope.Name}</b> ({scope.Github})                                
+            </mz-autocomplete>
+            <mz-autocomplete searchMethod="{this.searchUsers}" placeholder="(disabled and binded input)" mz-model="empty_value" disabled="true">
+                {scope.Name.toUpperCase()}        
+            </mz-autocomplete>
+            
+            
+            
+        </flex-col>
+        <flex-col>
+            <h3>Value inspector</h3>
+            <pre>Value = {JSON.stringify(this.empty_value, null, 2)}</pre>
+        </flex-col>
+    </flex-row>
+
+
+    <h2>Source</h2>
+    <mz-taber>
+        <mz-tab label="uikit-autocomplete.xml">
+            <pre lang="xml" syntax-from="modules/examples/uikit-autocomplete/uikit-autocomplete.xml" />
+        </mz-tab>
+        <mz-tab label="uikit-autocomplete.ts">
+            <pre lang="typescript" syntax-from="modules/examples/uikit-autocomplete/uikit-autocomplete.ts" />
+        </mz-tab>
+    </mz-taber>
 </div>

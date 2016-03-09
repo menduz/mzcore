@@ -20,13 +20,6 @@ function createDecrementAction() {
 }
 
 
-
-
-
-
-
-
-
 // STORE AND REDUCER
 let store = createStore(function(state: typeof initialState, action) {
     console.log(arguments);
@@ -34,12 +27,12 @@ let store = createStore(function(state: typeof initialState, action) {
         case INCREMENT:
             return {
                 counter: mz.intval(state.counter) + 1,
-                actionList: cloneArrayAndPush(state.actionList, action)
+                actionList: mz.redux.stateHelpers.cloneArrayAndPush(state.actionList, action)
             };
         case DECREMENT:
             return {
                 counter: mz.intval(state.counter) - 1,
-                actionList: cloneArrayAndPush(state.actionList, action)
+                actionList: mz.redux.stateHelpers.cloneArrayAndPush(state.actionList, action)
             };
     }
 
@@ -53,31 +46,18 @@ let store = createStore(function(state: typeof initialState, action) {
 
 
 // COMPONENT <action-list />, RENDERS THE ACTIONS PERFORMED, STORED ON state.actionList
-@ActionListComponent.RegisterComponent('action-list')
-@mz.redux.connectWidget(state => state.actionList, store)
-@ActionListComponent.Template(`
-<div>
-    <h1>Action history</h1>
-    <mz-repeat list="{scope}" tag="ul">
-        <li>{scope.type}</li>
-    </mz-repeat>
-</div>
-`)
+@mz.redux.connectWidget(state => state.actionList, store)   // redux
+@ActionListComponent.RegisterComponent('action-list')       // register the component
+@ActionListComponent.Template(module.getPath('./action-history.xml'))
 @ActionListComponent.ConfigureUnwrapped
 class ActionListComponent extends mz.Widget { }
 
 
 
-
 // COMPONENT <actual-state />, RENDERS THE ACTUAL STATE
-@ActionListComponent.RegisterComponent('actual-state')
 @mz.redux.connectWidget(state => state, store)
-@ActionListComponent.Template(`
-<div>
-    <h1>Actual state</h1>
-    <pre>{JSON.stringify(scope, null, 2)}</pre>
-</div>
-`)
+@ActionListComponent.RegisterComponent('actual-state')
+@ActionListComponent.Template(module.getPath('./actual-state.xml'))
 @ActionListComponent.ConfigureUnwrapped
 class ActualStateComponent extends mz.Widget { }
 
@@ -100,30 +80,6 @@ class ReduxPage extends mz.app.Page {
         store.dispatch(createDecrementAction());
     }
 }
-
-
-
-
-
-// HELPERS
-
-function cloneArray(array: Array<any>) {
-    let newArray = new Array(array && array.length || 0);
-    array && array.forEach((item, index) => newArray[index] = item);
-    return newArray;
-}
-
-function cloneArrayAndPush(array: Array<any>, element) {
-    let newArray = cloneArray(array);
-    newArray.push(element);
-    return newArray;
-}
-
-
-
-
-
-
 
 
 

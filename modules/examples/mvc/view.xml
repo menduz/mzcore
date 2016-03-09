@@ -1,0 +1,59 @@
+<div class="documentation">
+    <h1>MVC Example</h1>
+    <flex-row>
+        <flex-col style="border:1px solid #e0e0e0; margin:3px; padding:7px; border-radius:3px">
+            <h3>1) Users</h3>
+            <mz-repeat list="{this.userStore}" tag="ul" class="filter-list">
+                <li onclick="{this.selectUser}" class="filter-item {selected: scope == this.currentUser}">{scope.Name}</li>
+            </mz-repeat>
+            <a onclick="{this.createUser}" class="btn btn-sm">Create new user</a>
+        </flex-col>
+        <flex-col style="border:1px solid #e0e0e0; margin:3px; padding:7px; border-radius:3px">
+            <h3>2) Editor</h3>
+            <div visible="{!!this.currentUser}">
+                <h3>{this.userStore.contains(this.currentUser) ? 'Editing user' : 'Creating user'}</h3>
+                <dl class="form { 'errored': !this.currentUser.Name }">
+                    <dt>
+                        <label>Name</label>
+                    </dt>
+                    <dd>
+                        <input type="text" mz-model="currentUser.Name"/>
+                    </dd>
+                    <dd class="error">Invalid name, max length = 10</dd>
+                </dl>
+                <dl class="form { 'errored': !this.currentUser.Email || !this.currentUser.Email.isValidMail() }">
+                    <dt>
+                        <label>Email</label>
+                    </dt>
+                    <dd>
+                        <input type="text" mz-model="currentUser.Email"/>
+                    </dd>
+                    <dd class="error">Invalid email</dd>
+                </dl>
+                <button type="button" class="btn btn-primary" onclick="{this.saveUser}" disabled="{!this.currentUser.isModelValid}">Save changes</button>
+            </div>
+            <div visible="{!this.currentUser}" class="blankslate" style="margin: 0 11px;">
+                <h3>Select an user</h3>
+                <p>or                                                                                                                                             
+                    <a onclick="{this.createUser}">Create new one</a>
+                </p>
+            </div>
+        </flex-col>
+        <flex-col style="border:1px solid #e0e0e0; margin:3px; padding:7px; border-radius:3px">
+            <h3>3) Model viewer</h3>
+            <pre style="background-color:#eee;padding:5px;">{JSON.stringify(this.currentUser.getAll(), null, 2)}</pre>
+        </flex-col>
+    </flex-row>
+    <h1 style="margin-top: 100px">Source</h1>
+    <mz-taber>
+        <mz-tab label="model.ts">
+            <pre lang="typescript" syntax-from="modules/examples/mvc/model.ts" />
+        </mz-tab>
+        <mz-tab label="view.xml">
+            <pre lang="xml" syntax-from="modules/examples/mvc/view.xml" />
+        </mz-tab>
+        <mz-tab label="controller.ts">
+            <pre lang="typescript" syntax-from="modules/examples/mvc/controller.ts" />
+        </mz-tab>
+    </mz-taber>
+</div>

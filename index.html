@@ -270,6 +270,19 @@
             transition: opacity ease .5s;
             -webkit-transition: opacity ease .5s;
         }
+        
+        .documentation {
+            font-size: 1.2em;
+            padding: 1em 1.6em;
+        }
+        
+        .documentation > p {}
+        
+        .documentation .code-section {}
+        
+        .nav-group small {
+            color: #666
+        }
     </style>
 
     <div id="startup">
@@ -290,17 +303,20 @@
                     </nav>
 
                     <nav class="nav-group">
-                        
-                        <style>
-                            .nav-group small \{ color: #666 }
-                        </style>
-                        
+
+
+
                         <h4 class="nav-group-title">Examples</h4>
                         <h5 class="nav-group-title">Tech</h5>
 
                         <div>
                             <a class="nav-group-item" href="#!examples/redux/inc-dec">
                                 <span class="icon icon-list"></span> Redux
+                            </a>
+                        </div>
+                        <div>
+                            <a class="nav-group-item" href="#!examples/mvc/users">
+                                <span class="icon icon-list"></span> MVC
                             </a>
                         </div>
                         <h5 class="nav-group-title">Forms</h5>

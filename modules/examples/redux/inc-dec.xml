@@ -1,25 +1,29 @@
-<div>
-    <div style="padding:11px 15px; border-radius: 3px; border: 1px solid #bbb;margin: 15px;">
-        <h1>Redux test:</h1>
-        
+<div class="documentation">
+    <h1>Redux inc-dec example</h1>
+    <p><a href="http://redux.js.org/index.html" target="_blank">What is redux?</a>, is a predictable state container for JavaScript apps.</p>
+    <p>It helps you write applications that behave consistently, run in different environments (client, server, and native), and are easy to test. </p>
+    
+    <div style="padding:11px; border-radius: 3px; border: 1px solid #bbb;margin: 15px 0;">
         <button onclick="{this.inc}" class="btn">Add one</button>
         <button onclick="{this.dec}" class="btn">Subtract one</button>
-        
         <h1>State: {scope}</h1>
     </div>
-    
     <flex-row>
         <flex-col>
-            <action-list style="padding:11px 15px; border-radius: 3px; border: 1px solid #bbb;margin: 15px;"/>
+            <action-list style="padding:11px; border-radius: 3px; border: 1px solid #bbb;margin:  15px 7px 15px 0;"/>
         </flex-col>
         <flex-col>
-            <actual-state style="padding:11px 15px; border-radius: 3px; border: 1px solid #bbb;margin: 15px;"/>
+            <actual-state style="padding:11px; border-radius: 3px; border: 1px solid #bbb;margin: 15px 0 15px 7px;"/>
         </flex-col>
     </flex-row>
     
-    <h3 style="margin-top:100px">inc-dec.xml</h3> 
+    <h1>Source</h1>
+    <h3 style="margin-top:100px">inc-dec.xml</h3>
     <pre lang="xml" syntax-from="modules/examples/redux/inc-dec.xml" />
-
+    <h3>action-history.xml</h3>
+    <pre lang="xml" syntax-from="modules/examples/redux/action-history.xml" />
+    <h3>actual-state.xml</h3>
+    <pre lang="xml" syntax-from="modules/examples/redux/actual-state.xml" />
     <h3>inc-dec.ts</h3>
     <pre lang="typescript" syntax-from="modules/examples/redux/inc-dec.ts" />
 </div>

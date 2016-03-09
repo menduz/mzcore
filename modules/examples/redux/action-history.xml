@@ -1,0 +1,6 @@
+<div>
+    <h1>Action history</h1>
+    <mz-repeat list="{scope}" tag="div">
+        <div>{scope.type}</div>
+    </mz-repeat>
+</div>

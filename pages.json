@@ -56,5 +56,19 @@
         "routes": {
             "!examples/uikit-tabs": "uikit-tabs"
         }
+    },
+    {
+        "name": "examples-uikit-tabs",
+        "module": "modules/examples/uikit-tabs/tabs",
+        "routes": {
+            "!examples/uikit-tabs": "uikit-tabs"
+        }
+    },
+    {
+        "name": "examples-mvc-users",
+        "module": "modules/examples/mvc/controller",
+        "routes": {
+            "!examples/mvc/users": "mvc-users"
+        }
     }
 ]

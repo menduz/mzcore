@@ -1,0 +1,4 @@
+<div>
+    <h1>Actual state</h1>
+    <pre>{JSON.stringify(scope, null, 2)}</pre>
+</div>

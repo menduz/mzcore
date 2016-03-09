@@ -1,33 +1,41 @@
-<div>
+<div class="documentation">
     <style>    
-        :local \{        
-            padding: 15px;    
-        }
-        
+
         :local(.mz-tab) \{ 
             background: #eee; 
             padding: 11px; 
         }
     </style>
     
-    <div style="margin:100px 0 161px 0">
-        <h1 style="text-align:center">Autocomplete (<a href="https://github.com/menduz/mzcore-uikit">UIKIT</a>)
-        </h1>
-        
-        
-        <mz-taber>
-            <mz-tab label="Tab 1">
-                <button onclick="{this.gotoNamedTab}">Go to named tab</button>
-            </mz-tab>
-            
-            <mz-tab label="Tab 2">Content of tab 2</mz-tab>
-            <mz-tab label="Named Tab" name="namedTab">Content of tab 3, you have no idea how hard is fullfill examples with content.</mz-tab>
-        </mz-taber>
-    </div>
+
+    <h1>
+        Tabs (<a href="https://github.com/menduz/mzcore-uikit">UIKIT</a>)
+    </h1>
     
     
-    <h3>tabs.xml</h3>
-    <pre lang="xml" syntax-from="modules/examples/uikit-tabs/tabs.xml" />
-    <h3>tabs.ts</h3>
-    <pre lang="typescript" syntax-from="modules/examples/uikit-tabs/tabs.ts" />
+    <mz-taber>
+        <mz-tab label="Tab 1">
+            <button onclick="{this.gotoNamedTab}">Go to named tab</button>
+        </mz-tab>
+        
+        <mz-tab label="Tab 2">
+            Content of tab 2
+        </mz-tab>
+        <mz-tab label="Named Tab" name="namedTab">
+            Content of tab 3, you have no idea how hard is fill examples with content.
+            <div>
+                <img src="css/sam.jpg" />
+            </div>
+        </mz-tab>
+    </mz-taber>
+    
+    <h2>Source</h2>
+    <mz-taber>
+        <mz-tab label="tabs.xml">
+            <pre lang="xml" syntax-from="modules/examples/uikit-tabs/tabs.xml" />
+        </mz-tab>
+        <mz-tab label="tabs.ts">
+            <pre lang="typescript" syntax-from="modules/examples/uikit-tabs/tabs.ts" />
+        </mz-tab>
+    </mz-taber>
 </div>

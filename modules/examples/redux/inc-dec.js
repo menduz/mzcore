@@ -34,12 +34,12 @@ define(["require", "exports"], function (require, exports) {
             case INCREMENT:
                 return {
                     counter: mz.intval(state.counter) + 1,
-                    actionList: cloneArrayAndPush(state.actionList, action)
+                    actionList: mz.redux.stateHelpers.cloneArrayAndPush(state.actionList, action)
                 };
             case DECREMENT:
                 return {
                     counter: mz.intval(state.counter) - 1,
-                    actionList: cloneArrayAndPush(state.actionList, action)
+                    actionList: mz.redux.stateHelpers.cloneArrayAndPush(state.actionList, action)
                 };
         }
         return state;
@@ -51,9 +51,11 @@ define(["require", "exports"], function (require, exports) {
             _super.apply(this, arguments);
         }
         ActionListComponent = __decorate([
-            ActionListComponent.RegisterComponent('action-list'),
             mz.redux.connectWidget(function (state) { return state.actionList; }, store),
-            ActionListComponent.Template("\n<div>\n    <h1>Action history</h1>\n    <mz-repeat list=\"{scope}\" tag=\"ul\">\n        <li>{scope.type}</li>\n    </mz-repeat>\n</div>\n"),
+            // redux
+            ActionListComponent.RegisterComponent('action-list'),
+            // register the component
+            ActionListComponent.Template(module.getPath('./action-history.xml')),
             ActionListComponent.ConfigureUnwrapped, 
             __metadata('design:paramtypes', [])
         ], ActionListComponent);
@@ -66,9 +68,9 @@ define(["require", "exports"], function (require, exports) {
             _super.apply(this, arguments);
         }
         ActualStateComponent = __decorate([
-            ActionListComponent.RegisterComponent('actual-state'),
             mz.redux.connectWidget(function (state) { return state; }, store),
-            ActionListComponent.Template("\n<div>\n    <h1>Actual state</h1>\n    <pre>{JSON.stringify(scope, null, 2)}</pre>\n</div>\n"),
+            ActionListComponent.RegisterComponent('actual-state'),
+            ActionListComponent.Template(module.getPath('./actual-state.xml')),
             ActionListComponent.ConfigureUnwrapped, 
             __metadata('design:paramtypes', [])
         ], ActualStateComponent);
@@ -94,17 +96,6 @@ define(["require", "exports"], function (require, exports) {
         ], ReduxPage);
         return ReduxPage;
     })(mz.app.Page);
-    // HELPERS
-    function cloneArray(array) {
-        var newArray = new Array(array && array.length || 0);
-        array && array.forEach(function (item, index) { return newArray[index] = item; });
-        return newArray;
-    }
-    function cloneArrayAndPush(array, element) {
-        var newArray = cloneArray(array);
-        newArray.push(element);
-        return newArray;
-    }
     return ReduxPage;
 });
 //# sourceMappingURL=inc-dec.js.map
