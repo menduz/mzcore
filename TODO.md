@@ -1,4 +1,4 @@
-ALPHA v0.1.0a
+ALPHA v0.1.x
 =====
 Dev
 ---
@@ -16,7 +16,7 @@ Dev
 - [x] redux experiment
 - [x] read checked prop on checkboxs with mz-model
 - [x] read scope from option on selects with mz-model
-- [x] comments are parsed as text
+- [x] comments are parsed as text, should be ignored
 - [x] object pool for generateScopedContent
 - [x] MVCObject hooks
     ```typescript
@@ -36,7 +36,6 @@ Dev
 - [ ] check for absolute urls on mz.loadCss
 - [ ] Add redux route to mz.app.PageController
 - [ ] Add redux selector decorator for properties
-- [ ] Add mzproject.json parsing
 - [ ] url() on styles should prepend the local address
 - [ ] add `dispatch` to redux class
 
