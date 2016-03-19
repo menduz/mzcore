@@ -190,6 +190,7 @@ declare module mz {
         trigger: (event: string, ...params: any[]) => any;
     }
 }
+declare const MVCOBJECT_VALIDATOR_SYMBOL: symbol | string;
 declare namespace mz {
     class MVCObject extends mz.EventDispatcher {
         static EVENTS: {
@@ -205,10 +206,28 @@ declare namespace mz {
         set(field: string, value: any, PreventPropagation?: boolean): void;
         get(field: string): any;
         touch(fieldName: string): void;
+        toJSON(): Dictionary<any>;
+    }
+    class ModelValidator {
+        private target;
+        private propertyKey;
+        props: any;
+        constructor(target: MVCObject, propertyKey: string | symbol, props: any);
+        validate(newVal: any, prevVal: any): any;
     }
 }
 declare namespace mz.MVCObject {
+    interface IModelValidator {
+        (newVal: T, prevVal: T): T;
+    }
+    type TModelValidator = IModelValidator | ModelValidator;
     function proxy(target: mz.MVCObject, propertyKey: string | symbol): void;
+    function ModelProp(props: {
+        validators: TModelValidator[];
+        /** If the assigned value is a MVCObject, then we listen the changes in the inner props */
+        deep?: boolean;
+    }): (target: MVCObject, propertyKey: string | symbol) => void;
+    function proxyDeep(target: MVCObject, propertyKey: string | symbol): void;
 }
 declare module mz.core.decorators {
     function LogResult(target: Function, key: string, value: any): {

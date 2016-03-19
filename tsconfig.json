@@ -18,6 +18,7 @@
     "src/CORE/EventDispatcher.ts",
     "src/CORE/I18n.ts",
     "src/CORE/MVCObject.ts",
+    "src/CORE/Model.ts",
     "src/CORE/Promise.ts",
     "src/CORE/Reflection.ts",
     "src/CORE/Route.ts",
