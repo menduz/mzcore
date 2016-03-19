@@ -2,35 +2,35 @@
 
 module mz {
     export interface I18nTranslate {
-        ( claveIdioma: string, defaultValue?: string ): string;
+        ( localeId: string, defaultValue?: string ): string;
     }
 
     export interface I18nTranslate {
-        faltantes?: any;
-        idioma?: any;
+        missing?: any;
+        dictionary?: any;
     }
 
     var mzLang = ( <any>mz ).mzLang || {};
 
-    var idioma = globalContext.idioma = globalContext.idioma || {};
+    var dictionary = globalContext.idioma = globalContext.idioma || {};
 
     var erroresEncontradosIdioma = {};
 
-    export var translate: I18nTranslate = function ( claveIdioma: string, defaultValue?: string ) {
-        if ( !( claveIdioma in idioma ) ) {
-            if ( claveIdioma in mzLang )
-                return idioma[claveIdioma] = mzLang[claveIdioma];
-            if ( !( claveIdioma in erroresEncontradosIdioma ) ) {
-                ( <any>mz )._debug && console.warn( 'ñ: ' + claveIdioma, defaultValue );
-                erroresEncontradosIdioma[claveIdioma] = defaultValue || claveIdioma;
-                idioma[claveIdioma] = defaultValue || claveIdioma;
+    export var translate: I18nTranslate = function ( localeId: string, defaultValue?: string ) {
+        if ( !( localeId in dictionary ) ) {
+            if ( localeId in mzLang )
+                return dictionary[localeId] = mzLang[localeId];
+            if ( !( localeId in erroresEncontradosIdioma ) ) {
+                ( <any>mz )._debug && console.warn( 'Missing translation: ' + localeId, defaultValue );
+                erroresEncontradosIdioma[localeId] = defaultValue || localeId;
+                dictionary[localeId] = defaultValue || localeId;
             }
         }
-        return idioma[claveIdioma];
+        return dictionary[localeId];
     }
 
-    translate.faltantes = erroresEncontradosIdioma;
-    translate.idioma = idioma;
+    translate.missing = erroresEncontradosIdioma;
+    translate.dictionary = dictionary;
 
     globalContext["ñ"] = translate;
 } 
