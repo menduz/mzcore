@@ -29,6 +29,7 @@ namespace MzClassNameDirective {
                 if (ensuredArray.indexOf(element) == -1)
                     ensuredArray.push(element);
             }
+            return target;
         }
     }
 }

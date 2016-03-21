@@ -134,7 +134,7 @@ namespace mz {
 
 namespace mz.MVCObject {
     export interface IModelValidator {
-        (newVal: T, prevVal: T): T;
+        <T>(newVal: T, prevVal: T): T;
     }
 
     export type TModelValidator = IModelValidator | ModelValidator;

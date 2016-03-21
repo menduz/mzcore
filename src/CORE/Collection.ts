@@ -250,7 +250,7 @@ namespace mz {
                 }
 
                 if (element[this.opciones.key] in this.__indice__) {
-                    console.error('#insertAt(at: number, element: T) this collection already has an element with the same key ' + this.opciones.key + "=" + elemento[this.opciones.key] + ' use #mergeElem(element) or #replaceByKey(element) instead');
+                    console.error('#insertAt(at: number, element: T) this collection already has an element with the same key ' + this.opciones.key + "=" + element[this.opciones.key] + ' use #mergeElem(element) or #replaceByKey(element) instead');
                     return;
                 }
             }

@@ -35,7 +35,6 @@
     "src/VIEW/DIRECTIVES/className.ts",
     "src/VIEW/Helpers.ts",
     "src/VIEW/HtmlSanitizer.ts",
-    "src/VIEW/TSX.ts",
     "src/VIEW/TextNode.ts",
     "src/VIEW/Tmpl.ts",
     "src/VIEW/Widget.ts",
