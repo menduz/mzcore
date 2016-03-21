@@ -1,7 +1,6 @@
 {
   "files": [
     "src/APP/AppController.ts",
-    "src/APP/Redux.ts",
     "src/AUTH/JWT.ts",
     "src/AUTH/OAuth2.ts",
     "src/CORE/AMD/Define.ts",
@@ -18,7 +17,9 @@
     "src/CORE/EventDispatcher.ts",
     "src/CORE/I18n.ts",
     "src/CORE/MVCObject.ts",
+    "src/CORE/Model.ts",
     "src/CORE/Promise.ts",
+    "src/CORE/Redux.ts",
     "src/CORE/Reflection.ts",
     "src/CORE/Route.ts",
     "src/CORE/Strings.ts",
@@ -34,7 +35,6 @@
     "src/VIEW/DIRECTIVES/className.ts",
     "src/VIEW/Helpers.ts",
     "src/VIEW/HtmlSanitizer.ts",
-    "src/VIEW/TSX.ts",
     "src/VIEW/TextNode.ts",
     "src/VIEW/Tmpl.ts",
     "src/VIEW/Widget.ts",

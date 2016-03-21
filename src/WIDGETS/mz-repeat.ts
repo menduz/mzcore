@@ -76,8 +76,8 @@ module mz.widgets {
             }
 
             if (this.list && list instanceof mz.Collection) {
-                this.listenersLista.push((this.list as mz.Collection<T>).on('changed', this.redraw.bind(this)));
-                this.listenersLista.push((this.list as mz.Collection<T>).on('pre_clear', a => this.redraw('pre_clear', a)));
+                this.listenersLista.push((this.list as mz.Collection<any>).on('changed', this.redraw.bind(this)));
+                this.listenersLista.push((this.list as mz.Collection<any>).on('pre_clear', a => this.redraw('pre_clear', a)));
             }
 
             if (this.list && this.list.length && !!this.collectionKey /* collection initialized */)

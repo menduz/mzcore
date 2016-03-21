@@ -293,6 +293,56 @@ QUnit.test("MzModel, classProperty model ex: mz-model='object.name'", function (
         });
     }, 200);
 });
+QUnit.test("MzModel, classProperty model ex: mz-model='object.name' and template", function (assert) {
+    var TestComponent = (function (_super) {
+        __extends(TestComponent, _super);
+        function TestComponent() {
+            _super.apply(this, arguments);
+        }
+        __decorate([
+            mz.Widget.proxy, 
+            __metadata('design:type', Object)
+        ], TestComponent.prototype, "object", void 0);
+        TestComponent = __decorate([
+            mz.Widget.Template("<div><input mz-model=\"object.name\" /><span>{this.object.name}</span></div>"), 
+            __metadata('design:paramtypes', [])
+        ], TestComponent);
+        return TestComponent;
+    })(mz.widgets.BasePagelet);
+    var result = new TestComponent();
+    var theInput = result.find('input')[0];
+    var theSpan = result.find('span')[0];
+    var done = assert.async();
+    assert.ok(theInput instanceof HTMLInputElement, 'input found');
+    assert.ok(result.object == undefined, 'Value should start undefined');
+    theInput.value = 'test';
+    dispatchChangeEvent(theInput);
+    setTimeout(function () {
+        assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with undefined prevState');
+        assert.equal(theInput.value, theSpan.textContent, 'object.name did reflected on the template by input change');
+        result.object = { name: 'val' };
+        assert.equal(result.object.name, theSpan.textContent, 'result.object.name did reflected on the template by setter');
+        requestAnimationFrame(function () {
+            assert.equal(theInput.value, 'val', 'Value reflected on input');
+            result.object.name = 'aaaaa';
+            requestAnimationFrame(function () {
+                assert.equal(theInput.value, 'val', 'Changing inner props should not update the view since it does not propagate events');
+                assert.equal(theSpan.textContent, 'val', 'Changing inner props should not update the SPAN in the view since it does not propagate events');
+                theInput.value = 'test';
+                dispatchChangeEvent(theInput);
+                assert.equal(JSON.stringify(result.object), JSON.stringify({ name: 'test' }), 'Event changed on input reflected on model with defined prevState');
+                result.object = { t: 1 };
+                assert.equal(theInput.value, '', 'Invalid model undefines value of input');
+                theInput.value = 'testa';
+                dispatchChangeEvent(theInput);
+                var t = { t: 1 };
+                t.name = 'testa';
+                assert.equal(JSON.stringify(result.object), JSON.stringify(t), 'Only the model property should be updated on the target object');
+                done();
+            });
+        });
+    }, 200);
+});
 function exprTests(assrt) {
     var assert = assrt.ok.bind(assrt);
     var scope = new mz.MVCObject();

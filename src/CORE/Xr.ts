@@ -70,14 +70,6 @@ module mz {
 
             xhr.addEventListener(xr.Events.READY_STATE_CHANGE, function(e) {
                 if (xhr.readyState == 4) {
-                    try {
-                        if (xhr.status >= 500 && xhr.getResponseHeader("jsonerror") == "true") {
-                            var json = JSON.parse(xhr.responseText);
-                            console.error ? console.error('JsonError: ' + json.Message, json) : console.log('JsonError: ' + json.Message, json);
-                        }
-                    } catch (e) {
-
-                    }
                     var resultado = mz.copy(res(xhr), {
                         data: xhr.response ? !opts.raw ? opts.load(xhr.response, xhr) : xhr.response : null,
                         url: originalURL

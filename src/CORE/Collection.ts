@@ -42,9 +42,9 @@ namespace mz {
                 return this.array[this.array.length - 1];
         }
         /**
-        Limpia la coleccion
+        Cleans the collection
         @method clear
-        @param {Boolean} noTriggerear si es "true" entonces no se desencadena ningun evento del tipo "changed"
+        @param {Boolean} noTriggerear if true, it does not propagate the "changed" event
         */
         clear(noTriggerear?: boolean) {
             this.trigger(Collection.EVENTS.BeforeClearCollection, !!noTriggerear);
@@ -54,14 +54,14 @@ namespace mz {
             !noTriggerear && this.emit(Collection.EVENTS.Changed, 'clear', !!noTriggerear);
         }
         /**
-        Tamaño de la coleccion (getter)
+        Gets the length of the collection
         @property length
         */
         get length() {
             return this.array.length;
         }
         /**
-        Tamaño de la coleccion (setter)
+        Sets the collection length
         @property length
         */
         set length(value) {
@@ -74,7 +74,7 @@ namespace mz {
         }
 
         setLength(nuevoTamanio: number) {
-            if (nuevoTamanio < 0) throw "Tamanio invalido";
+            if (nuevoTamanio < 0) throw "Invalid size";
             if (this.getLength() > nuevoTamanio) {
                 while (this.getLength() > nuevoTamanio) {
                     this.pop();
@@ -93,7 +93,7 @@ namespace mz {
 	    @param {Function} callback función que se va a ejecutar, a esta function se le pasa 1 argumento, el elemento de la coleccion que se esta iterando
 	    */
         map<J>(func: (elem: T) => J, thisp?: any): Collection<J> {
-            var thisp = arguments[1] || this;
+            var thisp = thisp || this;
 
             var coll = new Collection<J>();
 
@@ -109,7 +109,7 @@ namespace mz {
 	    @param {Function|MzDelegate} callback función que se va a ejecutar, a esta function se le pasan 2 argumentos, el elemento de la coleccion que se esta iterando y el indice (zero based) dentro de la coleccion.
 	    */
         forEach(func: (elem: T, index: number) => void, thisp?: any): void {
-            var thisp = arguments[1] || this;
+            var thisp = thisp || this;
 
             if ('forEach' in this.array) {
                 this.array.forEach(func, thisp);
@@ -155,7 +155,7 @@ namespace mz {
 
         private _indizar(elem, index) {
             if (this.opciones.key) {
-                if (!(this.opciones.key in elem)) throw "No tiene la clave primaria";
+                if (!(this.opciones.key in elem)) throw new TypeError("Element does not have key:" + this.opciones.key);
                 if (typeof elem[this.opciones.key] != 'undefined') {
                     this.__indice__[elem[this.opciones.key]] = index;
                 }
@@ -243,34 +243,58 @@ namespace mz {
 	    @param {Number} indice
 	    @param {Mixed} elemento
 	    */
-        insertAt(indice: number, elemento: T): void {
+        insertAt(indice: number, element: T): void {
             if (this.opciones.key) {
-                if (!(this.opciones.key in elemento)) {
-                    console.error('El elemento insertado no tiene el campo ' + this.opciones.key);
-                    return;
+                if (!(this.opciones.key in element)) {
+                    throw new TypeError("#insertAt(at: number, element: T) the element doesn't have key: " + this.opciones.key);
                 }
 
-                if (elemento[this.opciones.key] in this.__indice__) {
-                    console.error('El elemento insertado ya existe en la coleccion ' + this.opciones.key + "=" + elemento[this.opciones.key]);
+                if (element[this.opciones.key] in this.__indice__) {
+                    console.error('#insertAt(at: number, element: T) this collection already has an element with the same key ' + this.opciones.key + "=" + element[this.opciones.key] + ' use #mergeElem(element) or #replaceByKey(element) instead');
                     return;
                 }
             }
 
             if (indice == this.array.length) {
-                this.array.push(elemento);
-                this._indizar(elemento, indice);
+                this.array.push(element);
+                this._indizar(element, indice);
+                this.emit(Collection.EVENTS.ElementInserted, indice, element);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementInserted, indice, element);
             } else {
-                var fin = this.array.splice(indice);
-                this.array.push(elemento);
-                this.array = this.array.concat(fin);
+                var fin = this.array.splice(indice, 0, element);
+                
                 this._reindizar();
+                
+                this.emit(Collection.EVENTS.ElementInserted, indice, element);
+                this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementInserted, indice, element);
                 this.emit(Collection.EVENTS.CollectionSorted);
                 this.emit(Collection.EVENTS.Changed, Collection.EVENTS.CollectionSorted);
             }
-
-            this.emit(Collection.EVENTS.ElementInserted, indice, elemento);
-            this.emit(Collection.EVENTS.Changed, Collection.EVENTS.ElementInserted, indice, elemento);
         }
+        
+        
+        /** Replaces an element by key. If the given key is not present then pushes the element at the end of the collection */
+        replaceByKey(element: T){
+            if (this.opciones.key) {
+                if (!(this.opciones.key in element)) {
+                    throw new TypeError("#replace(element: T) the element doesn't have key:  " + this.opciones.key);
+                }
+                
+                let actualIndex = this.indexedGetIndex(element[this.opciones.key]);
+                
+                if (actualIndex != -1) {
+                    this.removeAt(actualIndex);
+                    this.insertAt(actualIndex, element);
+                } else {
+                    this.push(element);
+                }
+                
+            } else {
+                throw new TypeError("#replace(element: T) can only be used on keyed collections.");
+            }
+        }
+        
+        
         /**
 	    Remueve un elemento en cualquier posicion de la coleccion. Dispara evento "changed" con los mismos argumentos que el evento "remove_at"
 	    @method removeAt
@@ -825,6 +849,8 @@ namespace mz {
                     this.push(elem);
                     return elem;
                 }
+            } else {
+                throw new TypeError("#mergeElem(element: T) can only be used on keyed collections.");
             }
         }
 
@@ -1079,7 +1105,7 @@ namespace mz {
                         return !(elem[this.opciones.key] in keys);
                     });
                 }
-            } else console.error("You cannot mergeArray if the collection does not have 'key'")
+            } else throw new TypeError("#mergeArray(elements: T[]) can only be used on keyed collections.");
             return ret;
         }
 

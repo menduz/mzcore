@@ -191,6 +191,7 @@ declare module mz {
     }
 }
 declare namespace mz {
+    const MVCOBJECT_VALIDATOR_SYMBOL: symbol | string;
     class MVCObject extends mz.EventDispatcher {
         static EVENTS: {
             setValues: string;
@@ -205,10 +206,28 @@ declare namespace mz {
         set(field: string, value: any, PreventPropagation?: boolean): void;
         get(field: string): any;
         touch(fieldName: string): void;
+        toJSON(): Dictionary<any>;
+    }
+    class ModelValidator {
+        private target;
+        private propertyKey;
+        props: any;
+        constructor(target: MVCObject, propertyKey: string | symbol, props: any);
+        validate(newVal: any, prevVal: any): any;
     }
 }
 declare namespace mz.MVCObject {
+    interface IModelValidator {
+        <T>(newVal: T, prevVal: T): T;
+    }
+    type TModelValidator = IModelValidator | ModelValidator;
     function proxy(target: mz.MVCObject, propertyKey: string | symbol): void;
+    function ModelProp(props: {
+        validators: TModelValidator[];
+        /** If the assigned value is a MVCObject, then we listen the changes in the inner props */
+        deep?: boolean;
+    }): (target: MVCObject, propertyKey: string | symbol) => void;
+    function proxyDeep(target: MVCObject, propertyKey: string | symbol): void;
 }
 declare module mz.core.decorators {
     function LogResult(target: Function, key: string, value: any): {
@@ -795,124 +814,6 @@ declare namespace mz.app {
         getPage(pageName: string): Promise<Page>;
     }
 }
-declare namespace mz.redux {
-    namespace stateHelpers {
-        function cloneArray<T>(array: IForEachable<T>): Array<T>;
-        function cloneArrayAndPush<T>(array: IForEachable<any>, element: any): Array<T>;
-        function cloneDeep<T>(object: T): T;
-        function cloneShallow<T>(object: T): T;
-    }
-    interface IAppState {
-    }
-    namespace ActionTypes {
-        var INIT: string;
-    }
-    interface ActionCreator extends Function {
-        (...args: any[]): any;
-    }
-    interface Reducer extends Function {
-        (state: any, action: any): any;
-    }
-    interface Dispatch extends Function {
-        (action: any): any;
-    }
-    interface StoreMethods {
-        dispatch: Dispatch;
-        getState(): any;
-    }
-    interface MiddlewareArg {
-        dispatch: Dispatch;
-        getState: Function;
-    }
-    interface Middleware extends Function {
-        (obj: MiddlewareArg): Function;
-    }
-    interface IStore {
-        replaceReducer(nextReducer: Reducer): void;
-        dispatch(action: any): any;
-        getState(): IAppState;
-        subscribe(listener: Function): Function;
-    }
-    var PropertyChangeOnValueMutation: PropertyDecorator;
-    var PropertyChangeOnReferenceMutation: PropertyDecorator;
-    function connectWidget(selector: (state) => any, store: IStore): ClassDecorator;
-    function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
-    function shallowEqual(objA: any, objB: any): boolean;
-    /**
-     * Turns an object whose values are action creators, into an object with the
-     * same keys, but with every function wrapped into a `dispatch` call so they
-     * may be invoked directly. This is just a convenience method, as you can call
-     * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
-     *
-     * For convenience, you can also pass a single function as the first argument,
-     * and get a function in return.
-     *
-     * @param {Function|Object} actionCreators An object whose values are action
-     * creator functions. One handy way to obtain it is to use ES6 `import * as`
-     * syntax. You may also pass a single function.
-     *
-     * @param {Function} dispatch The `dispatch` function available on your Redux
-     * store.
-     *
-     * @returns {Function|Object} The object mimicking the original object, but with
-     * every action creator wrapped into the `dispatch` call. If you passed a
-     * function as `actionCreators`, the return value will also be a single
-     * function.
-     */
-    function bindActionCreators<T>(actionCreators: T, dispatch: Dispatch): T;
-    /**
-     * Creates a store enhancer that applies middleware to the dispatch method
-     * of the Redux store. This is handy for a variety of tasks, such as expressing
-     * asynchronous actions in a concise manner, or logging every action payload.
-     *
-     * See `redux-thunk` package as an example of the Redux middleware.
-     *
-     * Because middleware is potentially asynchronous, this should be the first
-     * store enhancer in the composition chain.
-     *
-     * Note that each middleware will be given the `dispatch` and `getState` functions
-     * as named arguments.
-     *
-     * @param {...Function} middlewares The middleware chain to be applied.
-     * @returns {Function} A store enhancer applying the middleware.
-     */
-    function applyMiddleware(...middlewares: Middleware[]): Function;
-    /**
-     * Composes single-argument functions from right to left. The rightmost
-     * function can take multiple arguments as it provides the signature for
-     * the resulting composite function.
-     *
-     * @param {...Function} funcs The functions to compose.
-     * @returns {Function} A function obtained by composing the argument functions
-     * from right to left. For example, compose(f, g, h) is identical to doing
-     * (...args) => f(g(h(...args))).
-     */
-    function compose<T extends Function>(...funcs: Function[]): T;
-    function createStore(reducer: Reducer, initialState?: any, enhancer?: (store: typeof createStore) => any): IStore;
-    /**
-     * Turns an object whose values are different reducer functions, into a single
-     * reducer function. It will call every child reducer, and gather their results
-     * into a single state object, whose keys correspond to the keys of the passed
-     * reducer functions.
-     *
-     * @param {Object} reducers An object whose values correspond to different
-     * reducer functions that need to be combined into one. One handy way to obtain
-     * it is to use ES6 `import * as reducers` syntax. The reducers may never return
-     * undefined for any action. Instead, they should return their initial state
-     * if the state passed to them was undefined, and the current state for any
-     * unrecognized action.
-     *
-     * @returns {Function} A reducer function that invokes every reducer inside the
-     * passed object, and builds a state object with the same shape.
-     */
-    function combineReducers(reducers: any): Reducer;
-    interface Manager {
-        when: (filter: Object | Function | String, fn: Reducer) => Manager;
-        otherwise: (fn: Reducer) => Manager;
-        use: (fn: Reducer) => Manager;
-    }
-    function createManager(): Reducer & Manager;
-}
 declare namespace mz.auth.jwt {
     function urlBase64Decode(str: any): any;
     function decodeToken(token: any): any;
@@ -921,11 +822,11 @@ declare namespace mz.auth.jwt {
 }
 declare module mz {
     interface I18nTranslate {
-        (claveIdioma: string, defaultValue?: string): string;
+        (localeId: string, defaultValue?: string): string;
     }
     interface I18nTranslate {
-        faltantes?: any;
-        idioma?: any;
+        missing?: any;
+        dictionary?: any;
     }
     var translate: I18nTranslate;
 }
@@ -1322,17 +1223,17 @@ declare namespace mz {
         first(): T;
         last(): T;
         /**
-        Limpia la coleccion
+        Cleans the collection
         @method clear
-        @param {Boolean} noTriggerear si es "true" entonces no se desencadena ningun evento del tipo "changed"
+        @param {Boolean} noTriggerear if true, it does not propagate the "changed" event
         */
         clear(noTriggerear?: boolean): void;
         /**
-        Tamaño de la coleccion (getter)
+        Gets the length of the collection
         @property length
         */
         /**
-        Tamaño de la coleccion (setter)
+        Sets the collection length
         @property length
         */
         length: number;
@@ -1388,7 +1289,9 @@ declare namespace mz {
         @param {Number} indice
         @param {Mixed} elemento
         */
-        insertAt(indice: number, elemento: T): void;
+        insertAt(indice: number, element: T): void;
+        /** Replaces an element by key. If the given key is not present then pushes the element at the end of the collection */
+        replaceByKey(element: T): void;
         /**
         Remueve un elemento en cualquier posicion de la coleccion. Dispara evento "changed" con los mismos argumentos que el evento "remove_at"
         @method removeAt
@@ -1644,6 +1547,124 @@ declare namespace mz {
         initialSize?: number;
     }
 }
+declare namespace mz.redux {
+    namespace stateHelpers {
+        function cloneArray<T>(array: IForEachable<T>): Array<T>;
+        function cloneArrayAndPush<T>(array: IForEachable<any>, element: any): Array<T>;
+        function cloneDeep<T>(object: T): T;
+        function cloneShallow<T>(object: T): T;
+    }
+    interface IAppState {
+    }
+    namespace ActionTypes {
+        var INIT: string;
+    }
+    interface ActionCreator extends Function {
+        (...args: any[]): any;
+    }
+    interface Reducer extends Function {
+        (state: any, action: any): any;
+    }
+    interface Dispatch extends Function {
+        (action: any): any;
+    }
+    interface StoreMethods {
+        dispatch: Dispatch;
+        getState(): any;
+    }
+    interface MiddlewareArg {
+        dispatch: Dispatch;
+        getState: Function;
+    }
+    interface Middleware extends Function {
+        (obj: MiddlewareArg): Function;
+    }
+    interface IStore {
+        replaceReducer(nextReducer: Reducer): void;
+        dispatch(action: any): any;
+        getState(): IAppState;
+        subscribe(listener: Function): Function;
+    }
+    var PropertyChangeOnValueMutation: PropertyDecorator;
+    var PropertyChangeOnReferenceMutation: PropertyDecorator;
+    function connectWidget(selector: (state) => any, store: IStore): ClassDecorator;
+    function wrapActionCreators(actionCreators: any): (dispatch: any) => any;
+    function shallowEqual(objA: any, objB: any): boolean;
+    /**
+     * Turns an object whose values are action creators, into an object with the
+     * same keys, but with every function wrapped into a `dispatch` call so they
+     * may be invoked directly. This is just a convenience method, as you can call
+     * `store.dispatch(MyActionCreators.doSomething())` yourself just fine.
+     *
+     * For convenience, you can also pass a single function as the first argument,
+     * and get a function in return.
+     *
+     * @param {Function|Object} actionCreators An object whose values are action
+     * creator functions. One handy way to obtain it is to use ES6 `import * as`
+     * syntax. You may also pass a single function.
+     *
+     * @param {Function} dispatch The `dispatch` function available on your Redux
+     * store.
+     *
+     * @returns {Function|Object} The object mimicking the original object, but with
+     * every action creator wrapped into the `dispatch` call. If you passed a
+     * function as `actionCreators`, the return value will also be a single
+     * function.
+     */
+    function bindActionCreators<T>(actionCreators: T, dispatch: Dispatch): T;
+    /**
+     * Creates a store enhancer that applies middleware to the dispatch method
+     * of the Redux store. This is handy for a variety of tasks, such as expressing
+     * asynchronous actions in a concise manner, or logging every action payload.
+     *
+     * See `redux-thunk` package as an example of the Redux middleware.
+     *
+     * Because middleware is potentially asynchronous, this should be the first
+     * store enhancer in the composition chain.
+     *
+     * Note that each middleware will be given the `dispatch` and `getState` functions
+     * as named arguments.
+     *
+     * @param {...Function} middlewares The middleware chain to be applied.
+     * @returns {Function} A store enhancer applying the middleware.
+     */
+    function applyMiddleware(...middlewares: Middleware[]): Function;
+    /**
+     * Composes single-argument functions from right to left. The rightmost
+     * function can take multiple arguments as it provides the signature for
+     * the resulting composite function.
+     *
+     * @param {...Function} funcs The functions to compose.
+     * @returns {Function} A function obtained by composing the argument functions
+     * from right to left. For example, compose(f, g, h) is identical to doing
+     * (...args) => f(g(h(...args))).
+     */
+    function compose<T extends Function>(...funcs: Function[]): T;
+    function createStore(reducer: Reducer, initialState?: any, enhancer?: (store: typeof createStore) => any): IStore;
+    /**
+     * Turns an object whose values are different reducer functions, into a single
+     * reducer function. It will call every child reducer, and gather their results
+     * into a single state object, whose keys correspond to the keys of the passed
+     * reducer functions.
+     *
+     * @param {Object} reducers An object whose values correspond to different
+     * reducer functions that need to be combined into one. One handy way to obtain
+     * it is to use ES6 `import * as reducers` syntax. The reducers may never return
+     * undefined for any action. Instead, they should return their initial state
+     * if the state passed to them was undefined, and the current state for any
+     * unrecognized action.
+     *
+     * @returns {Function} A reducer function that invokes every reducer inside the
+     * passed object, and builds a state object with the same shape.
+     */
+    function combineReducers(reducers: any): Reducer;
+    interface Manager {
+        when: (filter: Object | Function | String, fn: Reducer) => Manager;
+        otherwise: (fn: Reducer) => Manager;
+        use: (fn: Reducer) => Manager;
+    }
+    function createManager(): Reducer & Manager;
+}
 declare namespace Reflect {
     var MetadataInfo: string | symbol;
     function metadata(metadataKey: any, metadataValue: any): any;
@@ -1755,6 +1776,10 @@ declare class MzRawDirective extends mz.AttributeDirective {
 declare class MzClassNameDirective extends mz.AttributeDirective {
     changed(value: string, prevVal: string): void;
 }
+declare namespace MzClassNameDirective {
+    const ENSURED_CLASSNAME: symbol | string;
+    function EnsureClassName<TFunction extends Function>(classNames: string): ClassDecorator;
+}
 declare class MzVisibleDirective extends mz.AttributeDirective {
     static vendorHiddenClass: string;
     private listener;
@@ -1767,144 +1792,6 @@ declare module mz.view {
 }
 declare module mz.view.html {
     function escape(str: any): string;
-}
-declare namespace JSX {
-    interface Element extends mz.Widget {
-    }
-    interface ElementClass extends mz.Widget {
-    }
-    interface ElementAttributesProperty {
-        props: {};
-    }
-    interface IntrinsicElements {
-        a: mz.Widget.HTMLAttributes;
-        abbr: mz.Widget.HTMLAttributes;
-        address: mz.Widget.HTMLAttributes;
-        area: mz.Widget.HTMLAttributes;
-        article: mz.Widget.HTMLAttributes;
-        aside: mz.Widget.HTMLAttributes;
-        audio: mz.Widget.HTMLAttributes;
-        b: mz.Widget.HTMLAttributes;
-        base: mz.Widget.HTMLAttributes;
-        bdi: mz.Widget.HTMLAttributes;
-        bdo: mz.Widget.HTMLAttributes;
-        big: mz.Widget.HTMLAttributes;
-        blockquote: mz.Widget.HTMLAttributes;
-        body: mz.Widget.HTMLAttributes;
-        br: mz.Widget.HTMLAttributes;
-        button: mz.Widget.HTMLAttributes;
-        canvas: mz.Widget.HTMLAttributes;
-        caption: mz.Widget.HTMLAttributes;
-        cite: mz.Widget.HTMLAttributes;
-        code: mz.Widget.HTMLAttributes;
-        col: mz.Widget.HTMLAttributes;
-        colgroup: mz.Widget.HTMLAttributes;
-        data: mz.Widget.HTMLAttributes;
-        datalist: mz.Widget.HTMLAttributes;
-        dd: mz.Widget.HTMLAttributes;
-        del: mz.Widget.HTMLAttributes;
-        details: mz.Widget.HTMLAttributes;
-        dfn: mz.Widget.HTMLAttributes;
-        dialog: mz.Widget.HTMLAttributes;
-        div: mz.Widget.HTMLAttributes;
-        dl: mz.Widget.HTMLAttributes;
-        dt: mz.Widget.HTMLAttributes;
-        em: mz.Widget.HTMLAttributes;
-        embed: mz.Widget.HTMLAttributes;
-        fieldset: mz.Widget.HTMLAttributes;
-        figcaption: mz.Widget.HTMLAttributes;
-        figure: mz.Widget.HTMLAttributes;
-        footer: mz.Widget.HTMLAttributes;
-        form: mz.Widget.HTMLAttributes;
-        h1: mz.Widget.HTMLAttributes;
-        h2: mz.Widget.HTMLAttributes;
-        h3: mz.Widget.HTMLAttributes;
-        h4: mz.Widget.HTMLAttributes;
-        h5: mz.Widget.HTMLAttributes;
-        h6: mz.Widget.HTMLAttributes;
-        head: mz.Widget.HTMLAttributes;
-        header: mz.Widget.HTMLAttributes;
-        hr: mz.Widget.HTMLAttributes;
-        html: mz.Widget.HTMLAttributes;
-        i: mz.Widget.HTMLAttributes;
-        iframe: mz.Widget.HTMLAttributes;
-        img: mz.Widget.HTMLAttributes;
-        input: mz.Widget.HTMLAttributes;
-        ins: mz.Widget.HTMLAttributes;
-        kbd: mz.Widget.HTMLAttributes;
-        keygen: mz.Widget.HTMLAttributes;
-        label: mz.Widget.HTMLAttributes;
-        legend: mz.Widget.HTMLAttributes;
-        li: mz.Widget.HTMLAttributes;
-        link: mz.Widget.HTMLAttributes;
-        main: mz.Widget.HTMLAttributes;
-        map: mz.Widget.HTMLAttributes;
-        mark: mz.Widget.HTMLAttributes;
-        menu: mz.Widget.HTMLAttributes;
-        menuitem: mz.Widget.HTMLAttributes;
-        meta: mz.Widget.HTMLAttributes;
-        meter: mz.Widget.HTMLAttributes;
-        nav: mz.Widget.HTMLAttributes;
-        noscript: mz.Widget.HTMLAttributes;
-        object: mz.Widget.HTMLAttributes;
-        ol: mz.Widget.HTMLAttributes;
-        optgroup: mz.Widget.HTMLAttributes;
-        option: mz.Widget.HTMLAttributes;
-        output: mz.Widget.HTMLAttributes;
-        p: mz.Widget.HTMLAttributes;
-        param: mz.Widget.HTMLAttributes;
-        picture: mz.Widget.HTMLAttributes;
-        pre: mz.Widget.HTMLAttributes;
-        progress: mz.Widget.HTMLAttributes;
-        q: mz.Widget.HTMLAttributes;
-        rp: mz.Widget.HTMLAttributes;
-        rt: mz.Widget.HTMLAttributes;
-        ruby: mz.Widget.HTMLAttributes;
-        s: mz.Widget.HTMLAttributes;
-        samp: mz.Widget.HTMLAttributes;
-        script: mz.Widget.HTMLAttributes;
-        section: mz.Widget.HTMLAttributes;
-        select: mz.Widget.HTMLAttributes;
-        small: mz.Widget.HTMLAttributes;
-        source: mz.Widget.HTMLAttributes;
-        span: mz.Widget.HTMLAttributes;
-        strong: mz.Widget.HTMLAttributes;
-        style: mz.Widget.HTMLAttributes;
-        sub: mz.Widget.HTMLAttributes;
-        summary: mz.Widget.HTMLAttributes;
-        sup: mz.Widget.HTMLAttributes;
-        table: mz.Widget.HTMLAttributes;
-        tbody: mz.Widget.HTMLAttributes;
-        td: mz.Widget.HTMLAttributes;
-        textarea: mz.Widget.HTMLAttributes;
-        tfoot: mz.Widget.HTMLAttributes;
-        th: mz.Widget.HTMLAttributes;
-        thead: mz.Widget.HTMLAttributes;
-        time: mz.Widget.HTMLAttributes;
-        title: mz.Widget.HTMLAttributes;
-        tr: mz.Widget.HTMLAttributes;
-        track: mz.Widget.HTMLAttributes;
-        u: mz.Widget.HTMLAttributes;
-        ul: mz.Widget.HTMLAttributes;
-        "var": mz.Widget.HTMLAttributes;
-        video: mz.Widget.HTMLAttributes;
-        wbr: mz.Widget.HTMLAttributes;
-    }
-}
-declare type WidgetsType = mz.Widget | string | mz.widgets.TextNode;
-declare type WidgetCtor = typeof mz.Widget;
-interface T {
-    props: any;
-}
-declare namespace mz.vdom {
-    function createElement(type: string | WidgetCtor, props?: any, ...children: WidgetsType[]): mz.Widget;
-    var __spread: typeof copy;
-}
-declare namespace mz {
-    /**
-     * Hyperscript for JSX or TSX
-     */
-    function h(componentName: string, attr?: Dictionary<any>, ...children: any[]): Widget;
 }
 declare module mz.widgets {
 }
