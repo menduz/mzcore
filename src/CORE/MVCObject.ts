@@ -168,15 +168,11 @@ namespace mz.MVCObject {
                 let list: TModelValidator[] = target[MVCOBJECT_VALIDATOR_SYMBOL][propertyKey] = target[MVCOBJECT_VALIDATOR_SYMBOL][propertyKey] || [];
                 target[MVCOBJECT_VALIDATOR_SYMBOL][propertyKey] = list.concat(props.validators);
 
-                Object.defineProperty(target, propertyKey.toString(), {
-                    get: function() {
-                        return this.data[propertyKey];
-                    },
-                    set: function(value) {
-                        this.set(propertyKey, value);
-                    },
-                    enumerable: true
-                });
+                if(props.deep){
+                    proxyDeep(target, propertyKey);
+                } else {
+                    proxy(target, propertyKey);
+                }
             }
         }
     }
