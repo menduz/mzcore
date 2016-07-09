@@ -713,15 +713,18 @@ module mz {
         protected appendChildrens() {
             this.children.forEach((element: any) => {
                 if (element && typeof element == "object") {
-                    if ('rootNode' in element && element.rootNode instanceof Node)
-                        this.contentFragment.appendChild(element.rootNode);
-                    else if ('DOM' in element && element.DOM)
-                        element.DOM.appendTo(this.contentFragment);
-                    else if ('node' in element && element.node)
-                        this.contentFragment.appendChild(element.node);
-                    else if (element instanceof Node)
+                    if (element instanceof Node) {
+                        mz.dom.adapter.remove(element);
                         this.contentFragment.appendChild(element);
-                    else if ((<any>mz)._debug)
+                    } else if ('rootNode' in element && element.rootNode instanceof Node) {
+                        mz.dom.adapter.remove(element.rootNode);
+                        this.contentFragment.appendChild(element.rootNode);
+                    } else if ('DOM' in element && element.DOM)
+                        element.DOM.appendTo(this.contentFragment);
+                    else if ('node' in element && element.node) {
+                        mz.dom.adapter.remove(element.node);
+                        this.contentFragment.appendChild(element.node);
+                    } else  if ((<any>mz)._debug)
                         console.warn("Trying to add unknown child ", element, " to Widget!", this);
                 } else if (element && typeof element == "string" && element.length > 0) {
                     this.contentFragment.appendChild(document.createTextNode(element));
