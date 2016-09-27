@@ -22,7 +22,7 @@ Then I thought: can I keep the basic HTML layout, and attach a simple controller
 
 # Getting started
 
-You have to know few things to get started
+You have to know few things to get started:
 * **There is Views and Widgets** Widgets use Views to draw themselves
 * **Views** are XML or HTML
 * **Widgets** are Typescripts classes (controllers on MVC pattern)
